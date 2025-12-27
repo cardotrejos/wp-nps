@@ -21,20 +21,12 @@ export const queryClient = new QueryClient({
 });
 
 export const link = new RPCLink({
-  url: `${env.NEXT_PUBLIC_SERVER_URL}/rpc`,
+  url: `${env.VITE_SERVER_URL}/rpc`,
   fetch(url, options) {
     return fetch(url, {
       ...options,
       credentials: "include",
     });
-  },
-  headers: async () => {
-    if (typeof window !== "undefined") {
-      return {};
-    }
-
-    const { headers } = await import("next/headers");
-    return Object.fromEntries(await headers());
   },
 });
 

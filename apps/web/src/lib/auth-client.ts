@@ -2,5 +2,5 @@ import { env } from "@wp-nps/env/web";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  baseURL: env.NEXT_PUBLIC_SERVER_URL,
+  baseURL: env.VITE_SERVER_URL,
 });

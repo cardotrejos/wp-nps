@@ -1,11 +1,11 @@
 # wp-nps
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Elysia, ORPC, and more.
+This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, Elysia, ORPC, and more.
 
 ## Features
 
 - **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
+- **TanStack Router** - File-based routing with full type safety
 - **TailwindCSS** - Utility-first CSS for rapid UI development
 - **shadcn/ui** - Reusable UI components
 - **Elysia** - Type-safe, high-performance framework
@@ -57,7 +57,7 @@ The API is running at [http://localhost:3000](http://localhost:3000).
 ```
 wp-nps/
 ├── apps/
-│   ├── web/         # Frontend application (Next.js)
+│   ├── web/         # Frontend application (React + TanStack Router)
 │   └── server/      # Backend API (Elysia, ORPC)
 ├── packages/
 │   ├── api/         # API layer / business logic

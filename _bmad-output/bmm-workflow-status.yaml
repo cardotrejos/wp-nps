@@ -51,16 +51,17 @@ workflow_status:
   # PHASE 1: Planning
   phase_1_planning:
     prd:
-      status: required
+      status: "_bmad-output/planning-artifacts/prd.md"
       agent: pm
       command: "/bmad:bmm:workflows:create-prd"
       output: "Product Requirements Document"
+      completed: "2025-12-26"
     create-ux-design:
-      status: conditional
-      condition: "if_has_ui"
+      status: "_bmad-output/planning-artifacts/ux-design-specification.md"
       agent: ux-designer
       command: "/bmad:bmm:workflows:create-ux-design"
-      note: "FlowPulse has dashboard UI - recommended"
+      note: "FlowPulse has dashboard UI - completed"
+      completed: "2025-12-26"
 
   # PHASE 2: Solutioning
   phase_2_solutioning:

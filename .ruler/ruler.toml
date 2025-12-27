@@ -2,7 +2,7 @@
 # See https://okigu.com/ruler for documentation.
 
 # Default agents to run when --agents is not specified
-default_agents = ["claude", "codex", "cursor", "windsurf", "gemini-cli"]
+default_agents = ["claude", "codex", "cursor", "windsurf", "gemini-cli", "opencode"]
 
 # --- Global MCP Server Configuration ---
 [mcp]
@@ -30,9 +30,6 @@ args = ["shadcn@latest", "mcp"]
 url = "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
 
 
-[mcp_servers.next-devtools]
-command = "npx"
-args = ["-y", "next-devtools-mcp@latest"]
 
 # --- Global .gitignore Configuration ---
 [gitignore]

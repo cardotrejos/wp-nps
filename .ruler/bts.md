@@ -6,7 +6,7 @@ This is a wp-nps project created with Better-T-Stack CLI.
 
 This is a monorepo with the following structure:
 
-- **`apps/web/`** - Frontend application (Next.js)
+- **`apps/web/`** - Frontend application (React with TanStack Router)
 
 - **`apps/server/`** - Backend server (Elysia)
 
