@@ -1,0 +1,273 @@
+# Development Guide - FlowPulse
+
+## Prerequisites
+
+- **Node.js**: v20+ (for tooling)
+- **Bun**: v1.0+ (for server runtime)
+- **PostgreSQL**: v14+ (database)
+- **pnpm**: v8+ (recommended) or npm
+
+## Quick Start
+
+```bash
+# Clone repository
+git clone <repo-url>
+cd wp-nps
+
+# Install dependencies
+pnpm install
+# or
+npm install
+
+# Setup environment
+cp .env.example .env
+# Edit .env with your database URL and secrets
+
+# Push database schema
+pnpm db:push
+
+# Start development servers
+pnpm dev
+```
+
+## Environment Variables
+
+Create `.env` file in project root:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/flowpulse
+
+# Server
+CORS_ORIGIN=http://localhost:5173
+
+# Client (apps/web)
+VITE_SERVER_URL=http://localhost:3000
+```
+
+## Development Workflow
+
+### Starting Development
+
+```bash
+# Run all apps in parallel
+pnpm dev
+
+# This starts:
+# - apps/web on http://localhost:5173 (Vite)
+# - apps/server on http://localhost:3000 (Bun)
+```
+
+### Individual Apps
+
+```bash
+# Web only
+cd apps/web && pnpm dev
+
+# Server only
+cd apps/server && pnpm dev
+```
+
+### Type Checking
+
+```bash
+# Check all packages
+pnpm check-types
+
+# Individual package
+cd apps/web && pnpm check-types
+```
+
+## Database Operations
+
+All database commands are in `packages/db`:
+
+```bash
+# Push schema to database (no migration)
+pnpm db:push
+
+# Generate migration
+pnpm db:generate
+
+# Run migrations
+pnpm db:migrate
+
+# Open Drizzle Studio (GUI)
+pnpm db:studio
+```
+
+## Building for Production
+
+```bash
+# Build all packages
+pnpm build
+
+# Build outputs:
+# - apps/web/dist/    (static files)
+# - apps/server/dist/ (compiled server)
+```
+
+### Server Compilation
+
+```bash
+cd apps/server
+
+# Compile to single binary
+pnpm compile
+# Creates: ./server (native binary)
+```
+
+## Project Structure Navigation
+
+| What you want | Where to look |
+|---------------|---------------|
+| Add API endpoint | `packages/api/src/routers/index.ts` |
+| Add database table | `packages/db/src/schema/` |
+| Add UI component | `apps/web/src/components/` |
+| Add page route | `apps/web/src/routes/` |
+| Modify auth config | `packages/auth/src/index.ts` |
+
+## Common Tasks
+
+### Adding an API Endpoint
+
+1. Define procedure in `packages/api/src/routers/index.ts`:
+
+```typescript
+import { z } from "zod";
+
+export const appRouter = {
+  // Existing routes...
+
+  newEndpoint: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .handler(({ input }) => {
+      return { greeting: `Hello, ${input.name}!` };
+    }),
+};
+```
+
+2. Use in frontend:
+
+```typescript
+const greeting = useQuery(
+  orpc.newEndpoint.queryOptions({ name: "World" })
+);
+```
+
+### Adding a Database Table
+
+1. Create schema in `packages/db/src/schema/`:
+
+```typescript
+import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+
+export const myTable = pgTable("my_table", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+```
+
+2. Export from `packages/db/src/schema/index.ts`
+3. Run `pnpm db:push` or generate migration
+
+### Adding a Page
+
+1. Create route file in `apps/web/src/routes/`:
+
+```typescript
+// my-page.tsx
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/my-page")({
+  component: MyPageComponent,
+});
+
+function MyPageComponent() {
+  return <div>My Page</div>;
+}
+```
+
+2. Routes are auto-discovered by TanStack Router
+
+### Adding a Protected Route
+
+```typescript
+import { redirect, createFileRoute } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
+
+export const Route = createFileRoute("/protected")({
+  beforeLoad: async () => {
+    const session = await authClient.getSession();
+    if (!session.data) {
+      redirect({ to: "/login", throw: true });
+    }
+    return { session };
+  },
+  component: ProtectedComponent,
+});
+```
+
+## Code Style
+
+- **Linting**: OXLint
+- **Formatting**: OXFmt
+- **TypeScript**: Strict mode
+
+```bash
+# Run linter + formatter
+pnpm check
+```
+
+## Troubleshooting
+
+### Port Already in Use
+
+```bash
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+
+# Kill process on port 5173
+lsof -ti:5173 | xargs kill -9
+```
+
+### Database Connection Issues
+
+1. Verify PostgreSQL is running
+2. Check `DATABASE_URL` in `.env`
+3. Ensure database exists
+
+### Type Errors After Schema Change
+
+```bash
+# Regenerate types
+pnpm db:generate
+pnpm check-types
+```
+
+### CORS Errors
+
+Verify `CORS_ORIGIN` in server `.env` matches your frontend URL.
+
+## IDE Setup
+
+### VS Code Extensions
+
+- TypeScript Vue Plugin (Volar) - for .tsx files
+- Tailwind CSS IntelliSense
+- ESLint (or OXC extension)
+- Prettier (optional, OXFmt used)
+
+### Recommended Settings
+
+```json
+{
+  "editor.formatOnSave": true,
+  "typescript.preferences.importModuleSpecifier": "relative"
+}
+```
+
+---
+
+*Generated by BMAD Document Project Workflow*

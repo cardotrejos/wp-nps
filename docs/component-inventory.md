@@ -1,0 +1,218 @@
+# Component Inventory - FlowPulse Web
+
+## Overview
+
+FlowPulse uses **React 19** with **shadcn/ui** components built on **Radix UI** primitives. Styling is done with **TailwindCSS 4**.
+
+## Component Categories
+
+### Layout Components
+
+#### Header (`components/header.tsx`)
+Main navigation header with links and user controls.
+
+```typescript
+export default function Header() // No props
+```
+
+**Features**:
+- Navigation links (Home, Dashboard)
+- Mode toggle (dark/light theme)
+- User menu
+
+---
+
+### Theme Components
+
+#### ThemeProvider (`components/theme-provider.tsx`)
+Next-themes based theme provider for dark/light mode.
+
+```typescript
+<ThemeProvider
+  attribute="class"
+  defaultTheme="dark"
+  disableTransitionOnChange
+  storageKey="vite-ui-theme"
+/>
+```
+
+#### ModeToggle (`components/mode-toggle.tsx`)
+Button to toggle between light/dark/system themes.
+
+---
+
+### Authentication Components
+
+#### SignInForm (`components/sign-in-form.tsx`)
+Email/password sign-in form.
+
+```typescript
+interface Props {
+  onSwitchToSignUp: () => void;
+}
+```
+
+#### SignUpForm (`components/sign-up-form.tsx`)
+User registration form.
+
+```typescript
+interface Props {
+  onSwitchToSignIn: () => void;
+}
+```
+
+#### UserMenu (`components/user-menu.tsx`)
+Dropdown menu showing authenticated user options and sign-out.
+
+---
+
+### Utility Components
+
+#### Loader (`components/loader.tsx`)
+Loading spinner/indicator for pending states.
+
+---
+
+### UI Library (shadcn/ui)
+
+All located in `components/ui/`:
+
+| Component | File | Description |
+|-----------|------|-------------|
+| Button | `button.tsx` | Primary action button with variants |
+| Card | `card.tsx` | Container component with header/content/footer |
+| Checkbox | `checkbox.tsx` | Checkbox input with label support |
+| DropdownMenu | `dropdown-menu.tsx` | Radix-based dropdown menu |
+| Input | `input.tsx` | Text input field |
+| Label | `label.tsx` | Form label component |
+| Skeleton | `skeleton.tsx` | Loading placeholder |
+| Sonner | `sonner.tsx` | Toast notification integration |
+
+### Button Variants
+
+```typescript
+const buttonVariants = cva(
+  "inline-flex items-center justify-center...",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground...",
+        destructive: "bg-destructive text-destructive-foreground...",
+        outline: "border border-input...",
+        secondary: "bg-secondary text-secondary-foreground...",
+        ghost: "hover:bg-accent...",
+        link: "text-primary underline-offset-4...",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
+      },
+    },
+  }
+)
+```
+
+## Design System
+
+### Color Tokens
+
+Using TailwindCSS with CSS variables:
+
+| Token | Usage |
+|-------|-------|
+| `primary` | Primary actions, links |
+| `secondary` | Secondary actions |
+| `muted` | Subtle text, backgrounds |
+| `accent` | Hover states |
+| `destructive` | Delete/danger actions |
+
+### Typography
+
+- Font: System default (via Tailwind)
+- Monospace: Used for code/ASCII art
+
+### Spacing
+
+Standard Tailwind spacing scale (0.25rem increments).
+
+## Component Patterns
+
+### Form Pattern
+```tsx
+<form onSubmit={handleSubmit}>
+  <Label htmlFor="email">Email</Label>
+  <Input id="email" type="email" />
+  <Button type="submit">Submit</Button>
+</form>
+```
+
+### Protected Route Pattern
+```tsx
+export const Route = createFileRoute("/dashboard")({
+  beforeLoad: async () => {
+    const session = await authClient.getSession();
+    if (!session.data) {
+      redirect({ to: "/login", throw: true });
+    }
+    return { session };
+  },
+});
+```
+
+### Data Fetching Pattern
+```tsx
+const healthCheck = useQuery(orpc.healthCheck.queryOptions());
+
+return (
+  <div>
+    {healthCheck.isLoading ? "Loading..." : healthCheck.data}
+  </div>
+);
+```
+
+## File Structure
+
+```
+apps/web/src/
+├── components/
+│   ├── ui/              # shadcn/ui primitives
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── checkbox.tsx
+│   │   ├── dropdown-menu.tsx
+│   │   ├── input.tsx
+│   │   ├── label.tsx
+│   │   ├── skeleton.tsx
+│   │   └── sonner.tsx
+│   ├── header.tsx       # Layout
+│   ├── loader.tsx       # Utility
+│   ├── mode-toggle.tsx  # Theme
+│   ├── theme-provider.tsx
+│   ├── sign-in-form.tsx # Auth
+│   ├── sign-up-form.tsx
+│   └── user-menu.tsx
+├── lib/
+│   ├── auth-client.ts   # Better Auth client
+│   └── utils.ts         # cn() utility
+└── routes/
+    ├── __root.tsx       # Root layout
+    ├── index.tsx        # Home page
+    ├── login.tsx        # Auth page
+    └── dashboard.tsx    # Protected page
+```
+
+## Dependencies
+
+- `@base-ui/react` - Base UI components
+- `shadcn` - Component CLI
+- `class-variance-authority` - Variant management
+- `clsx` / `tailwind-merge` - Class utilities
+- `lucide-react` - Icons
+- `sonner` - Toast notifications
+- `next-themes` - Theme management
+
+---
+
+*Generated by BMAD Document Project Workflow*

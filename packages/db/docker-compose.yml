@@ -1,0 +1,23 @@
+name: wp-nps
+
+services:
+  postgres:
+    image: postgres
+    container_name: wp-nps-postgres
+    environment:
+      POSTGRES_DB: wp-nps
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - wp-nps_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  wp-nps_postgres_data:

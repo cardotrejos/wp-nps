@@ -1,0 +1,29 @@
+{
+  "name": "@wp-nps/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@orpc/server": "catalog:",
+    "@orpc/client": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/zod": "catalog:",
+    "elysia": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:",
+    "@wp-nps/env": "workspace:*",
+    "@wp-nps/auth": "workspace:*",
+    "@wp-nps/db": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@wp-nps/config": "workspace:*"
+  }
+}

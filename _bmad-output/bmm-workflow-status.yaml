@@ -1,0 +1,107 @@
+# BMM Workflow Status - FlowPulse
+# Generated: 2025-12-26
+# Track: BMad Method (Brownfield)
+
+generated: "2025-12-26"
+project: "wp-nps"
+project_name: "FlowPulse"
+project_type: "WhatsApp NPS & Feedback Platform"
+selected_track: "method"
+field_type: "brownfield"
+workflow_path: "method-brownfield.yaml"
+
+# STATUS KEY:
+# - required/recommended/optional/conditional: Not started
+# - in_progress: Currently working on
+# - {file-path}: Completed (shows output location)
+# - skipped: Explicitly skipped by user
+
+workflow_status:
+  # PREREQUISITE - Analyze existing codebase
+  prerequisite:
+    document-project:
+      status: docs/index.md
+      agent: analyst
+      command: "/bmad:bmm:workflows:document-project"
+      purpose: "Understand existing codebase before planning"
+      note: "Run first for brownfield projects"
+
+  # PHASE 0: Discovery (Optional)
+  phase_0_discovery:
+    brainstorm:
+      status: "_bmad-output/analysis/brainstorming-session-2025-12-26.md"
+      agent: analyst
+      command: "/bmad:bmm:workflows:brainstorming"
+      selected: true
+      completed: "2025-12-26"
+    research:
+      status: "completed"
+      agent: analyst
+      command: "/bmad:bmm:workflows:research"
+      selected: true
+      completed: "2025-12-26"
+      outputs:
+        - file: "_bmad-output/planning-artifacts/research/technical-shopify-app-store-best-practices-research-2025-12-26.md"
+          topic: "Shopify App Store Best Practices"
+          type: "technical"
+        - file: "_bmad-output/planning-artifacts/research/market-nps-csat-saas-competitive-landscape-research-2025-12-26.md"
+          topic: "NPS/CSAT SaaS Competitive Landscape"
+          type: "market"
+
+  # PHASE 1: Planning
+  phase_1_planning:
+    prd:
+      status: required
+      agent: pm
+      command: "/bmad:bmm:workflows:create-prd"
+      output: "Product Requirements Document"
+    create-ux-design:
+      status: conditional
+      condition: "if_has_ui"
+      agent: ux-designer
+      command: "/bmad:bmm:workflows:create-ux-design"
+      note: "FlowPulse has dashboard UI - recommended"
+
+  # PHASE 2: Solutioning
+  phase_2_solutioning:
+    create-architecture:
+      status: recommended
+      agent: architect
+      command: "/bmad:bmm:workflows:create-architecture"
+      output: "Integration architecture for FlowPulse"
+      note: "HIGHLY RECOMMENDED for brownfield - distills context into focused solution"
+    create-epics-and-stories:
+      status: required
+      agent: pm
+      command: "/bmad:bmm:workflows:create-epics-and-stories"
+      note: "Break PRD into implementable epics/stories"
+    test-design:
+      status: recommended
+      agent: tea
+      command: "/bmad:bmm:workflows:testarch-test-design"
+      output: "System-level testability review"
+    implementation-readiness:
+      status: required
+      agent: architect
+      command: "/bmad:bmm:workflows:check-implementation-readiness"
+      note: "Gate check - validates PRD + Architecture + Epics"
+
+  # PHASE 3: Implementation
+  phase_3_implementation:
+    sprint-planning:
+      status: required
+      agent: sm
+      command: "/bmad:bmm:workflows:sprint-planning"
+      note: "Creates sprint plan with prioritized stories"
+
+# User context captured during init
+user_context:
+  description: "WhatsApp-native customer feedback platform leveraging Kapso WhatsApp Flows for NPS, CSAT, CES surveys. SaaS targeting SMBs ($49-149/mo)."
+  existing_codebase: true
+  monorepo_structure:
+    - "apps/web - React + Vite frontend"
+    - "apps/server - Backend server"
+    - "packages/api - oRPC API"
+    - "packages/db - Drizzle database"
+    - "packages/auth - Authentication"
+  reference_doc: "flowpulse.md"
