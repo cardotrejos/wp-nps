@@ -44,10 +44,10 @@ development_status:
   epic-1: in-progress
   1-0-foundation-schema-rls-test-infrastructure: done
   1-1-user-registration-with-organization-creation: done
-  1-2-whatsapp-connection-via-qr-code: ready-for-dev
-  1-3-whatsapp-connection-verification: ready-for-dev
+  1-2-whatsapp-connection-via-qr-code: done
+  1-3-whatsapp-connection-verification: in-progress
   1-4-onboarding-progress-persistence: ready-for-dev
-  1-5-first-survey-template-selection: backlog
+  1-5-first-survey-template-selection: ready-for-dev
   epic-1-retrospective: optional
 
   # Epic 2: Survey Creation & Management (7 stories)

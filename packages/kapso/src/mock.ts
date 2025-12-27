@@ -1,7 +1,10 @@
 import type {
+  ConnectionStatus,
   IKapsoClient,
   KapsoErrorCode,
   SendSurveyParams,
+  SetupLinkConfig,
+  SetupLinkResult,
   SurveyDeliveryResult,
 } from "./types";
 import { KapsoError } from "./types";
@@ -10,7 +13,7 @@ import { KapsoError } from "./types";
  * Kapso Mock Client
  *
  * A configurable mock implementation of the Kapso API client for testing.
- * Allows tests to configure specific responses for different delivery IDs.
+ * Allows tests to configure specific responses for different scenarios.
  *
  * CRITICAL: NEVER use real Kapso API calls in tests. Always use KapsoMockClient.
  *
@@ -20,9 +23,9 @@ import { KapsoError } from "./types";
  * client.mockSuccess('delivery-123');
  * client.mockFailure('delivery-456', 'rate_limited');
  *
- * // In your test
- * const result = await client.sendSurvey({ ... });
- * expect(client.getCallHistory()).toHaveLength(1);
+ * // For WhatsApp setup link testing
+ * const setupLink = await client.createSetupLink('customer-123', config);
+ * client.mockSetupLinkCompleted(setupLink.id, '+5511999999999');
  * ```
  */
 
@@ -43,6 +46,11 @@ export class KapsoMockClient implements IKapsoClient {
   private defaultResponse: MockResponse;
   private callHistory: SurveyCall[] = [];
   private deliveryCounter = 0;
+
+  // Setup Link state
+  private setupLinks: Map<string, SetupLinkResult> = new Map();
+  private connectionStatuses: Map<string, ConnectionStatus> = new Map();
+  private setupLinkCounter = 0;
 
   constructor() {
     // Default response is success
@@ -213,6 +221,9 @@ export class KapsoMockClient implements IKapsoClient {
     this.responses.clear();
     this.callHistory = [];
     this.deliveryCounter = 0;
+    this.setupLinks.clear();
+    this.connectionStatuses.clear();
+    this.setupLinkCounter = 0;
   }
 
   /**
@@ -236,5 +247,129 @@ export class KapsoMockClient implements IKapsoClient {
    */
   getCallsForOrg(orgId: string): SurveyCall[] {
     return this.callHistory.filter((call) => call.params.orgId === orgId);
+  }
+
+  // ==========================================
+  // Setup Link / WhatsApp Connection Methods
+  // ==========================================
+
+  /**
+   * Create a setup link for WhatsApp onboarding (IKapsoClient method)
+   * Returns a URL that redirects user to Kapso's hosted onboarding page
+   */
+  async createSetupLink(
+    customerId: string,
+    _config: SetupLinkConfig,
+  ): Promise<SetupLinkResult> {
+    const setupLinkId = `mock-setup-link-${customerId}-${++this.setupLinkCounter}`;
+    const result: SetupLinkResult = {
+      id: setupLinkId,
+      url: `https://mock-kapso.test/setup/${setupLinkId}`,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+      status: "pending",
+    };
+
+    this.setupLinks.set(setupLinkId, result);
+    this.connectionStatuses.set(setupLinkId, { status: "pending" });
+
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    return result;
+  }
+
+  /**
+   * Get setup link status (IKapsoClient method)
+   */
+  async getSetupLinkStatus(setupLinkId: string): Promise<SetupLinkResult> {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    const setupLink = this.setupLinks.get(setupLinkId);
+    if (!setupLink) {
+      throw new KapsoError("unknown_error", "Setup link not found");
+    }
+
+    return setupLink;
+  }
+
+  /**
+   * Mock a setup link being completed (simulates user completing Facebook login)
+   */
+  mockSetupLinkCompleted(
+    setupLinkId: string,
+    phoneNumberId: string,
+    displayPhoneNumber: string,
+  ): void {
+    const existing = this.setupLinks.get(setupLinkId);
+    if (existing) {
+      this.setupLinks.set(setupLinkId, {
+        ...existing,
+        status: "completed",
+      });
+    }
+    this.connectionStatuses.set(setupLinkId, {
+      status: "connected",
+      phoneNumberId,
+      displayPhoneNumber,
+      connectedAt: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Mock a setup link expiration
+   */
+  mockSetupLinkExpired(setupLinkId: string): void {
+    const existing = this.setupLinks.get(setupLinkId);
+    if (existing) {
+      this.setupLinks.set(setupLinkId, {
+        ...existing,
+        status: "expired",
+      });
+    }
+    this.connectionStatuses.set(setupLinkId, {
+      status: "expired",
+      errorCode: "link_expired",
+    });
+  }
+
+  /**
+   * Mock a setup link failure
+   */
+  mockSetupLinkFailed(setupLinkId: string, errorCode: string): void {
+    const existing = this.setupLinks.get(setupLinkId);
+    if (existing) {
+      this.setupLinks.set(setupLinkId, {
+        ...existing,
+        status: "pending", // Link stays pending, user can retry
+      });
+    }
+    this.connectionStatuses.set(setupLinkId, {
+      status: "failed",
+      errorCode,
+    });
+  }
+
+  /**
+   * Get connection status for a setup link
+   */
+  getConnectionStatus(setupLinkId: string): ConnectionStatus | undefined {
+    return this.connectionStatuses.get(setupLinkId);
+  }
+
+  /**
+   * Get a specific setup link result by ID
+   */
+  getSetupLinkById(setupLinkId: string): SetupLinkResult | undefined {
+    return this.setupLinks.get(setupLinkId);
+  }
+
+  /**
+   * Clear all setup link state
+   */
+  clearSetupLinkState(): void {
+    this.setupLinks.clear();
+    this.connectionStatuses.clear();
+    this.setupLinkCounter = 0;
   }
 }

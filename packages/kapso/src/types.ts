@@ -11,7 +11,7 @@ export const sendSurveyParamsSchema = z.object({
   surveyId: z.string(),
   orgId: z.string(),
   message: z.string(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type SendSurveyParams = z.infer<typeof sendSurveyParamsSchema>;
@@ -33,6 +33,8 @@ export const kapsoErrorCodeSchema = z.enum([
   "connection_lost",
   "message_failed",
   "unknown_error",
+  "qr_expired",
+  "qr_generation_failed",
 ]);
 
 export type KapsoErrorCode = z.infer<typeof kapsoErrorCodeSchema>;
@@ -59,14 +61,64 @@ export const kapsoWebhookPayloadSchema = z.object({
   ]),
   deliveryId: z.string(),
   timestamp: z.string().datetime(),
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
 });
 
 export type KapsoWebhookPayload = z.infer<typeof kapsoWebhookPayloadSchema>;
 
+// Setup Link configuration for WhatsApp onboarding
+export const setupLinkConfigSchema = z.object({
+  successRedirectUrl: z.string().url(),
+  failureRedirectUrl: z.string().url(),
+  allowedConnectionTypes: z
+    .array(z.enum(["coexistence", "dedicated"]))
+    .optional(),
+  provisionPhoneNumber: z.boolean().optional(),
+  phoneNumberCountryIsos: z.array(z.string()).optional(),
+  themeConfig: z
+    .object({
+      primaryColor: z.string().optional(),
+      backgroundColor: z.string().optional(),
+      textColor: z.string().optional(),
+    })
+    .optional(),
+});
+
+export type SetupLinkConfig = z.infer<typeof setupLinkConfigSchema>;
+
+// Setup Link result from Kapso
+export const setupLinkResultSchema = z.object({
+  id: z.string(),
+  url: z.string().url(),
+  expiresAt: z.string().datetime(),
+  status: z.enum(["pending", "completed", "expired", "revoked"]),
+});
+
+export type SetupLinkResult = z.infer<typeof setupLinkResultSchema>;
+
+// Connection status from Kapso (via webhook or redirect params)
+export const connectionStatusSchema = z.object({
+  status: z.enum(["pending", "connected", "failed", "expired"]),
+  phoneNumberId: z.string().optional(),
+  displayPhoneNumber: z.string().optional(),
+  businessAccountId: z.string().optional(),
+  connectedAt: z.string().datetime().optional(),
+  errorCode: z.string().optional(),
+});
+
+export type ConnectionStatus = z.infer<typeof connectionStatusSchema>;
+
 // Client interface for Kapso operations
 export interface IKapsoClient {
+  // Survey operations
   sendSurvey(params: SendSurveyParams): Promise<SurveyDeliveryResult>;
   getDeliveryStatus(deliveryId: string): Promise<SurveyDeliveryResult>;
   verifyWebhook(signature: string, payload: string): boolean;
+
+  // Setup Link / WhatsApp connection operations
+  createSetupLink(
+    customerId: string,
+    config: SetupLinkConfig,
+  ): Promise<SetupLinkResult>;
+  getSetupLinkStatus(setupLinkId: string): Promise<SetupLinkResult>;
 }

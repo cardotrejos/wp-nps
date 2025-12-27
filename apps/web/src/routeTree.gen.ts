@@ -13,6 +13,8 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OnboardingWhatsappSuccessRouteImport } from './routes/onboarding.whatsapp.success'
+import { Route as OnboardingWhatsappFailedRouteImport } from './routes/onboarding.whatsapp.failed'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -34,39 +36,76 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingWhatsappSuccessRoute =
+  OnboardingWhatsappSuccessRouteImport.update({
+    id: '/whatsapp/success',
+    path: '/whatsapp/success',
+    getParentRoute: () => OnboardingRoute,
+  } as any)
+const OnboardingWhatsappFailedRoute =
+  OnboardingWhatsappFailedRouteImport.update({
+    id: '/whatsapp/failed',
+    path: '/whatsapp/failed',
+    getParentRoute: () => OnboardingRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
+  '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
+  '/onboarding/whatsapp/success': typeof OnboardingWhatsappSuccessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
+  '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
+  '/onboarding/whatsapp/success': typeof OnboardingWhatsappSuccessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
+  '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
+  '/onboarding/whatsapp/success': typeof OnboardingWhatsappSuccessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/onboarding'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/onboarding'
+    | '/onboarding/whatsapp/failed'
+    | '/onboarding/whatsapp/success'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/onboarding'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/onboarding'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/onboarding'
+    | '/onboarding/whatsapp/failed'
+    | '/onboarding/whatsapp/success'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/onboarding'
+    | '/onboarding/whatsapp/failed'
+    | '/onboarding/whatsapp/success'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
-  OnboardingRoute: typeof OnboardingRoute
+  OnboardingRoute: typeof OnboardingRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -99,14 +138,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/whatsapp/success': {
+      id: '/onboarding/whatsapp/success'
+      path: '/whatsapp/success'
+      fullPath: '/onboarding/whatsapp/success'
+      preLoaderRoute: typeof OnboardingWhatsappSuccessRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/whatsapp/failed': {
+      id: '/onboarding/whatsapp/failed'
+      path: '/whatsapp/failed'
+      fullPath: '/onboarding/whatsapp/failed'
+      preLoaderRoute: typeof OnboardingWhatsappFailedRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
   }
 }
+
+interface OnboardingRouteChildren {
+  OnboardingWhatsappFailedRoute: typeof OnboardingWhatsappFailedRoute
+  OnboardingWhatsappSuccessRoute: typeof OnboardingWhatsappSuccessRoute
+}
+
+const OnboardingRouteChildren: OnboardingRouteChildren = {
+  OnboardingWhatsappFailedRoute: OnboardingWhatsappFailedRoute,
+  OnboardingWhatsappSuccessRoute: OnboardingWhatsappSuccessRoute,
+}
+
+const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
+  OnboardingRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
-  OnboardingRoute: OnboardingRoute,
+  OnboardingRoute: OnboardingRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
