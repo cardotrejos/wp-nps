@@ -11,14 +11,16 @@
   },
   "scripts": {},
   "devDependencies": {
-    "typescript": "^5",
-    "@wp-nps/config": "workspace:*"
+    "@types/bcryptjs": "^3.0.0",
+    "@wp-nps/config": "workspace:*",
+    "typescript": "^5"
   },
   "dependencies": {
+    "@wp-nps/db": "workspace:*",
+    "@wp-nps/env": "workspace:*",
+    "bcryptjs": "^3.0.3",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@wp-nps/env": "workspace:*",
-    "@wp-nps/db": "workspace:*"
+    "zod": "catalog:"
   }
 }
