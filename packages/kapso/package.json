@@ -1,0 +1,22 @@
+{
+  "name": "@wp-nps/kapso",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./mock": {
+      "default": "./src/mock.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "zod": "catalog:",
+    "@wp-nps/env": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@wp-nps/config": "workspace:*"
+  }
+}

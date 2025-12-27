@@ -10,10 +10,11 @@
     }
   },
   "scripts": {
-    "db:push": "drizzle-kit push",
+    "db:push": "drizzle-kit push && bun run db:rls",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
+    "db:rls": "bun run src/migrations/run-rls.ts",
     "db:start": "docker compose up -d",
     "db:watch": "docker compose up",
     "db:stop": "docker compose stop",
