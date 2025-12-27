@@ -66,26 +66,30 @@ workflow_status:
   # PHASE 2: Solutioning
   phase_2_solutioning:
     create-architecture:
-      status: recommended
+      status: "_bmad-output/planning-artifacts/architecture.md"
       agent: architect
       command: "/bmad:bmm:workflows:create-architecture"
       output: "Integration architecture for FlowPulse"
-      note: "HIGHLY RECOMMENDED for brownfield - distills context into focused solution"
+      completed: "2025-12-26"
+      note: "Complete architecture with 6 decisions, 12+ patterns, 80+ files defined"
     create-epics-and-stories:
-      status: required
+      status: "_bmad-output/planning-artifacts/epics.md"
       agent: pm
       command: "/bmad:bmm:workflows:create-epics-and-stories"
       note: "Break PRD into implementable epics/stories"
+      completed: "2025-12-26"
     test-design:
       status: recommended
       agent: tea
       command: "/bmad:bmm:workflows:testarch-test-design"
       output: "System-level testability review"
     implementation-readiness:
-      status: required
+      status: "_bmad-output/planning-artifacts/implementation-readiness-report-2025-12-26.md"
       agent: architect
       command: "/bmad:bmm:workflows:check-implementation-readiness"
       note: "Gate check - validates PRD + Architecture + Epics"
+      completed: "2025-12-26"
+      result: "READY - 0 critical issues, 0 major issues, 2 minor concerns (acceptable)"
 
   # PHASE 3: Implementation
   phase_3_implementation:

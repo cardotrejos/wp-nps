@@ -1,0 +1,141 @@
+# generated: 2025-12-26
+# project: FlowPulse
+# project_key: wp-nps
+# tracking_system: file-system
+# story_location: stories
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2025-12-26
+project: FlowPulse
+project_key: wp-nps
+tracking_system: file-system
+story_location: stories
+
+development_status:
+  # Epic 1: Foundation & Onboarding (6 stories)
+  epic-1: in-progress
+  1-0-foundation-schema-rls-test-infrastructure: ready-for-dev
+  1-1-user-registration-with-organization-creation: backlog
+  1-2-whatsapp-connection-via-qr-code: backlog
+  1-3-whatsapp-connection-verification: backlog
+  1-4-onboarding-progress-persistence: backlog
+  1-5-first-survey-template-selection: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Survey Creation & Management (7 stories)
+  epic-2: backlog
+  2-1-survey-template-gallery: backlog
+  2-2-create-survey-from-template: backlog
+  2-3-edit-survey-question-text: backlog
+  2-4-preview-survey-in-whatsapp-format: backlog
+  2-5-test-survey-on-myself: backlog
+  2-6-activate-or-deactivate-survey: backlog
+  2-7-set-survey-trigger-type: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Survey Distribution, Response Collection & API (12 stories)
+  epic-3: backlog
+  3-0-kapso-integration-package: backlog
+  3-1-webhook-job-queue-infrastructure: backlog
+  3-2-api-key-generation: backlog
+  3-3-survey-send-api-endpoint: backlog
+  3-3b-api-rate-limiting-middleware: backlog
+  3-4-survey-delivery-via-kapso: backlog
+  3-5-delivery-status-tracking: backlog
+  3-6-kapso-webhook-receiver: backlog
+  3-7-response-storage-and-processing: backlog
+  3-8-api-documentation: backlog
+  3-9-onboarding-reminder-emails: backlog
+  3-10-manual-survey-send-ui: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Analytics Dashboard (10 stories)
+  epic-4: backlog
+  4-1-dashboard-layout-with-bottom-navigation: backlog
+  4-2-nps-score-hero-metric: backlog
+  4-3-nps-trend-indicator: backlog
+  4-4-nps-category-breakdown: backlog
+  4-5-response-stream: backlog
+  4-6-response-timeline-chart: backlog
+  4-7-survey-metrics-summary: backlog
+  4-8-dashboard-data-polling: backlog
+  4-9-graceful-degradation-and-caching: backlog
+  4-10-first-nps-reveal-ceremony: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5a: Detractor Alerts (7 stories)
+  epic-5a: backlog
+  5a-1-detractor-detection-on-response-receipt: backlog
+  5a-2-whatsapp-alert-delivery-to-business-owner: backlog
+  5a-3-alert-threshold-configuration: backlog
+  5a-4-alert-banner-on-dashboard: backlog
+  5a-5-active-alerts-dashboard: backlog
+  5a-6-mark-alert-as-contacted: backlog
+  5a-7-escalation-reminder-after-24-hours: backlog
+  epic-5a-retrospective: optional
+
+  # Epic 5b: Customer Response & Crisis Resolution (8 stories)
+  epic-5b: backlog
+  5b-1-customer-context-card: backlog
+  5b-2-customer-lifetime-value-display: backlog
+  5b-3-quick-response-templates: backlog
+  5b-4-customize-quick-response-before-sending: backlog
+  5b-5-trigger-follow-up-survey: backlog
+  5b-6-crisis-averted-detection: backlog
+  5b-7-celebration-card-display: backlog
+  5b-8-share-crisis-averted-card: backlog
+  epic-5b-retrospective: optional
+
+  # Epic 6: Billing & Subscription Management (9 stories)
+  epic-6: backlog
+  6-1-current-usage-display: backlog
+  6-2-progressive-usage-warnings: backlog
+  6-3-plan-limit-enforcement: backlog
+  6-4-available-plans-display: backlog
+  6-5-plan-upgrade-flow: backlog
+  6-6-stripe-webhook-processing: backlog
+  6-7-billing-history-and-invoices: backlog
+  6-8-payment-method-management: backlog
+  6-9-plan-downgrade-handling: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Settings, Configuration & Compliance (9 stories)
+  epic-7: backlog
+  7-1-organization-profile-management: backlog
+  7-2-whatsapp-connection-details: backlog
+  7-3-whatsapp-reconnection-flow: backlog
+  7-4-notification-preferences: backlog
+  7-5-gdpr-data-export-request: backlog
+  7-6-gdpr-account-deletion-request: backlog
+  7-7-onboarding-funnel-event-tracking: backlog
+  7-8-time-to-first-response-metric: backlog
+  7-9-session-and-security-settings: backlog
+  epic-7-retrospective: optional
