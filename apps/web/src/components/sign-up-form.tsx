@@ -13,7 +13,7 @@ import { Label } from "./ui/label";
 
 // AC #3, #4, #5: Validation schema with email, password (min 8 chars), and organization name
 const signUpSchema = z.object({
-  email: z.email({ message: "Please enter a valid email" }),
+  email: z.string().email({ message: "Please enter a valid email" }),
   password: z.string().min(8, "Password must be at least 8 characters"),
   organizationName: z.string().min(1, "Organization name is required"),
 });
@@ -69,7 +69,8 @@ export default function SignUpForm({
         if (orgError) {
           // Retry logic: If slug collision (likely usage), append random suffix and try once more
           // This prevents "orphaned user" state where user exists but org creation failed due to common name
-          const randomSuffix = Math.random().toString(36).substring(2, 6);
+          // Using 8 chars for better uniqueness: timestamp (4 chars base36) + random (4 chars)
+          const randomSuffix = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 6)}`;
           slug = `${slug}-${randomSuffix}`;
 
           const retry = await authClient.organization.create({

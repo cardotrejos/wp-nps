@@ -72,11 +72,10 @@ test.describe("User Registration Flow", () => {
     await page.getByLabel(/email/i).fill("test@example.com");
     await page.getByLabel(/password/i).fill("validpassword123");
 
-    // Leave organization name empty (if the field exists)
+    // Organization field must be visible and required
     const orgField = page.getByLabel(/organization/i);
-    if (await orgField.isVisible()) {
-      await orgField.fill("");
-    }
+    await expect(orgField).toBeVisible();
+    await orgField.fill("");
 
     // Try to submit
     await page.getByRole("button", { name: /sign up|create account/i }).click();
@@ -94,11 +93,10 @@ test.describe("User Registration Flow", () => {
     await page.getByLabel(/email/i).fill(testEmail);
     await page.getByLabel(/password/i).fill("SecurePass123!");
 
-    // Fill organization name if visible
+    // Organization field is required - must be visible and filled
     const orgField = page.getByLabel(/organization/i);
-    if (await orgField.isVisible()) {
-      await orgField.fill("Test Company E2E");
-    }
+    await expect(orgField).toBeVisible();
+    await orgField.fill("Test Company E2E");
 
     // Submit the form
     await page.getByRole("button", { name: /sign up|create account/i }).click();
@@ -124,10 +122,10 @@ test.describe("User Registration Flow", () => {
     await page.getByLabel(/email/i).fill("existing@example.com");
     await page.getByLabel(/password/i).fill("SecurePass123!");
 
+    // Organization field is required
     const orgField = page.getByLabel(/organization/i);
-    if (await orgField.isVisible()) {
-      await orgField.fill("Test Company");
-    }
+    await expect(orgField).toBeVisible();
+    await orgField.fill("Test Company");
 
     await page.getByRole("button", { name: /sign up|create account/i }).click();
 
@@ -155,10 +153,10 @@ test.describe("User Registration Flow", () => {
     await page.getByLabel(/email/i).fill(testEmail);
     await page.getByLabel(/password/i).fill("SecurePass123!");
 
+    // Organization field is required
     const orgField = page.getByLabel(/organization/i);
-    if (await orgField.isVisible()) {
-      await orgField.fill("Test Company");
-    }
+    await expect(orgField).toBeVisible();
+    await orgField.fill("Test Company");
 
     // Click submit and immediately check for loading state
     const submitButton = page.getByRole("button", {
@@ -178,10 +176,10 @@ test.describe("User Registration Flow", () => {
     await page.getByLabel(/email/i).fill(testEmail);
     await page.getByLabel(/password/i).fill("short");
 
+    // Organization field is required
     const orgField = page.getByLabel(/organization/i);
-    if (await orgField.isVisible()) {
-      await orgField.fill("Test Org");
-    }
+    await expect(orgField).toBeVisible();
+    await orgField.fill("Test Org");
 
     // Submit with invalid password
     await page.getByRole("button", { name: /sign up|create account/i }).click();
@@ -191,35 +189,31 @@ test.describe("User Registration Flow", () => {
     expect(emailValue).toBe(testEmail);
 
     // Organization should still have its value
-    if (await orgField.isVisible()) {
-      const orgValue = await orgField.inputValue();
-      expect(orgValue).toBe("Test Org");
-    }
+    const orgValue = await orgField.inputValue();
+    expect(orgValue).toBe("Test Org");
   });
 
   test("should have accessible form labels", async ({ page }) => {
     // Verify all form fields have proper labels
     const emailField = page.getByLabel(/email/i);
     const passwordField = page.getByLabel(/password/i);
+    const orgField = page.getByLabel(/organization/i);
 
     expect(await emailField.getAttribute("id")).toBeTruthy();
     expect(await passwordField.getAttribute("id")).toBeTruthy();
 
-    // Organization field if present
-    const orgField = page.getByLabel(/organization/i);
-    if (await orgField.isVisible()) {
-      expect(await orgField.getAttribute("id")).toBeTruthy();
-    }
+    // Organization field is required and must have proper accessibility
+    await expect(orgField).toBeVisible();
+    expect(await orgField.getAttribute("id")).toBeTruthy();
   });
 
   test("should show helper text for organization field", async ({ page }) => {
+    // Organization field is required
+    const orgField = page.getByLabel(/organization/i);
+    await expect(orgField).toBeVisible();
+
     // Check for helper text under organization field
     const helperText = page.getByText(/company or project name/i);
-
-    // Only check if org field exists
-    const orgField = page.getByLabel(/organization/i);
-    if (await orgField.isVisible()) {
-      await expect(helperText).toBeVisible();
-    }
+    await expect(helperText).toBeVisible();
   });
 });

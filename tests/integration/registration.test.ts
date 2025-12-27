@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@wp-nps/db";
 import { user, session, account, member, organization } from "@wp-nps/db/schema/auth";
 import bcrypt from "bcryptjs";
