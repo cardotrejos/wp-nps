@@ -30,7 +30,7 @@ const apiHandler = new OpenAPIHandler(appRouter, {
   ],
 });
 
-new Elysia()
+const app = new Elysia()
   .use(
     cors({
       origin: env.CORS_ORIGIN,
@@ -41,6 +41,10 @@ new Elysia()
   )
   .all("/api/auth/*", async (context) => {
     const { request, status } = context;
+    // Handle CORS preflight requests
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204 });
+    }
     if (["POST", "GET"].includes(request.method)) {
       return auth.handler(request);
     }
@@ -60,7 +64,14 @@ new Elysia()
     });
     return response ?? new Response("Not Found", { status: 404 });
   })
-  .get("/", () => "OK")
-  .listen(3000, () => {
+  .get("/", () => "OK");
+
+// Local development only
+if (env.NODE_ENV !== "production") {
+  app.listen(3000, () => {
     console.log("Server is running on http://localhost:3000");
   });
+}
+
+// Export for Vercel serverless
+export default app;
