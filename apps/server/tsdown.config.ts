@@ -5,5 +5,11 @@ export default defineConfig({
   format: "esm",
   outDir: "./dist",
   clean: true,
-  noExternal: [/@wp-nps\/.*/],
+  noExternal: [
+    /@wp-nps\/.*/,
+    "@wp-nps/api",
+    "@wp-nps/auth",
+    "@wp-nps/db",
+    "@wp-nps/env",
+  ],
 });
