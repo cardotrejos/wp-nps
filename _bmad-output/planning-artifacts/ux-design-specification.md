@@ -39,6 +39,7 @@ FlowPulse is a WhatsApp-native customer feedback platform that delivers NPS, CSA
 ### Target Users
 
 **Primary Persona: Derek (E-commerce Owner)**
+
 - 400+ orders/month via WhatsApp Business catalog
 - LATAM-based, WhatsApp-native for transactions
 - Core pain: Low-information returns and silent dissatisfaction
@@ -46,6 +47,7 @@ FlowPulse is a WhatsApp-native customer feedback platform that delivers NPS, CSA
 - Tech comfort: Moderate - needs simple setup, checks phone constantly
 
 **Secondary Personas:**
+
 - Maria (Restaurant): Multi-location, needs real-time feedback before Yelp reviews
 - Priya (Fitness): Subscription business, needs pattern detection for churn prevention
 
@@ -73,6 +75,7 @@ FlowPulse is a WhatsApp-native customer feedback platform that delivers NPS, CSA
 **Core User Action:** Quick status check - "What's happening with my customers?"
 
 Derek's primary interaction is a 30-second mobile check between orders:
+
 - Current NPS score (up/down indicator)
 - Any detractor alerts needing attention
 - Response count and trends
@@ -82,11 +85,11 @@ This is NOT a power-user analytics dashboard. It's a pulse check.
 
 ### Platform Strategy
 
-| Platform | Priority | Experience |
-|----------|----------|------------|
-| Mobile Web | Primary | Thumb-friendly, glanceable dashboard |
-| Desktop Web | Secondary | Setup, survey builder, deep analytics |
-| WhatsApp Notifications | Critical | Detractor alerts sent to owner's WhatsApp |
+| Platform               | Priority  | Experience                                |
+| ---------------------- | --------- | ----------------------------------------- |
+| Mobile Web             | Primary   | Thumb-friendly, glanceable dashboard      |
+| Desktop Web            | Secondary | Setup, survey builder, deep analytics     |
+| WhatsApp Notifications | Critical  | Detractor alerts sent to owner's WhatsApp |
 
 **Design Decision:** Mobile-first. Every feature must work perfectly on a phone screen.
 
@@ -118,27 +121,28 @@ This is NOT a power-user analytics dashboard. It's a pulse check.
 
 ### Primary Emotional Goals
 
-| Emotion | Why It Matters | Design Implication |
-|---------|----------------|-------------------|
-| **In Control** | Replace guessing with knowing | Single-number NPS front and center |
-| **Confident** | "I'm making data-driven decisions" | Show proof, celebrate wins |
-| **Ahead of Problems** | Catch issues before they become reviews | Alerts framed as opportunities |
-| **Validated** | "My instincts were right" | Trend charts showing improvement |
+| Emotion               | Why It Matters                          | Design Implication                 |
+| --------------------- | --------------------------------------- | ---------------------------------- |
+| **In Control**        | Replace guessing with knowing           | Single-number NPS front and center |
+| **Confident**         | "I'm making data-driven decisions"      | Show proof, celebrate wins         |
+| **Ahead of Problems** | Catch issues before they become reviews | Alerts framed as opportunities     |
+| **Validated**         | "My instincts were right"               | Trend charts showing improvement   |
 
 ### Emotional Journey Mapping
 
-| Moment | Before FlowPulse | With FlowPulse |
-|--------|------------------|----------------|
-| Problem awareness | "I'm guessing" → Frustration | "I have data" → Confidence |
-| First survey sent | N/A | "That was easy" → Pleasant surprise |
-| First response | N/A | "It works!" → Delight |
-| Detractor alert | Bad review → Panic | Early warning → Confident action |
-| Daily check | Uncertainty, anxiety | Quick reassurance → In control |
-| NPS trending up | N/A | Pride, validation → "I'm winning" |
+| Moment            | Before FlowPulse             | With FlowPulse                      |
+| ----------------- | ---------------------------- | ----------------------------------- |
+| Problem awareness | "I'm guessing" → Frustration | "I have data" → Confidence          |
+| First survey sent | N/A                          | "That was easy" → Pleasant surprise |
+| First response    | N/A                          | "It works!" → Delight               |
+| Detractor alert   | Bad review → Panic           | Early warning → Confident action    |
+| Daily check       | Uncertainty, anxiety         | Quick reassurance → In control      |
+| NPS trending up   | N/A                          | Pride, validation → "I'm winning"   |
 
 ### Micro-Emotions
 
 **Create:**
+
 - Confidence over confusion
 - Quick accomplishment over overwhelm
 - Pleasant surprise over anxiety
@@ -146,6 +150,7 @@ This is NOT a power-user analytics dashboard. It's a pulse check.
 - Pride in results over guilt about not checking
 
 **Avoid:**
+
 - Analysis paralysis (too many metrics)
 - Alert fatigue (too many notifications)
 - Setup frustration (too many steps)
@@ -165,12 +170,12 @@ This is NOT a power-user analytics dashboard. It's a pulse check.
 
 ### Inspiring Products Analysis
 
-| Product | Key Patterns Extracted |
-|---------|----------------------|
-| **WhatsApp** | Green = success, glanceable lists, bottom nav, notification priority |
-| **Shopify Mobile** | Big number hero, trend arrows, activity feed, 2-tap actions |
-| **Stripe Dashboard** | Sparklines, period selector, color coding, card layout |
-| **Delighted** | Radical simplicity, template-first, clean typography, response stream |
+| Product              | Key Patterns Extracted                                                |
+| -------------------- | --------------------------------------------------------------------- |
+| **WhatsApp**         | Green = success, glanceable lists, bottom nav, notification priority  |
+| **Shopify Mobile**   | Big number hero, trend arrows, activity feed, 2-tap actions           |
+| **Stripe Dashboard** | Sparklines, period selector, color coding, card layout                |
+| **Delighted**        | Radical simplicity, template-first, clean typography, response stream |
 
 ### Transferable UX Patterns
 
@@ -221,11 +226,13 @@ Built on Radix UI primitives with full customization control. Perfect balance of
 ### Customization Strategy
 
 **Color Palette Extension:**
+
 - Promoter green: `#25D366` (WhatsApp green)
 - Passive amber: `#F59E0B`
 - Detractor red: `#EF4444`
 
 **New Components Needed:**
+
 - NPSScoreCard (hero metric)
 - TrendIndicator (sparkline + arrow)
 - ResponseItem (list component)
@@ -233,6 +240,7 @@ Built on Radix UI primitives with full customization control. Perfect balance of
 - BottomNav (mobile navigation)
 
 **Typography:**
+
 - System fonts (already configured)
 - Large, bold numbers for metrics
 - Comfortable reading size for mobile
@@ -248,6 +256,7 @@ Built on Radix UI primitives with full customization control. Perfect balance of
 FlowPulse's defining experience is the 30-second pulse check: Derek opens the app, sees his NPS score, knows if there's trouble, and takes action - all before his next order comes in.
 
 **Famous examples for comparison:**
+
 - Tinder: "Swipe to match"
 - Uber: "Tap to ride"
 - **FlowPulse: "Glance and act"**
@@ -259,23 +268,27 @@ FlowPulse's defining experience is the 30-second pulse check: Derek opens the ap
 ### User Mental Model
 
 **How Derek Currently Solves This:**
+
 - Guesses based on return rates and gut feeling
 - Learns about problems 3 days late via bad reviews
 - Sends occasional email surveys that get 5-10% response
 - Burns money on recipe changes based on assumptions
 
 **Mental Model He Brings:**
+
 - Expects WhatsApp notifications (lives in WhatsApp)
 - Expects instant - not a dashboard to log into
 - Expects actionable - tell me what to do, not just data
 - Expects mobile - checks between fulfilling orders
 
 **Where Confusion Happens:**
+
 - Complex analytics → wants one number
 - Email-style thinking → expects WhatsApp-native
 - Manual workflows → expects automation
 
 **What Makes Existing Solutions Terrible:**
+
 - Low response rates (email = silence)
 - Data arrives too late (review already posted)
 - Too complex to check quickly (deep analytics)
@@ -286,21 +299,23 @@ FlowPulse's defining experience is the 30-second pulse check: Derek opens the ap
 
 **When users say "this just works":**
 
-| Criteria | Target |
-|----------|--------|
-| Time to pulse check | < 10 seconds |
-| Time to understand status | < 3 seconds (one number, one color) |
-| Time from detractor to alert | < 5 minutes |
-| Response rate vs email | 5x (proof visible in dashboard) |
-| First survey response | < 10 minutes of setup |
+| Criteria                     | Target                              |
+| ---------------------------- | ----------------------------------- |
+| Time to pulse check          | < 10 seconds                        |
+| Time to understand status    | < 3 seconds (one number, one color) |
+| Time from detractor to alert | < 5 minutes                         |
+| Response rate vs email       | 5x (proof visible in dashboard)     |
+| First survey response        | < 10 minutes of setup               |
 
 **Success Indicators:**
+
 1. **Glanceable** - NPS score visible without scrolling
 2. **Actionable** - Detractor alerts go to WhatsApp, not email
 3. **Rewarding** - "Crisis averted" moments celebrated
 4. **Trustworthy** - Clear source attribution, real numbers
 
 **Users feel smart when:**
+
 - They catch a problem before it becomes a review
 - They see NPS trending up after acting on feedback
 - They compare their 5x response rate to email industry norms
@@ -311,13 +326,13 @@ FlowPulse's defining experience is the 30-second pulse check: Derek opens the ap
 
 **Pattern Evaluation:**
 
-| Aspect | Pattern Type | Notes |
-|--------|--------------|-------|
-| NPS Score Display | Established | Hero number like Shopify, Stripe |
-| WhatsApp Alerts | Novel | Alerts TO WhatsApp (not email) |
-| Survey Delivery | Novel | WhatsApp Flows, not email links |
-| Response Stream | Established | Activity feed like Delighted |
-| Mobile Dashboard | Established | Bottom nav, card layout |
+| Aspect            | Pattern Type | Notes                            |
+| ----------------- | ------------ | -------------------------------- |
+| NPS Score Display | Established  | Hero number like Shopify, Stripe |
+| WhatsApp Alerts   | Novel        | Alerts TO WhatsApp (not email)   |
+| Survey Delivery   | Novel        | WhatsApp Flows, not email links  |
+| Response Stream   | Established  | Activity feed like Delighted     |
+| Mobile Dashboard  | Established  | Bottom nav, card layout          |
 
 **Novel Elements - Teaching Strategy:**
 
@@ -330,6 +345,7 @@ FlowPulse's defining experience is the 30-second pulse check: Derek opens the ap
    - Teaching: Show comparative response rates immediately
 
 **Established Patterns to Adopt:**
+
 - Hero metric with trend arrow (Shopify)
 - Card-based modular dashboard (Stripe)
 - Activity feed chronology (Delighted)
@@ -342,23 +358,27 @@ FlowPulse's defining experience is the 30-second pulse check: Derek opens the ap
 **Core Flow: The 30-Second Pulse Check**
 
 **1. Initiation**
+
 - Trigger: Push notification or scheduled habit
 - Entry point: Tap notification → opens to dashboard
 - Alternative: App icon → dashboard loads in < 2 seconds
 
 **2. Interaction**
+
 - **See:** Hero NPS score (big number, color-coded)
 - **Scan:** Trend arrow (up/down), response count
 - **Check:** Alert badges for pending detractors
 - **Act:** Tap alert → see customer context → one-tap response options
 
 **3. Feedback**
+
 - Score changes are celebrated (confetti on milestone)
 - Trend direction is always visible
 - "5x better" comparison shown on first use
 - Response count proves the system is working
 
 **4. Completion**
+
 - Green state = "all good, check back later"
 - Red state = "X detractors need attention" with clear CTA
 - Close app confident, not anxious
@@ -381,13 +401,14 @@ Dashboard → "Crisis Averted" badge + shareable card
 
 **The Hero's Journey:** Derek is the hero. FlowPulse is his magical sword.
 
-| Act | Moment | Feeling | Visual Treatment |
-|-----|--------|---------|------------------|
-| **Awakening** | First NPS reveal | Revelatory | Pause, zoom, moment of truth |
-| **Battle** | Daily pulse check | Confident | Clear hierarchy, white space |
-| **Victory** | Customer saved | Triumphant | Journey visualization, shareable |
+| Act           | Moment            | Feeling    | Visual Treatment                 |
+| ------------- | ----------------- | ---------- | -------------------------------- |
+| **Awakening** | First NPS reveal  | Revelatory | Pause, zoom, moment of truth     |
+| **Battle**    | Daily pulse check | Confident  | Clear hierarchy, white space     |
+| **Victory**   | Customer saved    | Triumphant | Journey visualization, shareable |
 
 **Core Principles:**
+
 - White space = calm (60:40 content-to-space ratio)
 - One focal point per view (never three things competing)
 - Heroic framing (opportunities, not problems)
@@ -398,12 +419,12 @@ Dashboard → "Crisis Averted" badge + shareable card
 
 **Semantic → Tailwind Mapping:**
 
-| Semantic Token | Light Mode | Dark Mode | CSS Variable |
-|----------------|------------|-----------|--------------|
-| `promoter` | `green-500` | `green-400` | `--nps-promoter` |
-| `passive` | `amber-500` | `amber-400` | `--nps-passive` |
-| `detractor` | `red-500` | `red-400` | `--nps-detractor` |
-| `celebration` | `yellow-400` | `yellow-300` | `--nps-celebration` |
+| Semantic Token | Light Mode   | Dark Mode    | CSS Variable        |
+| -------------- | ------------ | ------------ | ------------------- |
+| `promoter`     | `green-500`  | `green-400`  | `--nps-promoter`    |
+| `passive`      | `amber-500`  | `amber-400`  | `--nps-passive`     |
+| `detractor`    | `red-500`    | `red-400`    | `--nps-detractor`   |
+| `celebration`  | `yellow-400` | `yellow-300` | `--nps-celebration` |
 
 **CSS Variables (globals.css):**
 
@@ -434,52 +455,53 @@ Dashboard → "Crisis Averted" badge + shareable card
 
 ### Responsive Breakpoints
 
-| Breakpoint | Width | Columns | Layout |
-|------------|-------|---------|--------|
-| Mobile | < 640px | 1 | Single column, 16px margins |
-| Tablet | 640-1024px | 2 | 24px gap |
-| Desktop | > 1024px | 3 | 24px gap, max-width 1200px |
+| Breakpoint | Width      | Columns | Layout                      |
+| ---------- | ---------- | ------- | --------------------------- |
+| Mobile     | < 640px    | 1       | Single column, 16px margins |
+| Tablet     | 640-1024px | 2       | 24px gap                    |
+| Desktop    | > 1024px   | 3       | 24px gap, max-width 1200px  |
 
 ---
 
 ### Animation Timing Scale
 
-| Token | Duration | Easing | Usage |
-|-------|----------|--------|-------|
-| `instant` | 0ms | - | State changes |
-| `fast` | 150ms | ease-out | Micro-interactions, hovers |
-| `normal` | 300ms | ease-in-out | Standard transitions |
-| `slow` | 500ms | ease-out | Emphasis, reveals |
-| `pulse` | 2000ms | ease-in-out | Loading skeletons |
+| Token     | Duration | Easing      | Usage                      |
+| --------- | -------- | ----------- | -------------------------- |
+| `instant` | 0ms      | -           | State changes              |
+| `fast`    | 150ms    | ease-out    | Micro-interactions, hovers |
+| `normal`  | 300ms    | ease-in-out | Standard transitions       |
+| `slow`    | 500ms    | ease-out    | Emphasis, reveals          |
+| `pulse`   | 2000ms   | ease-in-out | Loading skeletons          |
 
 ---
 
 ### Typography Scale
 
-| Token | Tailwind | Size | Weight | Usage |
-|-------|----------|------|--------|-------|
-| `hero` | `text-6xl` | 60px | 700 | NPS score |
-| `h1` | `text-2xl` | 24px | 600 | Page titles |
-| `h2` | `text-xl` | 20px | 600 | Section headers |
-| `h3` | `text-base` | 16px | 600 | Card titles |
-| `body` | `text-sm` | 14px | 400 | Default text |
-| `small` | `text-xs` | 12px | 400 | Captions |
+| Token   | Tailwind    | Size | Weight | Usage           |
+| ------- | ----------- | ---- | ------ | --------------- |
+| `hero`  | `text-6xl`  | 60px | 700    | NPS score       |
+| `h1`    | `text-2xl`  | 24px | 600    | Page titles     |
+| `h2`    | `text-xl`   | 20px | 600    | Section headers |
+| `h3`    | `text-base` | 16px | 600    | Card titles     |
+| `body`  | `text-sm`   | 14px | 400    | Default text    |
+| `small` | `text-xs`   | 12px | 400    | Captions        |
 
 ---
 
 ### Spacing Scale
 
-| Token | Tailwind | Value | Usage |
-|-------|----------|-------|-------|
-| `xs` | `p-1` | 4px | Icon gaps |
-| `sm` | `p-2` | 8px | Inline spacing |
-| `md` | `p-4` | 16px | Default gaps |
-| `lg` | `p-5` | 20px | Card padding |
-| `xl` | `p-6` | 24px | Section breaks |
-| `2xl` | `p-8` | 32px | Page spacing |
-| `hero` | `py-12` | 48px | Hero section |
+| Token  | Tailwind | Value | Usage          |
+| ------ | -------- | ----- | -------------- |
+| `xs`   | `p-1`    | 4px   | Icon gaps      |
+| `sm`   | `p-2`    | 8px   | Inline spacing |
+| `md`   | `p-4`    | 16px  | Default gaps   |
+| `lg`   | `p-5`    | 20px  | Card padding   |
+| `xl`   | `p-6`    | 24px  | Section breaks |
+| `2xl`  | `p-8`    | 32px  | Page spacing   |
+| `hero` | `py-12`  | 48px  | Hero section   |
 
 **White Space Rules:**
+
 - Content-to-whitespace: 60:40
 - Max card content fill: 70%
 - Hero section padding: 48px minimum
@@ -492,20 +514,21 @@ Dashboard → "Crisis Averted" badge + shareable card
 
 **Normal State:**
 
-| Priority | Element | Size |
-|----------|---------|------|
-| 1 | NPS Score | 100% (dominant) |
-| 2 | Trend | 40% |
-| 3 | Badges | Tertiary |
+| Priority | Element   | Size            |
+| -------- | --------- | --------------- |
+| 1        | NPS Score | 100% (dominant) |
+| 2        | Trend     | 40%             |
+| 3        | Badges    | Tertiary        |
 
 **Alert State (inverted):**
 
-| Priority | Element | Treatment |
-|----------|---------|-----------|
-| 1 | Alert Banner | Dominant, top |
-| 2 | NPS Score | Secondary, smaller |
+| Priority | Element      | Treatment          |
+| -------- | ------------ | ------------------ |
+| 1        | Alert Banner | Dominant, top      |
+| 2        | NPS Score    | Secondary, smaller |
 
 **State Management:**
+
 ```tsx
 const displayMode = hasAlerts ? 'alert' : 'normal';
 ```
@@ -536,6 +559,7 @@ const displayMode = hasAlerts ? 'alert' : 'normal';
 **Calculation:** `percentage = (score + 100) / 200 * 100`
 
 **Acceptance Criteria:**
+
 - [ ] Displays NPS score -100 to +100
 - [ ] Ring color changes at thresholds (0, 30, 50, 70)
 - [ ] Shows score label below number
@@ -545,21 +569,21 @@ const displayMode = hasAlerts ? 'alert' : 'normal';
 
 **Score Labels:**
 
-| Range | Label |
-|-------|-------|
-| 70-100 | "Excellent" |
-| 50-69 | "Great" |
-| 30-49 | "Good" |
-| 0-29 | "Room to grow" |
-| < 0 | "Opportunity ahead" |
+| Range  | Label               |
+| ------ | ------------------- |
+| 70-100 | "Excellent"         |
+| 50-69  | "Great"             |
+| 30-49  | "Good"              |
+| 0-29   | "Room to grow"      |
+| < 0    | "Opportunity ahead" |
 
 **MVP vs Future:**
 
-| Feature | MVP | Future |
-|---------|-----|--------|
-| Ring style | Static SVG | Animated fill |
-| Score display | Instant | Count-up (slow) |
-| Glow | None | Soft glow 50+ |
+| Feature       | MVP        | Future          |
+| ------------- | ---------- | --------------- |
+| Ring style    | Static SVG | Animated fill   |
+| Score display | Instant    | Count-up (slow) |
+| Glow          | None       | Soft glow 50+   |
 
 ---
 
@@ -568,6 +592,7 @@ const displayMode = hasAlerts ? 'alert' : 'normal';
 **Purpose:** Individual feedback item display.
 
 **Acceptance Criteria:**
+
 - [ ] Shows customer avatar (40px circle)
 - [ ] Shows customer name
 - [ ] Shows feedback text (truncate 2 lines)
@@ -576,6 +601,7 @@ const displayMode = hasAlerts ? 'alert' : 'normal';
 - [ ] Tap → detail view
 
 **Structure:**
+
 ```
 ┌─────────────────────────────┐
 │ [Avatar] Customer Name  [72]│
@@ -586,9 +612,9 @@ const displayMode = hasAlerts ? 'alert' : 'normal';
 
 **MVP vs Future:**
 
-| Feature | MVP | Future |
-|---------|-----|--------|
-| Style | Standard card | Chat bubble |
+| Feature | MVP           | Future      |
+| ------- | ------------- | ----------- |
+| Style   | Standard card | Chat bubble |
 
 ---
 
@@ -597,6 +623,7 @@ const displayMode = hasAlerts ? 'alert' : 'normal';
 **Purpose:** Detractor notification with heroic framing.
 
 **Acceptance Criteria:**
+
 - [ ] Appears when unresolved detractors exist
 - [ ] Shows count: "2 customers need you"
 - [ ] Uses heroic copy (not "detractor detected")
@@ -610,6 +637,7 @@ const displayMode = hasAlerts ? 'alert' : 'normal';
 **Purpose:** Shareable achievement for customer saves.
 
 **Shows Journey:**
+
 ```
 🎉 Customer Saved
 
@@ -624,12 +652,12 @@ Carlos is a promoter (9)
 
 **Shareable Image Spec:**
 
-| Attribute | Value |
-|-----------|-------|
-| Dimensions | 1200×630px |
-| Background | Green gradient |
-| Rendering | Server-side (`@vercel/og`) |
-| Branding | Small logo, bottom corner |
+| Attribute  | Value                      |
+| ---------- | -------------------------- |
+| Dimensions | 1200×630px                 |
+| Background | Green gradient             |
+| Rendering  | Server-side (`@vercel/og`) |
+| Branding   | Small logo, bottom corner  |
 
 **Triggers:** NPS milestone (50, 70, 80), first 100 responses, 10 saves
 
@@ -637,21 +665,21 @@ Carlos is a promoter (9)
 
 #### Loading Skeletons
 
-| Element | Treatment |
-|---------|-----------|
-| NPSScoreRing | Gray ring, "--" text |
-| ResponseCard | Card outline, pulse |
-| All | `bg-muted animate-pulse` (2s) |
+| Element      | Treatment                     |
+| ------------ | ----------------------------- |
+| NPSScoreRing | Gray ring, "--" text          |
+| ResponseCard | Card outline, pulse           |
+| All          | `bg-muted animate-pulse` (2s) |
 
 ---
 
 #### Empty States
 
-| Context | Copy | CTA |
-|---------|------|-----|
+| Context      | Copy                        | CTA           |
+| ------------ | --------------------------- | ------------- |
 | No responses | "Your first insights await" | "Send survey" |
-| No alerts | "All clear! 🎉" | - |
-| No surveys | "Pick a template" | Template grid |
+| No alerts    | "All clear! 🎉"             | -             |
+| No surveys   | "Pick a template"           | Template grid |
 
 ---
 
@@ -659,19 +687,20 @@ Carlos is a promoter (9)
 
 **Heroic Framing:**
 
-| ❌ Avoid | ✅ Use |
-|---------|--------|
+| ❌ Avoid             | ✅ Use               |
+| -------------------- | -------------------- |
 | "Detractor detected" | "Customer needs you" |
-| "Alert" | "Opportunity" |
-| "Crisis Averted" | "Customer saved" |
-| "Needs Work" | "Room to grow" |
-| "Problem" | "Chance to help" |
+| "Alert"              | "Opportunity"        |
+| "Crisis Averted"     | "Customer saved"     |
+| "Needs Work"         | "Room to grow"       |
+| "Problem"            | "Chance to help"     |
 
 ---
 
 ### First NPS Reveal (Onboarding)
 
 Special treatment for first-time experience:
+
 - 300ms pause before score appears
 - Scale animation: 0.95 → 1.0 (slow)
 - Label fades in after number
@@ -682,6 +711,7 @@ Special treatment for first-time experience:
 ### Value Proof Visuals
 
 **5x Comparison (HIGH priority):**
+
 ```
 WhatsApp  ████████████████████ 45%
 Email     ████                  9%
@@ -692,28 +722,28 @@ Email     ████                  9%
 
 ### Accessibility
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Contrast | WCAG AA (4.5:1) |
-| Color blindness | Score labels always visible |
-| Touch targets | 44px minimum |
-| Focus | 2px green ring |
-| Motion | Respect `prefers-reduced-motion` |
-| Screen reader | Full context announcements |
+| Requirement     | Implementation                   |
+| --------------- | -------------------------------- |
+| Contrast        | WCAG AA (4.5:1)                  |
+| Color blindness | Score labels always visible      |
+| Touch targets   | 44px minimum                     |
+| Focus           | 2px green ring                   |
+| Motion          | Respect `prefers-reduced-motion` |
+| Screen reader   | Full context announcements       |
 
 ---
 
 ### Story Point Estimates
 
-| Component | Points | Sprint |
-|-----------|--------|--------|
-| NPSScoreRing | 5 | 1 |
-| ResponseCard | 3 | 1 |
-| AlertBanner | 2 | 1 |
-| CelebrationCard | 5 | 2 |
-| Loading states | 2 | 2 |
-| Empty states | 2 | 2 |
-| **Total** | **19** | |
+| Component       | Points | Sprint |
+| --------------- | ------ | ------ |
+| NPSScoreRing    | 5      | 1      |
+| ResponseCard    | 3      | 1      |
+| AlertBanner     | 2      | 1      |
+| CelebrationCard | 5      | 2      |
+| Loading states  | 2      | 2      |
+| Empty states    | 2      | 2      |
+| **Total**       | **19** |        |
 
 ---
 
@@ -723,14 +753,14 @@ Email     ████                  9%
 
 Six distinct visual approaches were generated and evaluated:
 
-| # | Direction | Description | Glanceability | WhatsApp Feel | Calm |
-|---|-----------|-------------|---------------|---------------|------|
-| 1 | Hero Pulse | Massive Pulse Ring dominates | ★★★★★ | ★★ | ★★★★ |
-| 2 | WhatsApp Native | Chat bubbles, green header | ★★★ | ★★★★★ | ★★★ |
-| 3 | Data Dashboard | Sparklines, stats grid | ★★ | ★ | ★★ |
-| 4 | Mobile Native | Bottom tabs, card stacks | ★★★★ | ★★ | ★★★★ |
-| 5 | Card Modular | Notion-style blocks | ★★★ | ★ | ★★★ |
-| 6 | Minimal Clean | Massive score, zen-like | ★★★★★ | ★ | ★★★★★ |
+| #   | Direction       | Description                  | Glanceability | WhatsApp Feel | Calm  |
+| --- | --------------- | ---------------------------- | ------------- | ------------- | ----- |
+| 1   | Hero Pulse      | Massive Pulse Ring dominates | ★★★★★         | ★★            | ★★★★  |
+| 2   | WhatsApp Native | Chat bubbles, green header   | ★★★           | ★★★★★         | ★★★   |
+| 3   | Data Dashboard  | Sparklines, stats grid       | ★★            | ★             | ★★    |
+| 4   | Mobile Native   | Bottom tabs, card stacks     | ★★★★          | ★★            | ★★★★  |
+| 5   | Card Modular    | Notion-style blocks          | ★★★           | ★             | ★★★   |
+| 6   | Minimal Clean   | Massive score, zen-like      | ★★★★★         | ★             | ★★★★★ |
 
 **Interactive showcase:** `_bmad-output/planning-artifacts/ux-design-directions.html`
 
@@ -740,13 +770,13 @@ Six distinct visual approaches were generated and evaluated:
 
 Combining the strongest elements from multiple directions to serve Derek's "30-second pulse check" use case.
 
-| Section | Source | Rationale |
-|---------|--------|-----------|
-| **Hero (Pulse Ring)** | Direction 1 | Maximum glanceability - 3-second status |
-| **Alert Banner** | Direction 1 | Clear, heroic action prompts |
-| **Response Cards** | Direction 2 | WhatsApp chat bubble aesthetic |
-| **Response Background** | Direction 2 | Familiar beige (#ece5dd) |
-| **Navigation** | Direction 4 | Bottom tab bar, native app feel |
+| Section                 | Source      | Rationale                               |
+| ----------------------- | ----------- | --------------------------------------- |
+| **Hero (Pulse Ring)**   | Direction 1 | Maximum glanceability - 3-second status |
+| **Alert Banner**        | Direction 1 | Clear, heroic action prompts            |
+| **Response Cards**      | Direction 2 | WhatsApp chat bubble aesthetic          |
+| **Response Background** | Direction 2 | Familiar beige (#ece5dd)                |
+| **Navigation**          | Direction 4 | Bottom tab bar, native app feel         |
 
 **Visual Rhythm:**
 
@@ -782,11 +812,11 @@ Combining the strongest elements from multiple directions to serve Derek's "30-s
 
 **Elements Explicitly Rejected:**
 
-| Direction | Rejected Element | Reason |
-|-----------|------------------|--------|
-| 3 (Data) | Dense analytics | Too complex for Derek's quick check |
-| 5 (Modular) | Block system | Power-user aesthetic, not SMB |
-| 6 (Minimal) | Single CTA | Need visible quick actions |
+| Direction   | Rejected Element | Reason                              |
+| ----------- | ---------------- | ----------------------------------- |
+| 3 (Data)    | Dense analytics  | Too complex for Derek's quick check |
+| 5 (Modular) | Block system     | Power-user aesthetic, not SMB       |
+| 6 (Minimal) | Single CTA       | Need visible quick actions          |
 
 ---
 
@@ -794,14 +824,14 @@ Combining the strongest elements from multiple directions to serve Derek's "30-s
 
 **Component Assembly:**
 
-| Component | Style | Story Points |
-|-----------|-------|--------------|
-| NPSScoreRing | Direction 1 hero | 5 |
-| AlertBanner | Direction 1 | 2 |
-| ResponseCard | Direction 2 chat bubble | 3 (+1 for bubble styling) |
-| BottomNav | Direction 4 tabs | 1 |
-| ResponseSection | WhatsApp beige bg | 1 |
-| **Total** | | **12 points** |
+| Component       | Style                   | Story Points              |
+| --------------- | ----------------------- | ------------------------- |
+| NPSScoreRing    | Direction 1 hero        | 5                         |
+| AlertBanner     | Direction 1             | 2                         |
+| ResponseCard    | Direction 2 chat bubble | 3 (+1 for bubble styling) |
+| BottomNav       | Direction 4 tabs        | 1                         |
+| ResponseSection | WhatsApp beige bg       | 1                         |
+| **Total**       |                         | **12 points**             |
 
 **CSS Additions for Hybrid:**
 
@@ -819,12 +849,12 @@ Combining the strongest elements from multiple directions to serve Derek's "30-s
 
 **Background Strategy:**
 
-| Section | Background |
-|---------|------------|
-| Hero | White → Green gradient (healthy) or White (neutral) |
-| Alerts | Amber-50 or Red-50 (contextual) |
-| Responses | WhatsApp beige (#ece5dd) |
-| Bottom Nav | White with border-t |
+| Section    | Background                                          |
+| ---------- | --------------------------------------------------- |
+| Hero       | White → Green gradient (healthy) or White (neutral) |
+| Alerts     | Amber-50 or Red-50 (contextual)                     |
+| Responses  | WhatsApp beige (#ece5dd)                            |
+| Bottom Nav | White with border-t                                 |
 
 ---
 
@@ -880,23 +910,24 @@ flowchart TD
 
 **Key Screens:**
 
-| Screen | Time Budget | Primary CTA |
-|--------|-------------|-------------|
-| Welcome | 30s | "Connect WhatsApp" |
-| QR Scan | 60s | Device camera |
-| Template Pick | 60s | "Use this template" |
-| Test Flow | 2m | "Send test to me" |
-| Ready | 30s | "Go live" |
+| Screen        | Time Budget | Primary CTA         |
+| ------------- | ----------- | ------------------- |
+| Welcome       | 30s         | "Connect WhatsApp"  |
+| QR Scan       | 60s         | Device camera       |
+| Template Pick | 60s         | "Use this template" |
+| Test Flow     | 2m          | "Send test to me"   |
+| Ready         | 30s         | "Go live"           |
 
 **Error Branches:**
 
-| Error | Handling | Recovery |
-|-------|----------|----------|
-| QR timeout (60s) | "Having trouble? Try these steps..." | Manual pairing option |
-| Test not received | "Check WhatsApp is open on phone" | Retry button |
-| Device conflict | "WhatsApp connected elsewhere" | Re-scan modal |
+| Error             | Handling                             | Recovery              |
+| ----------------- | ------------------------------------ | --------------------- |
+| QR timeout (60s)  | "Having trouble? Try these steps..." | Manual pairing option |
+| Test not received | "Check WhatsApp is open on phone"    | Retry button          |
+| Device conflict   | "WhatsApp connected elsewhere"       | Re-scan modal         |
 
 **Empty State (First Visit):**
+
 ```
 Welcome to FlowPulse! 🎉
 
@@ -964,16 +995,17 @@ flowchart TD
 
 **Visual States:**
 
-| State | Hero Treatment | Alert Banner | Background |
-|-------|---------------|--------------|------------|
-| Healthy (NPS 50+) | Green ring, large | Hidden | White |
-| Attention (NPS 30-49) | Amber ring | Optional context | White |
-| Opportunity (NPS < 30) | Red ring | Visible | Subtle red tint |
-| Celebration | Green + confetti | "You're crushing it!" | Green gradient |
+| State                  | Hero Treatment    | Alert Banner          | Background      |
+| ---------------------- | ----------------- | --------------------- | --------------- |
+| Healthy (NPS 50+)      | Green ring, large | Hidden                | White           |
+| Attention (NPS 30-49)  | Amber ring        | Optional context      | White           |
+| Opportunity (NPS < 30) | Red ring          | Visible               | Subtle red tint |
+| Celebration            | Green + confetti  | "You're crushing it!" | Green gradient  |
 
 **Rapid Score Change Handling:**
 
 When score drops significantly (>20 points):
+
 ```
 ┌─────────────────────────────────────┐
 │ ⚠️ Score dropped 27 points          │
@@ -986,6 +1018,7 @@ When score drops significantly (>20 points):
 **Stale Notification Handling:**
 
 If a detractor was already addressed:
+
 ```
 Maria (NPS: 4) - Resolved
 Helped by Ana (Support) · 2 hours ago
@@ -1074,16 +1107,17 @@ flowchart TD
 
 **Quick Response Templates:**
 
-| Situation | Template |
-|-----------|----------|
-| Damaged product | Apology + replacement offer |
-| Late delivery | Apology + discount code |
-| Quality issue | Apology + refund option |
-| Service complaint | Apology + escalation |
+| Situation         | Template                    |
+| ----------------- | --------------------------- |
+| Damaged product   | Apology + replacement offer |
+| Late delivery     | Apology + discount code     |
+| Quality issue     | Apology + refund option     |
+| Service complaint | Apology + escalation        |
 
 **Crisis Averted Trigger:**
 
 Crisis is considered "averted" when:
+
 - Original NPS score was ≤ 6 (Detractor)
 - Follow-up survey score is ≥ 7 (Passive or Promoter)
 - Time between original and follow-up < 7 days
@@ -1159,14 +1193,15 @@ flowchart TD
 
 **Template Gallery:**
 
-| Template | Use Case | Questions |
-|----------|----------|-----------|
-| Quick NPS | General satisfaction | 1 (NPS) + follow-up |
-| Post-Purchase | E-commerce | NPS + product feedback |
-| Support CSAT | After support ticket | CSAT + effort score |
-| Churn Prevention | Subscription cancel | NPS + open feedback |
+| Template         | Use Case             | Questions              |
+| ---------------- | -------------------- | ---------------------- |
+| Quick NPS        | General satisfaction | 1 (NPS) + follow-up    |
+| Post-Purchase    | E-commerce           | NPS + product feedback |
+| Support CSAT     | After support ticket | CSAT + effort score    |
+| Churn Prevention | Subscription cancel  | NPS + open feedback    |
 
 **Empty State (No Surveys Yet):**
+
 ```
 No surveys yet
 
@@ -1215,25 +1250,25 @@ Feature: Survey Creation Journey
 
 ### Journey Summary
 
-| Journey | Primary Metric | Target | Emotional Peak |
-|---------|---------------|--------|----------------|
-| Onboarding | Time-to-value | < 10 min | First response received |
-| Daily Pulse | Time-to-status | < 3 sec | "All clear" badge |
-| Detractor Response | Resolution rate | > 60% | "Crisis Averted" card |
-| Survey Creation | Time-to-live | < 5 min | "Survey Live!" confirmation |
+| Journey            | Primary Metric  | Target   | Emotional Peak              |
+| ------------------ | --------------- | -------- | --------------------------- |
+| Onboarding         | Time-to-value   | < 10 min | First response received     |
+| Daily Pulse        | Time-to-status  | < 3 sec  | "All clear" badge           |
+| Detractor Response | Resolution rate | > 60%    | "Crisis Averted" card       |
+| Survey Creation    | Time-to-live    | < 5 min  | "Survey Live!" confirmation |
 
 ---
 
 ### Edge Cases & Error Handling
 
-| Scenario | Handling |
-|----------|----------|
-| WhatsApp disconnected | Prominent reconnect banner, pause surveys |
-| No internet | Cached last-known state, "Offline" badge |
-| API timeout | Skeleton loading → retry button |
-| Empty response list | Encouraging empty state with CTA |
-| Low sample size (< 10) | "Early data" badge on NPS score |
-| Score calculation error | Show "--" with "Calculating..." |
+| Scenario                | Handling                                  |
+| ----------------------- | ----------------------------------------- |
+| WhatsApp disconnected   | Prominent reconnect banner, pause surveys |
+| No internet             | Cached last-known state, "Offline" badge  |
+| API timeout             | Skeleton loading → retry button           |
+| Empty response list     | Encouraging empty state with CTA          |
+| Low sample size (< 10)  | "Early data" badge on NPS score           |
+| Score calculation error | Show "--" with "Calculating..."           |
 
 ---
 
@@ -1243,22 +1278,23 @@ Feature: Survey Creation Journey
 
 **shadcn/ui Components Used:**
 
-| Component | Usage in FlowPulse |
-|-----------|-------------------|
-| `Button` | All CTAs, actions |
-| `Card` | Dashboard sections, survey templates |
-| `Badge` | Score indicators, status labels |
-| `Input` | Forms, search |
-| `Dialog` | Modals, confirmations |
-| `Sheet` | Mobile slide-overs |
-| `Skeleton` | Loading states |
-| `Tabs` | Section navigation |
-| `Toast` | Notifications, confirmations |
-| `Avatar` | Customer photos |
-| `Tooltip` | Help text, explanations |
-| `DropdownMenu` | Action menus |
+| Component      | Usage in FlowPulse                   |
+| -------------- | ------------------------------------ |
+| `Button`       | All CTAs, actions                    |
+| `Card`         | Dashboard sections, survey templates |
+| `Badge`        | Score indicators, status labels      |
+| `Input`        | Forms, search                        |
+| `Dialog`       | Modals, confirmations                |
+| `Sheet`        | Mobile slide-overs                   |
+| `Skeleton`     | Loading states                       |
+| `Tabs`         | Section navigation                   |
+| `Toast`        | Notifications, confirmations         |
+| `Avatar`       | Customer photos                      |
+| `Tooltip`      | Help text, explanations              |
+| `DropdownMenu` | Action menus                         |
 
 **Extended Variants:**
+
 - `Badge` - NPS color variants (promoter/passive/detractor)
 - `Card` - WhatsApp chat bubble styling for responses
 
@@ -1271,6 +1307,7 @@ Feature: Survey Creation Journey
 **Purpose:** WhatsApp connection via QR code scanning.
 
 **Props:**
+
 ```tsx
 interface QRScannerProps {
   qrCode: string;           // Base64 QR image from Kapso
@@ -1282,15 +1319,16 @@ interface QRScannerProps {
 
 **States:**
 
-| State | Visual |
-|-------|--------|
-| `scanning` | QR displayed, "Scan with WhatsApp" instruction |
-| `connecting` | Spinner overlay, "Connecting..." |
-| `success` | Green checkmark, "Connected!" |
-| `timeout` | Amber warning, troubleshooting tips |
-| `error` | Red alert, retry button |
+| State        | Visual                                         |
+| ------------ | ---------------------------------------------- |
+| `scanning`   | QR displayed, "Scan with WhatsApp" instruction |
+| `connecting` | Spinner overlay, "Connecting..."               |
+| `success`    | Green checkmark, "Connected!"                  |
+| `timeout`    | Amber warning, troubleshooting tips            |
+| `error`      | Red alert, retry button                        |
 
 **Accessibility:**
+
 - `role="img"` with `aria-label="WhatsApp connection QR code"`
 - Live region announces state changes
 - Keyboard: Escape to cancel, Enter to retry
@@ -1302,6 +1340,7 @@ interface QRScannerProps {
 **Purpose:** Visual progress through onboarding flow.
 
 **Props:**
+
 ```tsx
 interface ProgressStepperProps {
   steps: Array<{ label: string; status: 'pending' | 'current' | 'complete' }>;
@@ -1310,6 +1349,7 @@ interface ProgressStepperProps {
 ```
 
 **Anatomy:**
+
 ```
 [1]────[2]────[3]────[4]
  ✓     ●      ○      ○
@@ -1325,6 +1365,7 @@ Connect  Template  Test  Launch
 **Purpose:** Full customer profile for detractor response.
 
 **Props:**
+
 ```tsx
 interface CustomerContextCardProps {
   customer: {
@@ -1346,12 +1387,12 @@ interface CustomerContextCardProps {
 
 **States:**
 
-| State | Treatment |
-|-------|-----------|
-| Detractor (0-6) | Red score badge |
-| Passive (7-8) | Amber score badge |
-| Promoter (9-10) | Green score badge |
-| Resolved | Gray overlay, "Resolved" status |
+| State           | Treatment                       |
+| --------------- | ------------------------------- |
+| Detractor (0-6) | Red score badge                 |
+| Passive (7-8)   | Amber score badge               |
+| Promoter (9-10) | Green score badge               |
+| Resolved        | Gray overlay, "Resolved" status |
 
 ---
 
@@ -1360,6 +1401,7 @@ interface CustomerContextCardProps {
 **Purpose:** Pre-built response templates for fast action.
 
 **Props:**
+
 ```tsx
 interface QuickResponseMenuProps {
   situation: 'damaged' | 'late' | 'quality' | 'service' | 'custom';
@@ -1370,12 +1412,12 @@ interface QuickResponseMenuProps {
 
 **Templates:**
 
-| Situation | Template Preview |
-|-----------|-----------------|
-| Damaged | "Lo sentimos mucho por el producto dañado..." |
-| Late | "Pedimos disculpas por el retraso..." |
-| Quality | "Gracias por tu feedback..." |
-| Service | "Lamentamos tu experiencia..." |
+| Situation | Template Preview                              |
+| --------- | --------------------------------------------- |
+| Damaged   | "Lo sentimos mucho por el producto dañado..." |
+| Late      | "Pedimos disculpas por el retraso..."         |
+| Quality   | "Gracias por tu feedback..."                  |
+| Service   | "Lamentamos tu experiencia..."                |
 
 ---
 
@@ -1384,6 +1426,7 @@ interface QuickResponseMenuProps {
 **Purpose:** Survey template selection in gallery.
 
 **Props:**
+
 ```tsx
 interface TemplateCardProps {
   template: {
@@ -1400,11 +1443,11 @@ interface TemplateCardProps {
 
 **Variants:**
 
-| Variant | Treatment |
-|---------|-----------|
+| Variant    | Treatment                    |
+| ---------- | ---------------------------- |
 | `featured` | Larger card, "Popular" badge |
-| `compact` | List item style |
-| `selected` | Green border, checkmark |
+| `compact`  | List item style              |
+| `selected` | Green border, checkmark      |
 
 ---
 
@@ -1413,6 +1456,7 @@ interface TemplateCardProps {
 **Purpose:** Mobile preview of survey as customer sees it.
 
 **Props:**
+
 ```tsx
 interface SurveyPreviewProps {
   survey: Survey;
@@ -1421,6 +1465,7 @@ interface SurveyPreviewProps {
 ```
 
 **Anatomy:**
+
 ```
 ┌──────────────────┐
 │ [WhatsApp Header]│
@@ -1440,6 +1485,7 @@ interface SurveyPreviewProps {
 **Purpose:** Choose when surveys are sent.
 
 **Props:**
+
 ```tsx
 interface TriggerSelectorProps {
   value: 'post-purchase' | 'scheduled' | 'manual';
@@ -1450,38 +1496,40 @@ interface TriggerSelectorProps {
 
 **Options:**
 
-| Trigger | Description | Availability |
-|---------|-------------|--------------|
+| Trigger       | Description           | Availability     |
+| ------------- | --------------------- | ---------------- |
 | Post-Purchase | After order delivered | Requires Shopify |
-| Scheduled | Daily/weekly batch | Always |
-| Manual | One-time send | Always |
+| Scheduled     | Daily/weekly batch    | Always           |
+| Manual        | One-time send         | Always           |
 
 ---
 
 ### Component Implementation Strategy
 
 **Foundation (from shadcn/ui):**
+
 - Use as-is: Button, Card, Badge, Input, Dialog, Sheet, Skeleton, Tabs, Toast, Avatar, Tooltip, DropdownMenu
 - Extend with variants: Badge (NPS colors), Card (response bubble style)
 
 **Custom Components (FlowPulse-specific):**
 
-| Component | Rationale |
-|-----------|-----------|
-| NPSScoreRing | Brand signature, SVG-based |
-| ResponseCard | WhatsApp chat bubble aesthetic |
-| AlertBanner | Heroic framing, visual hierarchy inversion |
-| CelebrationCard | Shareable achievement |
-| QRScanner | WhatsApp connection flow |
-| ProgressStepper | Onboarding progress |
-| CustomerContextCard | Detractor response context |
-| QuickResponseMenu | Fast action templates |
-| TemplateCard | Survey template gallery |
-| SurveyPreview | Mobile preview |
-| TriggerSelector | Survey automation |
-| BottomNav | Mobile-native navigation |
+| Component           | Rationale                                  |
+| ------------------- | ------------------------------------------ |
+| NPSScoreRing        | Brand signature, SVG-based                 |
+| ResponseCard        | WhatsApp chat bubble aesthetic             |
+| AlertBanner         | Heroic framing, visual hierarchy inversion |
+| CelebrationCard     | Shareable achievement                      |
+| QRScanner           | WhatsApp connection flow                   |
+| ProgressStepper     | Onboarding progress                        |
+| CustomerContextCard | Detractor response context                 |
+| QuickResponseMenu   | Fast action templates                      |
+| TemplateCard        | Survey template gallery                    |
+| SurveyPreview       | Mobile preview                             |
+| TriggerSelector     | Survey automation                          |
+| BottomNav           | Mobile-native navigation                   |
 
 **Shared Tokens:**
+
 - All custom components use CSS variables from Visual Foundation
 - NPS colors: `--nps-promoter`, `--nps-passive`, `--nps-detractor`
 - Animation timing: fast (150ms), normal (300ms), slow (500ms)
@@ -1493,33 +1541,33 @@ interface TriggerSelectorProps {
 
 **Phase 1 - Core (Sprint 1):**
 
-| Component | Needed For | Story Points |
-|-----------|------------|--------------|
-| NPSScoreRing | Dashboard hero | 5 |
-| ResponseCard | Response list | 3 |
-| AlertBanner | Alert state | 2 |
-| BottomNav | All mobile views | 1 |
-| QRScanner | Onboarding | 3 |
-| ProgressStepper | Onboarding | 2 |
-| **Total** | | **16** |
+| Component       | Needed For       | Story Points |
+| --------------- | ---------------- | ------------ |
+| NPSScoreRing    | Dashboard hero   | 5            |
+| ResponseCard    | Response list    | 3            |
+| AlertBanner     | Alert state      | 2            |
+| BottomNav       | All mobile views | 1            |
+| QRScanner       | Onboarding       | 3            |
+| ProgressStepper | Onboarding       | 2            |
+| **Total**       |                  | **16**       |
 
 **Phase 2 - Detractor Flow (Sprint 2):**
 
-| Component | Needed For | Story Points |
-|-----------|------------|--------------|
-| CustomerContextCard | Detractor response | 3 |
-| QuickResponseMenu | Fast actions | 3 |
-| CelebrationCard | Crisis averted | 5 |
-| **Total** | | **11** |
+| Component           | Needed For         | Story Points |
+| ------------------- | ------------------ | ------------ |
+| CustomerContextCard | Detractor response | 3            |
+| QuickResponseMenu   | Fast actions       | 3            |
+| CelebrationCard     | Crisis averted     | 5            |
+| **Total**           |                    | **11**       |
 
 **Phase 3 - Survey Builder (Sprint 3):**
 
-| Component | Needed For | Story Points |
-|-----------|------------|--------------|
-| TemplateCard | Template gallery | 2 |
-| SurveyPreview | Preview flow | 3 |
-| TriggerSelector | Automation | 2 |
-| **Total** | | **7** |
+| Component       | Needed For       | Story Points |
+| --------------- | ---------------- | ------------ |
+| TemplateCard    | Template gallery | 2            |
+| SurveyPreview   | Preview flow     | 3            |
+| TriggerSelector | Automation       | 2            |
+| **Total**       |                  | **7**        |
 
 ---
 
@@ -1529,33 +1577,33 @@ interface TriggerSelectorProps {
 
 **Primary Actions (Green):**
 
-| Action | Style | Usage |
-|--------|-------|-------|
+| Action             | Style                     | Usage               |
+| ------------------ | ------------------------- | ------------------- |
 | "Connect WhatsApp" | `variant="default"` green | Main onboarding CTA |
-| "Send Survey" | `variant="default"` green | Survey activation |
-| "Go Live" | `variant="default"` green | Launch actions |
+| "Send Survey"      | `variant="default"` green | Survey activation   |
+| "Go Live"          | `variant="default"` green | Launch actions      |
 
 **Secondary Actions (Outline):**
 
-| Action | Style | Usage |
-|--------|-------|-------|
+| Action         | Style               | Usage                      |
+| -------------- | ------------------- | -------------------------- |
 | "View Details" | `variant="outline"` | Navigation to detail views |
-| "Edit" | `variant="outline"` | Modification actions |
-| "Retry" | `variant="outline"` | Error recovery |
+| "Edit"         | `variant="outline"` | Modification actions       |
+| "Retry"        | `variant="outline"` | Error recovery             |
 
 **Destructive Actions (Red):**
 
-| Action | Style | Usage |
-|--------|-------|-------|
+| Action          | Style                   | Usage                 |
+| --------------- | ----------------------- | --------------------- |
 | "Delete Survey" | `variant="destructive"` | Requires confirmation |
-| "Disconnect" | `variant="destructive"` | WhatsApp disconnect |
+| "Disconnect"    | `variant="destructive"` | WhatsApp disconnect   |
 
 **Ghost & Icon-Only:**
 
-| Type | Size | Usage |
-|------|------|-------|
-| Ghost buttons | Standard | Cancel, Skip |
-| Icon-only | 44px circle | Refresh, Filter, Settings |
+| Type          | Size        | Usage                     |
+| ------------- | ----------- | ------------------------- |
+| Ghost buttons | Standard    | Cancel, Skip              |
+| Icon-only     | 44px circle | Refresh, Filter, Settings |
 
 **Contextual FAB:**
 
@@ -1576,12 +1624,12 @@ Position: Bottom-right, 16px from edges, 56px diameter
 
 **Toast Configuration:**
 
-| Type | Duration | Position |
-|------|----------|----------|
-| Success | 3s | Top-center |
-| Error | Persistent | Top-center |
+| Type    | Duration   | Position     |
+| ------- | ---------- | ------------ |
+| Success | 3s         | Top-center   |
+| Error   | Persistent | Top-center   |
 | Warning | Persistent | Below header |
-| Info | 5s | Top-center |
+| Info    | 5s         | Top-center   |
 
 **Toast Queue Management:**
 
@@ -1605,12 +1653,12 @@ if (settings.quietMode || toastsInLastMinute > 5) {
 
 ### Empty States with Value Props
 
-| Context | Headline | Value Prop | CTA |
-|---------|----------|------------|-----|
-| No responses | "Your first insights await" | "Email gets 9%. WhatsApp gets 45%." | "Send first survey" |
-| No surveys | "Pick a template" | "Most users get a response in < 10 min" | "Browse templates" |
-| No detractors | "All clear!" | "You're ahead of 73% of businesses" | None |
-| No connection | "Connect WhatsApp" | "One scan, unlimited feedback" | "Connect now" |
+| Context       | Headline                    | Value Prop                              | CTA                 |
+| ------------- | --------------------------- | --------------------------------------- | ------------------- |
+| No responses  | "Your first insights await" | "Email gets 9%. WhatsApp gets 45%."     | "Send first survey" |
+| No surveys    | "Pick a template"           | "Most users get a response in < 10 min" | "Browse templates"  |
+| No detractors | "All clear!"                | "You're ahead of 73% of businesses"     | None                |
+| No connection | "Connect WhatsApp"          | "One scan, unlimited feedback"          | "Connect now"       |
 
 ---
 
@@ -1661,22 +1709,22 @@ Scenario: Stale data display
 
 **Exponential Backoff with User Messaging:**
 
-| Attempt | Delay | UI State |
-|---------|-------|----------|
-| 1 | Immediate | Spinner in button |
-| 2 | 2 seconds | Spinner continues |
-| 3 | 5 seconds | "Taking longer than usual..." |
-| 4+ | Manual only | "Connection issues. [Try Again]" |
+| Attempt | Delay       | UI State                         |
+| ------- | ----------- | -------------------------------- |
+| 1       | Immediate   | Spinner in button                |
+| 2       | 2 seconds   | Spinner continues                |
+| 3       | 5 seconds   | "Taking longer than usual..."    |
+| 4+      | Manual only | "Connection issues. [Try Again]" |
 
 ---
 
 ### Gesture Patterns
 
-| Gesture | Action | Feedback |
-|---------|--------|----------|
-| Pull down | Refresh | Haptic bump |
+| Gesture     | Action            | Feedback        |
+| ----------- | ----------------- | --------------- |
+| Pull down   | Refresh           | Haptic bump     |
 | Swipe right | Go back / Dismiss | Undo toast (5s) |
-| Long press | Quick actions | Menu appears |
+| Long press  | Quick actions     | Menu appears    |
 
 **Swipe-to-Dismiss:**
 
@@ -1718,13 +1766,13 @@ if (isFirstTimeUser) {
 
 **Milestone Ceremonies:**
 
-| Milestone | Ceremony |
-|-----------|----------|
-| First NPS score | Full reveal ceremony |
-| Score crosses 50 | "You're in the green!" toast |
-| First Crisis Averted | Journey visualization modal |
-| 100 responses | "Century Club" badge animation |
-| Score improves 10+ pts | Trend victory with confetti |
+| Milestone              | Ceremony                       |
+| ---------------------- | ------------------------------ |
+| First NPS score        | Full reveal ceremony           |
+| Score crosses 50       | "You're in the green!" toast   |
+| First Crisis Averted   | Journey visualization modal    |
+| 100 responses          | "Century Club" badge animation |
+| Score improves 10+ pts | Trend victory with confetti    |
 
 **Multi-Sensory Success Feedback:**
 
@@ -1762,11 +1810,11 @@ onMarkResolved(id) {
 
 **Mobile-First Approach (Primary Platform):**
 
-| Device | Priority | Experience |
-|--------|----------|------------|
-| Mobile (< 640px) | **Primary** | Full-featured, optimized |
-| Tablet (640-1024px) | Secondary | Enhanced layout |
-| Desktop (> 1024px) | Tertiary | Setup, analytics, builder |
+| Device              | Priority    | Experience                |
+| ------------------- | ----------- | ------------------------- |
+| Mobile (< 640px)    | **Primary** | Full-featured, optimized  |
+| Tablet (640-1024px) | Secondary   | Enhanced layout           |
+| Desktop (> 1024px)  | Tertiary    | Setup, analytics, builder |
 
 ---
 
@@ -1774,13 +1822,13 @@ onMarkResolved(id) {
 
 **Tailwind CSS Breakpoints:**
 
-| Breakpoint | Width | Layout Changes |
-|------------|-------|----------------|
-| `default` | < 640px | Single column, bottom nav |
-| `sm` | 640px+ | 2-column response grid |
-| `md` | 768px+ | Side navigation option |
-| `lg` | 1024px+ | 3-column layout |
-| `xl` | 1280px+ | Max-width container (1200px) |
+| Breakpoint | Width   | Layout Changes               |
+| ---------- | ------- | ---------------------------- |
+| `default`  | < 640px | Single column, bottom nav    |
+| `sm`       | 640px+  | 2-column response grid       |
+| `md`       | 768px+  | Side navigation option       |
+| `lg`       | 1024px+ | 3-column layout              |
+| `xl`       | 1280px+ | Max-width container (1200px) |
 
 **Container Queries (Component-Level):**
 
@@ -1797,13 +1845,13 @@ onMarkResolved(id) {
 
 ### Component Responsive Behavior
 
-| Component | Mobile | Tablet | Desktop |
-|-----------|--------|--------|---------|
-| NPSScoreRing | Full-width hero | 50% width | Fixed 320px |
-| BottomNav | Fixed bottom | Hidden | Hidden |
-| Sidebar | Hidden | Collapsible | Always visible |
-| ResponseCard | Full-width stack | 2-column grid | 3-column grid |
-| FAB | Visible | Visible | Hidden (inline) |
+| Component    | Mobile           | Tablet        | Desktop         |
+| ------------ | ---------------- | ------------- | --------------- |
+| NPSScoreRing | Full-width hero  | 50% width     | Fixed 320px     |
+| BottomNav    | Fixed bottom     | Hidden        | Hidden          |
+| Sidebar      | Hidden           | Collapsible   | Always visible  |
+| ResponseCard | Full-width stack | 2-column grid | 3-column grid   |
+| FAB          | Visible          | Visible       | Hidden (inline) |
 
 ---
 
@@ -1813,27 +1861,27 @@ onMarkResolved(id) {
 
 **Color Contrast:**
 
-| Element | Ratio | Status |
-|---------|-------|--------|
-| Body text on white | 7:1 (gray-900) | AAA |
-| NPS score on ring | 4.5:1 minimum | AA |
-| Error text | 4.5:1 (red-600) | AA |
+| Element            | Ratio           | Status |
+| ------------------ | --------------- | ------ |
+| Body text on white | 7:1 (gray-900)  | AAA    |
+| NPS score on ring  | 4.5:1 minimum   | AA     |
+| Error text         | 4.5:1 (red-600) | AA     |
 
 **Color Blindness - Triple Encoding:**
 
-| Element | Color | Icon | Text |
-|---------|-------|------|------|
-| Promoter | Green | Check | "Excellent" |
-| Passive | Amber | Dash | "Good" |
-| Detractor | Red | Alert | "Needs attention" |
+| Element   | Color | Icon  | Text              |
+| --------- | ----- | ----- | ----------------- |
+| Promoter  | Green | Check | "Excellent"       |
+| Passive   | Amber | Dash  | "Good"            |
+| Detractor | Red   | Alert | "Needs attention" |
 
 **Touch Targets:**
 
-| Element | Size | Status |
-|---------|------|--------|
-| Buttons | 48px height | Exceeds 44px |
-| Icon buttons | 44px diameter | Meets minimum |
-| Bottom nav | 64px height | Exceeds minimum |
+| Element      | Size          | Status          |
+| ------------ | ------------- | --------------- |
+| Buttons      | 48px height   | Exceeds 44px    |
+| Icon buttons | 44px diameter | Meets minimum   |
+| Bottom nav   | 64px height   | Exceeds minimum |
 
 ---
 
@@ -1915,11 +1963,11 @@ const useFocusManagement = () => {
 }
 ```
 
-| Animation | Default | Reduced Motion |
-|-----------|---------|----------------|
-| Score count-up | 500ms | Instant |
-| Ring fill | 500ms | Instant |
-| Confetti | Full animation | Static badge |
+| Animation      | Default        | Reduced Motion |
+| -------------- | -------------- | -------------- |
+| Score count-up | 500ms          | Instant        |
+| Ring fill      | 500ms          | Instant        |
+| Confetti       | Full animation | Static badge   |
 
 ---
 
@@ -1937,12 +1985,12 @@ const useFocusManagement = () => {
 
 **Automated Test Coverage:**
 
-| Tool | Coverage | CI/CD |
-|------|----------|-------|
-| axe-core | 30-40% of issues | Blocks PR |
-| jest-axe | Unit test a11y | Blocks PR |
-| Playwright a11y | E2E keyboard | Blocks PR |
-| Screen reader | Manual + recordings | Weekly QA |
+| Tool            | Coverage            | CI/CD     |
+| --------------- | ------------------- | --------- |
+| axe-core        | 30-40% of issues    | Blocks PR |
+| jest-axe        | Unit test a11y      | Blocks PR |
+| Playwright a11y | E2E keyboard        | Blocks PR |
+| Screen reader   | Manual + recordings | Weekly QA |
 
 **Accessibility Regression Tests:**
 
@@ -1985,23 +2033,23 @@ test('keyboard navigation completes full flow', async ({ page }) => {
 
 ### Implementation Quick Reference
 
-| Pattern | Do | Don't |
-|---------|----|----|
-| Buttons | `<button>` or `<a href>` | `<div onClick>` |
-| Lists | `<ul>/<ol>` with `<li>` | `<div class="list">` |
-| Headings | Sequential h1→h2→h3 | Skip levels (h1→h3) |
-| Images | `alt=""` if decorative | Missing alt attribute |
-| Forms | `<label htmlFor>` | Placeholder as label |
+| Pattern  | Do                       | Don't                 |
+| -------- | ------------------------ | --------------------- |
+| Buttons  | `<button>` or `<a href>` | `<div onClick>`       |
+| Lists    | `<ul>/<ol>` with `<li>`  | `<div class="list">`  |
+| Headings | Sequential h1→h2→h3      | Skip levels (h1→h3)   |
+| Images   | `alt=""` if decorative   | Missing alt attribute |
+| Forms    | `<label htmlFor>`        | Placeholder as label  |
 
 **Tailwind A11y Classes:**
 
-| Class | Purpose |
-|-------|---------|
-| `sr-only` | Visually hidden, screen reader accessible |
-| `not-sr-only` | Reverses sr-only (for focus states) |
-| `focus-visible:` | Focus ring for keyboard users only |
-| `motion-safe:` | Applies only if motion allowed |
-| `motion-reduce:` | Applies only if reduced motion preferred |
+| Class            | Purpose                                   |
+| ---------------- | ----------------------------------------- |
+| `sr-only`        | Visually hidden, screen reader accessible |
+| `not-sr-only`    | Reverses sr-only (for focus states)       |
+| `focus-visible:` | Focus ring for keyboard users only        |
+| `motion-safe:`   | Applies only if motion allowed            |
+| `motion-reduce:` | Applies only if reduced motion preferred  |
 
 ---
 

@@ -17,6 +17,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ## Technology Stack & Versions
 
 ### Runtime & Build
+
 - **Bun 1.3.5** - Package manager AND runtime (NOT npm/yarn)
   - Use `bun add` NOT `npm install` or `yarn add`
   - Use `bun run` NOT `npm run`
@@ -24,6 +25,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Turbo 2.6.3** - Monorepo task orchestration
 
 ### Frontend Stack
+
 - **React 19.2.3** - Latest React (has `use()` hook but we use TanStack Query)
 - **TailwindCSS 4.0.15** - v4 architecture (BREAKING CHANGE from v3)
   - Uses `@tailwindcss/vite` plugin, NOT PostCSS config
@@ -34,6 +36,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **shadcn/ui** - Component library (via @base-ui/react)
 
 ### Backend Stack
+
 - **Elysia 1.3.21** - Bun-native HTTP server
 - **oRPC 1.12.2** - Type-safe RPC ⚠️ NOT tRPC - different API patterns
   - Handlers return data directly, NOT `{ data, error }` wrappers
@@ -44,16 +47,19 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **PostgreSQL 14+** - Primary database
 
 ### Monorepo Patterns
+
 - `workspace:*` - Links to workspace packages (not a version)
 - `catalog:` - Pulls version from root package.json catalog
   - Ensures version consistency across all packages
 
 ### Testing Stack (To Be Installed)
+
 - **Vitest** - Unit/integration tests (Vite-native)
 - **MSW** - API mocking for Kapso contract tests
 - **Playwright** - E2E testing
 
 ### Critical Version Notes
+
 - TailwindCSS v4 uses different plugin architecture than v3
 - oRPC is NOT tRPC - completely different API patterns
 - Drizzle is NOT Prisma - different query syntax
@@ -66,8 +72,10 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Language-Specific Rules (TypeScript)
 
 #### Strict Mode Requirements
+
 - **strict: true** - All strict checks enabled
 - **noUncheckedIndexedAccess: true** - Array/object access returns `T | undefined`
+
   ```typescript
   // ❌ WRONG - Will error
   const first = items[0].toUpperCase();
@@ -79,12 +87,15 @@ _This file contains critical rules and patterns that AI agents must follow when 
   // ✅ CORRECT - When you KNOW it exists
   const first = items[0]!;
   ```
+
 - **noUnusedLocals/Parameters** - Remove or prefix with `_`
 
 #### Import/Export Patterns (verbatimModuleSyntax)
+
 - Use `import type { Foo }` for type-only imports
 - Use `import { type Foo, bar }` for mixed imports
 - Re-exports must be explicit:
+
   ```typescript
   // ❌ WRONG
   export { SurveyType } from './types';
@@ -94,11 +105,13 @@ _This file contains critical rules and patterns that AI agents must follow when 
   ```
 
 #### Bun Runtime Types
+
 - `types: ['bun']` - Bun globals available (`Bun.serve`, `Bun.file`)
 - Node.js types NOT available - use Bun equivalents
 - Web app has DOM types, server does NOT
 
 #### Zod + oRPC Type Chain
+
 ```typescript
 // Schema definition
 const surveySchema = z.object({
@@ -116,6 +129,7 @@ surveyRouter.create = protectedProcedure
 ```
 
 #### Array Mapping with Optional Items
+
 ```typescript
 // Project convention for potentially undefined array items
 {errors.map((error) => (
@@ -124,6 +138,7 @@ surveyRouter.create = protectedProcedure
 ```
 
 #### Test Assertions with Strict Mode
+
 ```typescript
 // ❌ WRONG - noUncheckedIndexedAccess error
 expect(result[0].name).toBe('test');
@@ -134,6 +149,7 @@ expect(result[0]!.name).toBe('test');
 ```
 
 #### Nullish Patterns
+
 - Use `??` for nullish coalescing (not `||`)
 - Use `?.` for optional chaining
 - Explicit null checks required for indexed access
@@ -143,6 +159,7 @@ expect(result[0]!.name).toBe('test');
 ### Framework-Specific Rules
 
 #### Path Aliases
+
 ```typescript
 // @/ resolves to apps/web/src/ (configured in vite.config.ts)
 import { Button } from '@/components/ui/button';
@@ -153,21 +170,25 @@ import { Button } from '../../../components/ui/button';
 ```
 
 #### Loading States
+
 ```typescript
 import Loader from '@/components/loader';
 if (isPending) { return <Loader />; }
 ```
 
 #### TanStack Router
+
 ```typescript
 const navigate = useNavigate({ from: '/' });
 navigate({ to: '/dashboard' });
 navigate({ to: '/surveys/$surveyId', params: { surveyId } });
 ```
+
 - `$paramName.tsx` for dynamic routes
 - `_authenticated/` prefix for protected routes
 
 #### TanStack Form (Project Convention)
+
 ```typescript
 // Form submit - ALWAYS this pattern
 <form onSubmit={(e) => {
@@ -199,13 +220,16 @@ navigate({ to: '/surveys/$surveyId', params: { surveyId } });
 ```
 
 #### TanStack Query
+
 - Query key factory from `packages/shared/src/query-keys.ts`
 - Loading: `isPending`, Background: `isFetching`
 - **Polling for MVP**: `refetchInterval: 30_000` (no WebSockets)
 
 #### oRPC (NOT tRPC!)
+
 - `@orpc/tanstack-query` for React integration
 - **Procedures**: `publicProcedure` (health), `protectedProcedure` (all business logic)
+
 ```typescript
 // ✅ CORRECT
 await client.survey.list({ orgId });
@@ -215,15 +239,18 @@ client.survey.list.query({ orgId });
 ```
 
 #### ⚠️ CRITICAL: Multi-Tenancy Enforcement
+
 ```typescript
 // EVERY query MUST include org filter - NON-NEGOTIABLE
 where: eq(survey.orgId, context.session.activeOrganizationId)
 ```
 
 #### Drizzle ORM (NOT Prisma!)
+
 - Helpers: `eq()`, `and()`, `or()`, `desc()`, `asc()`
 
 #### shadcn/ui + Sonner
+
 ```typescript
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -231,6 +258,7 @@ toast.success('Created'); toast.error(error.message);
 ```
 
 #### Kapso Testing
+
 ```typescript
 // NEVER real API calls in tests
 const client = new KapsoMockClient();
@@ -241,11 +269,13 @@ const client = new KapsoMockClient();
 ### Testing Rules
 
 #### Testing Stack
+
 - **Vitest** - Unit/integration tests (Vite-native, NOT Jest)
 - **MSW** - API mocking for Kapso contract tests
 - **Playwright** - E2E testing
 
 #### Test File Organization
+
 ```
 # Co-located unit tests (preferred)
 packages/api/src/routers/survey.ts
@@ -259,6 +289,7 @@ tests/e2e/dashboard.spec.ts
 ```
 
 #### Kapso Mocking (CRITICAL)
+
 ```typescript
 // NEVER make real Kapso API calls in tests
 import { KapsoMockClient } from '@wp-nps/kapso';
@@ -269,6 +300,7 @@ client.mockFailure('delivery-456', new KapsoError('rate_limited'));
 ```
 
 #### Multi-Tenant Test Isolation
+
 ```typescript
 // Seed multiple orgs - test cross-tenant access FAILS
 const org1 = await createTestOrg('Acme Corp');
@@ -280,10 +312,12 @@ await expect(
 ```
 
 #### Database Test Strategy
+
 - Transaction rollback for test isolation
 - Docker Compose for CI test database
 
 #### Coverage
+
 - 80% threshold
 - Mock external dependencies (Kapso)
 
@@ -292,36 +326,42 @@ await expect(
 ### Code Quality & Style Rules
 
 #### Linting & Formatting
+
 - **oxlint + oxfmt** - Rust-based linter (fast)
 - Run: `bun check` for lint + format
 
 #### Database Naming
-| Element | Pattern | Example |
-|---------|---------|---------|
-| Tables | Singular, lowercase | `survey`, `response` |
-| Columns | snake_case (SQL) | `org_id`, `created_at` |
-| TypeScript | camelCase | `orgId`, `createdAt` |
-| Foreign keys | `{table}_id` | `survey_id` |
-| Indexes | `idx_{table}_{cols}` | `idx_survey_org_id` |
+
+| Element      | Pattern              | Example                |
+| ------------ | -------------------- | ---------------------- |
+| Tables       | Singular, lowercase  | `survey`, `response`   |
+| Columns      | snake_case (SQL)     | `org_id`, `created_at` |
+| TypeScript   | camelCase            | `orgId`, `createdAt`   |
+| Foreign keys | `{table}_id`         | `survey_id`            |
+| Indexes      | `idx_{table}_{cols}` | `idx_survey_org_id`    |
 
 #### File Naming
-| Element | Pattern | Example |
-|---------|---------|---------|
-| Components | kebab-case | `survey-card.tsx` |
-| Hooks | kebab-case + use- | `use-surveys.ts` |
-| Tests | co-located | `survey.test.ts` |
+
+| Element    | Pattern           | Example           |
+| ---------- | ----------------- | ----------------- |
+| Components | kebab-case        | `survey-card.tsx` |
+| Hooks      | kebab-case + use- | `use-surveys.ts`  |
+| Tests      | co-located        | `survey.test.ts`  |
 
 #### Export Naming
+
 - Components: PascalCase (`SurveyCard`)
 - Hooks: camelCase + use (`useSurveys`)
 - Types: PascalCase (`Survey`)
 
 #### API Naming
+
 - Routers: camelCase noun (`surveyRouter`)
 - Procedures: verb + noun (`create`, `getById`, `list`)
 - Query keys: array namespace (`['surveys', orgId]`)
 
 #### Component Organization
+
 ```
 components/
 ├── ui/           # shadcn primitives
@@ -331,6 +371,7 @@ components/
 ```
 
 #### Documentation
+
 - Avoid excessive comments - self-explanatory code
 - NO auto-generated docstrings unless requested
 - Comments only for non-obvious business logic
@@ -340,6 +381,7 @@ components/
 ### Development Workflow Rules
 
 #### Monorepo Commands
+
 ```bash
 # Development
 bun dev              # All services via Turbo
@@ -358,22 +400,26 @@ bun build            # Build all packages
 ```
 
 #### Package Dependencies
+
 - Add shared deps to root: `bun add -d <pkg>`
 - Add to specific package: `bun add -F <package-name> <pkg>`
 - Use `workspace:*` for internal packages
 - Use `catalog:` for shared version management
 
 #### Build Order (Turbo handles)
+
 ```
 packages/config → packages/env → packages/db → packages/auth → packages/api → apps/*
 ```
 
 #### Environment Variables
+
 - Server env: `apps/server/.env`
 - Never commit `.env` files
 - Use `.env.example` as template
 
 #### Deployment
+
 - Railway.app (São Paulo region)
 - Auto-deploy on merge to `main`
 
@@ -382,6 +428,7 @@ packages/config → packages/env → packages/db → packages/auth → packages/
 ### ⚠️ Critical Don't-Miss Rules
 
 #### Reference Documents
+
 - **Primary**: `_bmad-output/planning-artifacts/architecture.md`
 - Contains: All 6 decisions, 12+ patterns, 80+ file locations
 - **When uncertain**: Check architecture.md FIRST
@@ -425,7 +472,9 @@ new KapsoClient(config)  // Use KapsoMockClient!
 ```
 
 #### MVP Scope Boundaries
+
 **DO NOT implement (deferred post-MVP):**
+
 - WebSocket real-time updates (use polling)
 - Redis/BullMQ queues (use DB job table)
 - Email channel (WhatsApp only)
@@ -433,18 +482,21 @@ new KapsoClient(config)  // Use KapsoMockClient!
 - Free tier (paid only for MVP)
 
 #### Test Isolation Rules
+
 - NEVER share state between tests
 - ALWAYS use fresh test orgs per test
 - NEVER rely on test execution order
 - Mock ALL external services
 
 #### UI Consistency
+
 - `toast.success()` / `toast.error()` for feedback
 - `<Loader />` for pending states
 - `cn()` for conditional classes
 - Follow existing `components/ui/` patterns
 
 #### Must-Do Checklist
+
 - [ ] Every FlowPulse query has `orgId` filter
 - [ ] Using `bun` commands, not npm/yarn
 - [ ] oRPC handlers return data directly
@@ -464,12 +516,14 @@ _For detailed patterns, see `_bmad-output/planning-artifacts/architecture.md`_
 ## Usage Guidelines
 
 **For AI Agents:**
+
 - Read this file before implementing any code
 - Follow ALL rules exactly as documented
 - When in doubt, prefer the more restrictive option
 - Check `architecture.md` for detailed patterns
 
 **For Humans:**
+
 - Keep this file lean and focused on agent needs
 - Update when technology stack changes
 - Review quarterly for outdated rules

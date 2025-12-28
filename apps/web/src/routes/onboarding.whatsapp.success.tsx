@@ -3,10 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
-import {
-  useWhatsAppConnection,
-  parseWhatsAppSuccessParams,
-} from "@/hooks/use-whatsapp-connection";
+import { useWhatsAppConnection, parseWhatsAppSuccessParams } from "@/hooks/use-whatsapp-connection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
@@ -43,9 +40,7 @@ function WhatsAppSuccessComponent() {
         const params = parseWhatsAppSuccessParams(searchParams);
 
         if (!params) {
-          setLocalError(
-            "Missing required parameters from WhatsApp connection. Please try again.",
-          );
+          setLocalError("Missing required parameters from WhatsApp connection. Please try again.");
           setIsProcessing(false);
           return;
         }
@@ -57,9 +52,7 @@ function WhatsAppSuccessComponent() {
         console.error("Failed to confirm connection:", err);
         // Set local error for display
         setLocalError(
-          err instanceof Error
-            ? err.message
-            : "Failed to confirm connection. Please try again.",
+          err instanceof Error ? err.message : "Failed to confirm connection. Please try again.",
         );
       } finally {
         setIsProcessing(false);
@@ -106,10 +99,7 @@ function WhatsAppSuccessComponent() {
                   : "An error occurred"}
             </p>
             <div className="space-y-2">
-              <Button
-                className="w-full"
-                onClick={() => navigate({ to: "/onboarding" })}
-              >
+              <Button className="w-full" onClick={() => navigate({ to: "/onboarding" })}>
                 Try Again
               </Button>
               <Button
@@ -139,10 +129,7 @@ function WhatsAppSuccessComponent() {
             <p className="mb-6 text-muted-foreground">
               Your WhatsApp Business account is now connected to FlowPulse.
             </p>
-            <Button
-              className="w-full"
-              onClick={() => navigate({ to: "/onboarding" })}
-            >
+            <Button className="w-full" onClick={() => navigate({ to: "/onboarding" })}>
               Continue Setup
             </Button>
           </CardContent>

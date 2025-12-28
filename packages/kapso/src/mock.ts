@@ -3,6 +3,7 @@ import type {
   IKapsoClient,
   KapsoErrorCode,
   SendSurveyParams,
+  SendTestParams,
   SetupLinkConfig,
   SetupLinkResult,
   SurveyDeliveryResult,
@@ -67,10 +68,7 @@ export class KapsoMockClient implements IKapsoClient {
   /**
    * Configure a successful response for a specific delivery ID
    */
-  mockSuccess(
-    deliveryId: string,
-    status: SurveyDeliveryResult["status"] = "queued",
-  ): void {
+  mockSuccess(deliveryId: string, status: SurveyDeliveryResult["status"] = "queued"): void {
     this.responses.set(deliveryId, {
       type: "success",
       result: {
@@ -101,13 +99,8 @@ export class KapsoMockClient implements IKapsoClient {
   ): void {
     for (const response of responses) {
       const deliveryId = `mock-delivery-${++this.deliveryCounter}`;
-      if (
-        ["queued", "sent", "delivered", "failed"].includes(response.status)
-      ) {
-        this.mockSuccess(
-          deliveryId,
-          response.status as SurveyDeliveryResult["status"],
-        );
+      if (["queued", "sent", "delivered", "failed"].includes(response.status)) {
+        this.mockSuccess(deliveryId, response.status as SurveyDeliveryResult["status"]);
       } else {
         this.mockFailure(deliveryId, response.status as KapsoErrorCode);
       }
@@ -133,10 +126,7 @@ export class KapsoMockClient implements IKapsoClient {
     } else {
       this.defaultResponse = {
         type: "failure",
-        error: new KapsoError(
-          statusOrError as KapsoErrorCode,
-          `Mock error: ${statusOrError}`,
-        ),
+        error: new KapsoError(statusOrError as KapsoErrorCode, `Mock error: ${statusOrError}`),
       };
     }
   }
@@ -155,8 +145,7 @@ export class KapsoMockClient implements IKapsoClient {
     });
 
     // Check for specific mock response
-    const mockResponse =
-      this.responses.get(deliveryId) ?? this.defaultResponse;
+    const mockResponse = this.responses.get(deliveryId) ?? this.defaultResponse;
 
     // Simulate async delay
     await new Promise((resolve) => setTimeout(resolve, 10));
@@ -200,6 +189,93 @@ export class KapsoMockClient implements IKapsoClient {
     return true;
   }
 
+  // ==========================================
+  // Test Message Methods (WhatsApp Verification)
+  // ==========================================
+
+  private testMessageResponses: Map<string, MockResponse> = new Map();
+
+  /**
+   * Send a test message for WhatsApp verification (IKapsoClient method)
+   */
+  async sendTestMessage(params: SendTestParams): Promise<SurveyDeliveryResult> {
+    const deliveryId = `mock-test-${++this.deliveryCounter}`;
+
+    // Record the call with test message params
+    this.callHistory.push({
+      params: {
+        ...params,
+        surveyId: "test-verification",
+        message: "FlowPulse test message - if you received this, your WhatsApp is connected!",
+      },
+      timestamp: new Date(),
+      deliveryId,
+    });
+
+    // Check for specific mock response for this delivery
+    const mockResponse = this.testMessageResponses.get(deliveryId) ?? this.defaultResponse;
+
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    if (mockResponse.type === "failure" && mockResponse.error) {
+      throw mockResponse.error;
+    }
+
+    // Always use the generated deliveryId and "sent" status for test messages
+    // This differs from survey sends which use "queued"
+    return {
+      deliveryId,
+      status: "sent",
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Configure test message success response
+   */
+  mockTestMessageSuccess(deliveryId: string): void {
+    this.testMessageResponses.set(deliveryId, {
+      type: "success",
+      result: {
+        deliveryId,
+        status: "sent",
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+
+  /**
+   * Configure test message failure response
+   */
+  mockTestMessageFailure(deliveryId: string, errorCode: KapsoErrorCode): void {
+    this.testMessageResponses.set(deliveryId, {
+      type: "failure",
+      error: new KapsoError(errorCode, `Mock test error: ${errorCode}`),
+    });
+  }
+
+  /**
+   * Configure delivery status as confirmed/delivered (for polling)
+   */
+  mockDeliveryConfirmed(deliveryId: string): void {
+    this.responses.set(deliveryId, {
+      type: "success",
+      result: {
+        deliveryId,
+        status: "delivered",
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+
+  /**
+   * Clear test message responses
+   */
+  clearTestMessageResponses(): void {
+    this.testMessageResponses.clear();
+  }
+
   /**
    * Get the history of all calls made to this mock client
    */
@@ -224,6 +300,7 @@ export class KapsoMockClient implements IKapsoClient {
     this.setupLinks.clear();
     this.connectionStatuses.clear();
     this.setupLinkCounter = 0;
+    this.testMessageResponses.clear();
   }
 
   /**
@@ -237,9 +314,7 @@ export class KapsoMockClient implements IKapsoClient {
    * Check if a specific phone number was called
    */
   wasPhoneCalled(phoneNumber: string): boolean {
-    return this.callHistory.some(
-      (call) => call.params.phoneNumber === phoneNumber,
-    );
+    return this.callHistory.some((call) => call.params.phoneNumber === phoneNumber);
   }
 
   /**
@@ -257,10 +332,7 @@ export class KapsoMockClient implements IKapsoClient {
    * Create a setup link for WhatsApp onboarding (IKapsoClient method)
    * Returns a URL that redirects user to Kapso's hosted onboarding page
    */
-  async createSetupLink(
-    customerId: string,
-    _config: SetupLinkConfig,
-  ): Promise<SetupLinkResult> {
+  async createSetupLink(customerId: string, _config: SetupLinkConfig): Promise<SetupLinkResult> {
     const setupLinkId = `mock-setup-link-${customerId}-${++this.setupLinkCounter}`;
     const result: SetupLinkResult = {
       id: setupLinkId,

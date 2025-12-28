@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "db:push": "drizzle-kit push && bun run db:rls",
+    "db:push": "drizzle-kit push && bun run db:rls && bun run db:seed",
+    "db:seed": "bun run src/seeds/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
@@ -20,17 +21,17 @@
     "db:stop": "docker compose stop",
     "db:down": "docker compose down"
   },
-  "devDependencies": {
-    "drizzle-kit": "^0.31.8",
-    "@types/pg": "^8.15.6",
-    "typescript": "^5",
-    "@wp-nps/config": "workspace:*"
-  },
   "dependencies": {
+    "@wp-nps/env": "workspace:*",
+    "dotenv": "catalog:",
     "drizzle-orm": "^0.45.1",
     "pg": "^8.16.3",
-    "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@wp-nps/env": "workspace:*"
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.6",
+    "@wp-nps/config": "workspace:*",
+    "drizzle-kit": "^0.31.8",
+    "typescript": "^5"
   }
 }

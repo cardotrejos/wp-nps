@@ -20,11 +20,7 @@ const signUpSchema = z.object({
 
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
-export default function SignUpForm({
-  onSwitchToSignIn,
-}: {
-  onSwitchToSignIn: () => void;
-}) {
+export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
   const navigate = useNavigate({
     from: "/",
   });
@@ -60,11 +56,10 @@ export default function SignUpForm({
 
         // AC #1: Step 2 - Create organization (user is now authenticated)
         let slug = generateSlug(value.organizationName);
-        let { data: org, error: orgError } =
-          await authClient.organization.create({
-            name: value.organizationName,
-            slug,
-          });
+        let { data: org, error: orgError } = await authClient.organization.create({
+          name: value.organizationName,
+          slug,
+        });
 
         if (orgError) {
           // Retry logic: If slug collision (likely usage), append random suffix and try once more
@@ -185,9 +180,7 @@ export default function SignUpForm({
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Your company or project name
-                </p>
+                <p className="text-xs text-muted-foreground">Your company or project name</p>
                 {field.state.meta.errors.map((error) => (
                   <p key={error?.message} className="text-sm text-destructive">
                     {error?.message}

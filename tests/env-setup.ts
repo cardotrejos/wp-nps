@@ -9,9 +9,7 @@
 
 // Mock environment variables for tests
 process.env["DATABASE_URL"] =
-  process.env["TEST_DATABASE_URL"] ??
-  "postgresql://postgres:password@localhost:5433/wp-nps-test";
-process.env["BETTER_AUTH_SECRET"] =
-  "test-secret-for-testing-only-at-least-32-chars-long";
+  process.env["TEST_DATABASE_URL"] ?? "postgresql://postgres:password@localhost:5433/wp-nps-test";
+process.env["BETTER_AUTH_SECRET"] = "test-secret-for-testing-only-at-least-32-chars-long";
 process.env["BETTER_AUTH_URL"] = "http://localhost:3000";
 process.env["CORS_ORIGIN"] = "http://localhost:3001";

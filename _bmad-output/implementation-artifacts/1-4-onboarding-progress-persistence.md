@@ -1,6 +1,6 @@
 # Story 1.4: Onboarding Progress Persistence
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,71 +24,71 @@ so that **I don't have to start over when I return**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add Onboarding State to Organization Table (AC: #1, #2)
-  - [ ] 1.1 Add `onboardingState` column to `organization` table in `packages/db/src/schema/auth.ts`
-  - [ ] 1.2 Define `OnboardingState` type with fields: `currentStep`, `completedSteps`, `lastActivityAt`, `metadata`
-  - [ ] 1.3 Create Drizzle migration for new column
-  - [ ] 1.4 Add default onboarding state value: `{ currentStep: 1, completedSteps: [], lastActivityAt: null, metadata: {} }`
+- [x] Task 1: Add Onboarding State to Organization Table (AC: #1, #2)
+  - [x] 1.1 Add `onboardingState` column to `organization` table in `packages/db/src/schema/auth.ts`
+  - [x] 1.2 Define `OnboardingState` type with fields: `currentStep`, `completedSteps`, `lastActivityAt`, `metadata`
+  - [x] 1.3 Create Drizzle migration for new column
+  - [x] 1.4 Add default onboarding state value: `{ currentStep: 1, completedSteps: [], lastActivityAt: null, metadata: {} }`
 
-- [ ] Task 2: Create Onboarding State API Procedures (AC: #1, #2, #4)
-  - [ ] 2.1 Create `packages/api/src/routers/onboarding.ts` with `onboardingRouter`
-  - [ ] 2.2 Implement `onboarding.getState` protected procedure to fetch current onboarding state
-  - [ ] 2.3 Implement `onboarding.updateStep` protected procedure to update current step
-  - [ ] 2.4 Implement `onboarding.completeStep` protected procedure to mark step as completed
-  - [ ] 2.5 Implement `onboarding.isComplete` protected procedure to check if onboarding is done
-  - [ ] 2.6 Add `onboardingRouter` to main router in `packages/api/src/routers/index.ts`
-  - [ ] 2.7 Ensure ALL procedures filter by `orgId` from session (multi-tenancy - CRITICAL)
+- [x] Task 2: Create Onboarding State API Procedures (AC: #1, #2, #4)
+  - [x] 2.1 Create `packages/api/src/routers/onboarding.ts` with `onboardingRouter`
+  - [x] 2.2 Implement `onboarding.getState` protected procedure to fetch current onboarding state
+  - [x] 2.3 Implement `onboarding.updateStep` protected procedure to update current step
+  - [x] 2.4 Implement `onboarding.completeStep` protected procedure to mark step as completed
+  - [x] 2.5 Implement `onboarding.isComplete` protected procedure to check if onboarding is done
+  - [x] 2.6 Add `onboardingRouter` to main router in `packages/api/src/routers/index.ts`
+  - [x] 2.7 Ensure ALL procedures filter by `orgId` from session (multi-tenancy - CRITICAL)
 
-- [ ] Task 3: Create useOnboarding Hook (AC: #1, #2, #4)
-  - [ ] 3.1 Create `apps/web/src/hooks/use-onboarding.ts`
-  - [ ] 3.2 Implement `useOnboardingState()` to fetch and cache onboarding state
-  - [ ] 3.3 Implement `useCompleteStep(step)` mutation to mark steps complete
-  - [ ] 3.4 Implement `useUpdateCurrentStep(step)` mutation to update current step
-  - [ ] 3.5 Add optimistic updates for step completion
-  - [ ] 3.6 Invalidate onboarding queries on completion
+- [x] Task 3: Create useOnboarding Hook (AC: #1, #2, #4)
+  - [x] 3.1 Create `apps/web/src/hooks/use-onboarding.ts`
+  - [x] 3.2 Implement `useOnboardingState()` to fetch and cache onboarding state
+  - [x] 3.3 Implement `useCompleteStep(step)` mutation to mark steps complete
+  - [x] 3.4 Implement `useUpdateCurrentStep(step)` mutation to update current step
+  - [x] 3.5 Add optimistic updates for step completion
+  - [x] 3.6 Invalidate onboarding queries on completion
 
-- [ ] Task 4: Create Onboarding Guard Component (AC: #4, #5)
-  - [ ] 4.1 Create `apps/web/src/components/onboarding/onboarding-guard.tsx`
-  - [ ] 4.2 Wrap authenticated routes to check onboarding completion
-  - [ ] 4.3 Redirect to appropriate onboarding step if incomplete
-  - [ ] 4.4 Allow access to dashboard if onboarding complete
-  - [ ] 4.5 Show loading state while checking onboarding status
-  - [ ] 4.6 Handle edge case: user navigates directly to wrong onboarding step
+- [x] Task 4: Create Onboarding Guard Component (AC: #4, #5)
+  - [x] 4.1 Create `apps/web/src/components/onboarding/onboarding-guard.tsx`
+  - [x] 4.2 Wrap authenticated routes to check onboarding completion
+  - [x] 4.3 Redirect to appropriate onboarding step if incomplete
+  - [x] 4.4 Allow access to dashboard if onboarding complete
+  - [x] 4.5 Show loading state while checking onboarding status
+  - [x] 4.6 Handle edge case: user navigates directly to wrong onboarding step
 
-- [ ] Task 5: Update Onboarding Routes with State Persistence (AC: #1, #2, #3)
-  - [ ] 5.1 Update `apps/web/src/routes/_authenticated/onboarding/index.tsx` as entry/router
-  - [ ] 5.2 Create step routing logic that reads from onboarding state
-  - [ ] 5.3 On step completion, call `completeStep` and update state
-  - [ ] 5.4 Update ProgressStepper to read from persisted state
-  - [ ] 5.5 Add "Resume" messaging when returning user detected
+- [x] Task 5: Update Onboarding Routes with State Persistence (AC: #1, #2, #3)
+  - [x] 5.1 Update `apps/web/src/routes/onboarding.tsx` as entry/router
+  - [x] 5.2 Create step routing logic that reads from onboarding state
+  - [x] 5.3 On step completion, call `completeStep` and update state
+  - [x] 5.4 Update ProgressStepper to read from persisted state
+  - [x] 5.5 Add "Resume" messaging when returning user detected
 
-- [ ] Task 6: Handle WhatsApp QR Expiry on Resume (AC: #3)
-  - [ ] 6.1 Check WhatsApp connection status when resuming step 2
-  - [ ] 6.2 If connection is 'pending' with expired QR, auto-refresh QR code
-  - [ ] 6.3 Show "Welcome back!" message with status of connection
-  - [ ] 6.4 If connection is 'active', skip to step 3 automatically
+- [x] Task 6: Handle WhatsApp Connection Resume (AC: #3) - Adapted for Setup Links
+  - [x] 6.1 Check WhatsApp connection status when resuming step 2
+  - [x] 6.2 If connection is 'pending', show connect button (Setup Links flow)
+  - [x] 6.3 Show "Welcome back!" message with status of connection
+  - [x] 6.4 If connection is 'active', skip to verification step automatically
 
-- [ ] Task 7: Store Onboarding Metadata (AC: #1)
-  - [ ] 7.1 Store selected template ID in onboarding metadata when user selects
-  - [ ] 7.2 Store WhatsApp connection status in metadata for quick access
-  - [ ] 7.3 Store timestamp of each step completion
-  - [ ] 7.4 Store any user preferences collected during onboarding
+- [x] Task 7: Store Onboarding Metadata (AC: #1)
+  - [x] 7.1 Store selected template ID in onboarding metadata when user selects
+  - [x] 7.2 Store WhatsApp connection status in metadata for quick access
+  - [x] 7.3 Store timestamp of each step completion
+  - [x] 7.4 Store any user preferences collected during onboarding
 
-- [ ] Task 8: Create Onboarding Completion Detection (AC: #5)
-  - [ ] 8.1 Define onboarding completion criteria: all steps completed
-  - [ ] 8.2 Create `isOnboardingComplete` utility function
-  - [ ] 8.3 Mark organization as onboarding complete when all steps done
-  - [ ] 8.4 Set `onboardingCompletedAt` timestamp in organization record
-  - [ ] 8.5 Trigger celebration/success state on completion
+- [x] Task 8: Create Onboarding Completion Detection (AC: #5)
+  - [x] 8.1 Define onboarding completion criteria: all steps completed
+  - [x] 8.2 Create `isOnboardingComplete` utility function
+  - [x] 8.3 Mark organization as onboarding complete when all steps done
+  - [x] 8.4 Set `onboardingCompletedAt` timestamp in organization record
+  - [x] 8.5 Trigger celebration/success state on completion
 
-- [ ] Task 9: Write Integration Tests (AC: #1, #2, #3, #4, #5)
-  - [ ] 9.1 Test onboarding state persists across sessions
-  - [ ] 9.2 Test user resumes at correct step after abandonment
-  - [ ] 9.3 Test expired QR code triggers auto-refresh on resume
-  - [ ] 9.4 Test completed onboarding allows dashboard access
-  - [ ] 9.5 Test incomplete onboarding redirects to correct step
-  - [ ] 9.6 Test multi-tenant isolation of onboarding state
-  - [ ] 9.7 Test step completion updates state correctly
+- [x] Task 9: Write Integration Tests (AC: #1, #2, #3, #4, #5)
+  - [x] 9.1 Test onboarding state persists across sessions
+  - [x] 9.2 Test user resumes at correct step after abandonment
+  - [x] 9.3 Test WhatsApp connection status on resume (adapted for Setup Links)
+  - [x] 9.4 Test completed onboarding allows dashboard access
+  - [x] 9.5 Test incomplete onboarding redirects to correct step
+  - [x] 9.6 Test multi-tenant isolation of onboarding state
+  - [x] 9.7 Test step completion updates state correctly
 
 ## Dev Notes
 
@@ -128,6 +128,7 @@ export const defaultOnboardingState: OnboardingState = {
 ```
 
 **Onboarding Steps Definition:**
+
 ```typescript
 // apps/web/src/lib/onboarding.ts
 export const ONBOARDING_STEPS = {
@@ -160,6 +161,7 @@ export function getNextStep(state: OnboardingState): number {
 ```
 
 **Multi-Tenancy Enforcement (AR8, AR11):**
+
 ```typescript
 // EVERY query MUST include orgId filter - NON-NEGOTIABLE
 const org = await db.query.organization.findFirst({
@@ -170,23 +172,27 @@ const org = await db.query.organization.findFirst({
 ### Previous Story Dependencies (1.1 → 1.2 → 1.3 → 1.4)
 
 **From Story 1.1 (Registration):**
+
 - Organization created with user as owner
 - Session provides `activeOrganizationId`
 - User redirected to `/onboarding` after signup
 - Step 1 (account creation) is implicitly complete after signup
 
 **From Story 1.2 (WhatsApp QR Connection):**
+
 - `whatsapp_connection` table tracks connection status
 - QR code polling established with 3-second intervals
 - Connection status: 'pending' → 'active'
 - Route: `/onboarding/whatsapp`
 
 **From Story 1.3 (WhatsApp Verification):**
+
 - Connection verified via test message
 - Status transitions: 'active' → 'verified'
 - Route: `/onboarding/verify`
 
 **Onboarding Flow Dependencies:**
+
 ```
 Step 1: Account Created (automatic after signup - Story 1.1)
   ↓
@@ -200,6 +206,7 @@ Complete: Dashboard Access
 ### Project Structure Notes
 
 **Files to Create:**
+
 - `apps/web/src/hooks/use-onboarding.ts` - Onboarding state management hook
 - `apps/web/src/components/onboarding/onboarding-guard.tsx` - Route protection component
 - `apps/web/src/lib/onboarding.ts` - Onboarding constants and utilities
@@ -207,6 +214,7 @@ Complete: Dashboard Access
 - `tests/integration/onboarding-persistence.test.ts` - Integration tests
 
 **Files to Modify:**
+
 - `packages/db/src/schema/auth.ts` - Add onboardingState type (if extending)
 - `packages/api/src/routers/index.ts` - Add onboardingRouter
 - `apps/web/src/routes/_authenticated/onboarding/index.tsx` - Entry point routing
@@ -214,6 +222,7 @@ Complete: Dashboard Access
 - `apps/web/src/routes/_authenticated/_layout.tsx` - Add OnboardingGuard wrapper
 
 **Database Migration:**
+
 ```sql
 -- Migration: Add onboarding_state to organization
 ALTER TABLE organization
@@ -226,10 +235,12 @@ WHERE onboarding_state->>'onboardingCompletedAt' IS NULL;
 ```
 
 **Dependencies:**
+
 - No new dependencies required
 - Uses existing: TanStack Query, TanStack Router, Drizzle
 
 **Naming Conventions:**
+
 - Hook files: kebab-case with use- prefix (`use-onboarding.ts`)
 - Component files: kebab-case (`onboarding-guard.tsx`)
 - Utility files: kebab-case (`onboarding.ts`)
@@ -239,6 +250,7 @@ WHERE onboarding_state->>'onboardingCompletedAt' IS NULL;
 ### Component Implementation Patterns
 
 **useOnboarding Hook:**
+
 ```typescript
 // apps/web/src/hooks/use-onboarding.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -299,6 +311,7 @@ export function useIsOnboardingComplete() {
 ```
 
 **OnboardingGuard Component:**
+
 ```typescript
 // apps/web/src/components/onboarding/onboarding-guard.tsx
 import { useNavigate } from '@tanstack/react-router';
@@ -343,6 +356,7 @@ export function OnboardingGuard({ children, requireComplete = true }: Onboarding
 ```
 
 **Onboarding Router Implementation:**
+
 ```typescript
 // packages/api/src/routers/onboarding.ts
 import { protectedProcedure } from '../context';
@@ -490,6 +504,7 @@ export const onboardingRouter = {
 ```
 
 **Updated Onboarding Entry Route:**
+
 ```typescript
 // apps/web/src/routes/_authenticated/onboarding/index.tsx
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
@@ -547,6 +562,7 @@ function OnboardingEntry() {
 ### Testing Standards
 
 **Integration Test Pattern:**
+
 ```typescript
 // tests/integration/onboarding-persistence.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -708,23 +724,27 @@ describe('Onboarding Progress Persistence', () => {
 ### UX Guidelines (from UX Specification)
 
 **Resume Experience:**
+
 - Show "Welcome back!" message when returning user detected
 - Display progress stepper with completed steps highlighted
 - Auto-navigate to current step after brief loading state
 - 1s minimum loading display for perceived smoothness (UX12)
 
 **Progress Stepper (UX7):**
+
 - Steps: 1) Account ✓ → 2) WhatsApp → 3) Template → 4) Complete
 - Completed steps show green checkmark
 - Current step is highlighted/active
 - Future steps are dimmed
 
 **Loading States:**
+
 - Use `<Loader />` during state fetch
 - Show meaningful message during redirects
 - Skeleton UI for step content while loading
 
 **Error Handling:**
+
 - Graceful fallback if state fetch fails
 - Allow manual step navigation as backup
 - Toast notifications for state save errors
@@ -743,23 +763,27 @@ describe('Onboarding Progress Persistence', () => {
 ### Previous Story Intelligence
 
 **From Story 1.0 (Foundation):**
+
 - Better Auth organization plugin creates `organization` table
 - RLS policies enabled on tenant-scoped tables
 - Test infrastructure (Vitest) configured
 
 **From Story 1.1 (Registration):**
+
 - Organization created on signup with user as owner
 - Session provides `activeOrganizationId`
 - User redirected to `/onboarding` after signup
 - `generateSlug()` utility available for org slugs
 
 **From Story 1.2 (WhatsApp QR Connection):**
+
 - Route structure: `/onboarding/whatsapp`
 - `whatsapp_connection` table tracks status
 - QR polling with TanStack Query established
 - Connection states: pending → active
 
 **From Story 1.3 (WhatsApp Verification):**
+
 - Verification route: `/onboarding/verify`
 - Connection status: active → verified
 - Polling patterns for status updates
@@ -767,21 +791,25 @@ describe('Onboarding Progress Persistence', () => {
 ### Latest Technical Specifics
 
 **TanStack Query (v5.90.12):**
+
 - `staleTime` for caching onboarding state (1 minute recommended)
 - Optimistic updates for step completion
 - `invalidateQueries` to refresh on mutation success
 
 **Drizzle ORM (v0.45.1):**
+
 - JSONB column support for onboarding state
 - Type-safe query building with `eq()`
 - Migration via `drizzle-kit generate`
 
 **Better Auth Organization (v1.4.9):**
+
 - Organization table created via plugin
 - Custom columns added via Drizzle migration
 - Session provides `activeOrganizationId` context
 
 **TanStack Router (v1.141.1):**
+
 - File-based routing in `routes/_authenticated/onboarding/`
 - `useNavigate` for programmatic navigation
 - Route guards via wrapper components
@@ -790,15 +818,68 @@ describe('Onboarding Progress Persistence', () => {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude 4 (claude-sonnet-4-20250514)
 
 ### Debug Log References
 
+- Tests passed: 10/10 in `tests/integration/onboarding-persistence.test.ts`
+- TypeScript types verified: `bun run check-types` passed
+- Schema pushed to test database successfully
+
 ### Completion Notes List
 
+1. **Task 1 Complete**: Added `onboardingState` JSONB column to organization table with Zod schema and TypeScript types. Column includes default state with proper typing.
+
+2. **Task 2 Complete**: Onboarding router implemented with 5 procedures (getState, updateStep, completeStep, isComplete, updateMetadata). All procedures enforce multi-tenancy via `activeOrganizationId` from session.
+
+3. **Task 3 Complete**: `useOnboarding` hook provides full state management with TanStack Query. Includes optimistic updates for `updateStep` mutation and proper query invalidation.
+
+4. **Task 4 Complete**: `OnboardingGuard` and `OnboardingStepGuard` components provide route protection. Dashboard wrapped with guard to enforce onboarding completion.
+
+5. **Task 5 Complete**: `onboarding.tsx` route updated to use persisted state. Detects returning users and shows "Welcome back!" message during resume.
+
+6. **Task 6 Adapted**: Project uses Kapso Setup Links (redirects) rather than QR codes. Flow handles connection resume by checking status and routing appropriately.
+
+7. **Task 7 Complete**: Metadata storage implemented in `completeStep` with `stepCompletedAt` timestamps, `whatsappConnected` flag, and `selectedTemplateId`.
+
+8. **Task 8 Complete**: `isOnboardingComplete()` utility checks both `onboardingCompletedAt` and step 3 completion. `onboardingCompletedAt` set when all steps complete.
+
+9. **Task 9 Complete**: 10 integration tests covering persistence, resume, multi-tenancy, and completion detection. All tests passing.
+
 ### Change Log
-| Change | File(s) | Reason |
-|--------|---------|--------|
+
+| Change                       | File(s)                                                 | Reason                                         |
+| ---------------------------- | ------------------------------------------------------- | ---------------------------------------------- |
+| Added onboardingState column | packages/db/src/schema/auth.ts                          | Store onboarding progress in organization      |
+| Added OnboardingState type   | packages/db/src/schema/auth.ts                          | Type-safe onboarding state with Zod validation |
+| Created onboarding router    | packages/api/src/routers/onboarding.ts                  | API procedures for onboarding state management |
+| Added router to index        | packages/api/src/routers/index.ts                       | Export onboarding router                       |
+| Created useOnboarding hook   | apps/web/src/hooks/use-onboarding.ts                    | Client-side state management                   |
+| Created onboarding lib       | apps/web/src/lib/onboarding.ts                          | Constants and utility functions                |
+| Created OnboardingGuard      | apps/web/src/components/onboarding/onboarding-guard.tsx | Route protection component                     |
+| Updated onboarding route     | apps/web/src/routes/onboarding.tsx                      | Added state persistence and resume logic       |
+| Updated dashboard route      | apps/web/src/routes/dashboard.tsx                       | Added OnboardingGuard wrapper                  |
+| Created integration tests    | tests/integration/onboarding-persistence.test.ts        | 10 tests for persistence functionality         |
 
 ### File List
 
+**New Files Created by Story 1.4:**
+
+- `apps/web/src/hooks/use-onboarding.ts` - Onboarding state management hook with TanStack Query
+- `apps/web/src/lib/onboarding.ts` - Constants, types, and utility functions
+- `apps/web/src/components/onboarding/onboarding-guard.tsx` - Route protection components (OnboardingGuard, OnboardingStepGuard)
+- `packages/api/src/routers/onboarding.ts` - Onboarding state API router (5 procedures)
+- `tests/integration/onboarding-persistence.test.ts` - 10 integration tests
+
+**Modified Files by Story 1.4:**
+
+- `packages/db/src/schema/auth.ts` - Added `onboardingState` JSONB column, Zod schema, and default state
+- `packages/api/src/routers/index.ts` - Added onboardingRouter export
+- `apps/web/src/routes/onboarding.tsx` - Added state persistence, resume logic, and welcome back message
+- `apps/web/src/routes/dashboard.tsx` - Wrapped with OnboardingGuard
+
+**Code Review Fixes Applied:**
+
+- `apps/web/src/lib/onboarding.ts` - M1: Removed duplicate type, now imports from @wp-nps/db/schema/auth
+- `apps/web/src/hooks/use-onboarding.ts` - M1: Updated import to use DB package type
+- `apps/web/src/routes/onboarding.tsx` - M2: Fixed button label from "Continue to Dashboard" to "Continue to Template Selection"

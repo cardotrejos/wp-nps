@@ -7,9 +7,9 @@
  * Usage in tests:
  *   import { test, expect } from '../support/fixtures';
  */
-import { test as base, type Page } from '@playwright/test';
-import { UserFactory } from './factories/user-factory';
-import { SurveyFactory } from './factories/survey-factory';
+import { test as base, type Page } from "@playwright/test";
+import { UserFactory } from "./factories/user-factory";
+import { SurveyFactory } from "./factories/survey-factory";
 
 // Define fixture types
 type TestFixtures = {
@@ -40,7 +40,7 @@ export const test = base.extend<TestFixtures>({
     const user = await userFactory.createUser();
 
     // Login
-    await page.goto('/login');
+    await page.goto("/login");
     await page.fill('[data-testid="email-input"]', user.email);
     await page.fill('[data-testid="password-input"]', user.password);
     await page.click('[data-testid="login-button"]');
@@ -53,4 +53,4 @@ export const test = base.extend<TestFixtures>({
 });
 
 // Re-export expect for convenience
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";

@@ -47,12 +47,12 @@
     "db:down": "turbo -F @wp-nps/db db:down"
   },
   "dependencies": {
-    "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@wp-nps/env": "workspace:*",
     "@wp-nps/db": "workspace:*",
+    "@wp-nps/env": "workspace:*",
     "@wp-nps/kapso": "workspace:*",
-    "drizzle-orm": "^0.45.1"
+    "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.1",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

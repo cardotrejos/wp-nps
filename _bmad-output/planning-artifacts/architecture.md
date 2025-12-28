@@ -52,16 +52,16 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 ### Input Documents Loaded
 
-| Document | Type | Key Insights |
-|----------|------|--------------|
-| PRD | Planning | 78 FRs, 40 NFRs, 6-sprint MVP plan, Kapso integration critical |
-| UX Design | Planning | Mobile-first, WhatsApp-native patterns, shadcn/ui base |
-| Existing Architecture | Brownfield | Better-T Stack: Bun + Elysia + oRPC + Drizzle + React 19 |
-| Data Models | Brownfield | Auth tables only; FlowPulse tables to be added |
-| API Contracts | Brownfield | oRPC type-safe RPC, Better Auth sessions |
-| Integration Architecture | Brownfield | Turbo monorepo with 6 packages |
-| Market Research | Research | Delighted sunsetting, SMB gap at $49-149/mo |
-| Technical Research | Research | Shopify App Store requires GraphQL API by April 2025 |
+| Document                 | Type       | Key Insights                                                   |
+| ------------------------ | ---------- | -------------------------------------------------------------- |
+| PRD                      | Planning   | 78 FRs, 40 NFRs, 6-sprint MVP plan, Kapso integration critical |
+| UX Design                | Planning   | Mobile-first, WhatsApp-native patterns, shadcn/ui base         |
+| Existing Architecture    | Brownfield | Better-T Stack: Bun + Elysia + oRPC + Drizzle + React 19       |
+| Data Models              | Brownfield | Auth tables only; FlowPulse tables to be added                 |
+| API Contracts            | Brownfield | oRPC type-safe RPC, Better Auth sessions                       |
+| Integration Architecture | Brownfield | Turbo monorepo with 6 packages                                 |
+| Market Research          | Research   | Delighted sunsetting, SMB gap at $49-149/mo                    |
+| Technical Research       | Research   | Shopify App Store requires GraphQL API by April 2025           |
 
 ---
 
@@ -71,78 +71,79 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 **Functional Requirements (78 FRs across 11 capability areas):**
 
-| Area | FR Count | Architectural Implication |
-|------|----------|--------------------------|
-| Authentication & Onboarding | 6 | Extend Better Auth with org membership, RBAC |
-| Survey Management | 7 | CRUD + templates + versioning + soft delete |
-| Survey Distribution | 7 | **Kapso API integration (critical path)** |
-| Response Collection | 7 | Webhook receiver + real-time processing |
-| Analytics Dashboard | 8 | Aggregation queries, caching strategy |
-| Alert System | 6 | Push to owner's WhatsApp, real-time triggers |
-| Customer Context | 5 | Customer 360 view, order linking |
-| Response Actions | 7 | Quick response templates, escalation workflow |
-| Billing & Usage | 10 | Subscription tiers, usage tracking, limits |
-| API Access | 6 | External API for integrations (Shopify, etc.) |
-| Settings & Configuration | 6 | Org/user preferences, WhatsApp consent |
+| Area                        | FR Count | Architectural Implication                     |
+| --------------------------- | -------- | --------------------------------------------- |
+| Authentication & Onboarding | 6        | Extend Better Auth with org membership, RBAC  |
+| Survey Management           | 7        | CRUD + templates + versioning + soft delete   |
+| Survey Distribution         | 7        | **Kapso API integration (critical path)**     |
+| Response Collection         | 7        | Webhook receiver + real-time processing       |
+| Analytics Dashboard         | 8        | Aggregation queries, caching strategy         |
+| Alert System                | 6        | Push to owner's WhatsApp, real-time triggers  |
+| Customer Context            | 5        | Customer 360 view, order linking              |
+| Response Actions            | 7        | Quick response templates, escalation workflow |
+| Billing & Usage             | 10       | Subscription tiers, usage tracking, limits    |
+| API Access                  | 6        | External API for integrations (Shopify, etc.) |
+| Settings & Configuration    | 6        | Org/user preferences, WhatsApp consent        |
 
 **Non-Functional Requirements (40 NFRs across 7 categories):**
 
-| Category | Key Requirements | Architectural Impact |
-|----------|-----------------|---------------------|
-| Performance | Dashboard < 2s, API < 200ms | Query optimization, response caching |
-| Scalability | 10K responses/org/month (Growth) | Indexed queries, pagination, archival |
-| Reliability | 99.5% uptime, graceful degradation | Kapso failure handling, retry queues |
-| Security | Multi-tenant isolation, RBAC | RLS + application filtering hybrid |
-| Maintainability | 80% test coverage | Testing strategy, Kapso mocks |
-| Accessibility | WCAG AA, mobile-first | axe-core CI integration |
-| Observability | Logging, metrics, alerting | Structured logging, health checks |
+| Category        | Key Requirements                   | Architectural Impact                  |
+| --------------- | ---------------------------------- | ------------------------------------- |
+| Performance     | Dashboard < 2s, API < 200ms        | Query optimization, response caching  |
+| Scalability     | 10K responses/org/month (Growth)   | Indexed queries, pagination, archival |
+| Reliability     | 99.5% uptime, graceful degradation | Kapso failure handling, retry queues  |
+| Security        | Multi-tenant isolation, RBAC       | RLS + application filtering hybrid    |
+| Maintainability | 80% test coverage                  | Testing strategy, Kapso mocks         |
+| Accessibility   | WCAG AA, mobile-first              | axe-core CI integration               |
+| Observability   | Logging, metrics, alerting         | Structured logging, health checks     |
 
 ### Scale & Complexity Assessment
 
-| Indicator | Assessment | Notes |
-|-----------|------------|-------|
-| **Complexity Level** | Medium-High | External API dependency, multi-tenancy |
-| **Primary Domain** | Full-stack SaaS | Web dashboard + API + external integration |
-| **Multi-tenancy** | Required | org → members → surveys → responses hierarchy |
-| **Real-time Features** | Limited MVP | Polling for MVP, WebSocket-ready architecture |
-| **Estimated Components** | ~15-20 | Across frontend, backend, database |
+| Indicator                | Assessment      | Notes                                         |
+| ------------------------ | --------------- | --------------------------------------------- |
+| **Complexity Level**     | Medium-High     | External API dependency, multi-tenancy        |
+| **Primary Domain**       | Full-stack SaaS | Web dashboard + API + external integration    |
+| **Multi-tenancy**        | Required        | org → members → surveys → responses hierarchy |
+| **Real-time Features**   | Limited MVP     | Polling for MVP, WebSocket-ready architecture |
+| **Estimated Components** | ~15-20          | Across frontend, backend, database            |
 
 ### Technical Constraints & Dependencies
 
-| Constraint | Source | Impact | Mitigation |
-|------------|--------|--------|------------|
-| **Kapso WhatsApp Flows API** | External | Critical path for all survey operations | Abstraction layer, retry queue, health monitoring |
-| **Better-T Stack** | Brownfield | Must extend existing patterns | Follow established oRPC/Drizzle conventions |
-| **PostgreSQL** | Brownfield | Schema extension required | Incremental migrations per sprint |
-| **oRPC Type Safety** | Brownfield | Router organization needed | Nested routers by capability area |
-| **Shopify GraphQL API** | Future | Required by April 2025 for App Store | Design API layer for multiple integrations |
-| **Polling (not WebSocket)** | PRD Scoping | MVP simplicity | Architecture hooks for future upgrade |
+| Constraint                   | Source      | Impact                                  | Mitigation                                        |
+| ---------------------------- | ----------- | --------------------------------------- | ------------------------------------------------- |
+| **Kapso WhatsApp Flows API** | External    | Critical path for all survey operations | Abstraction layer, retry queue, health monitoring |
+| **Better-T Stack**           | Brownfield  | Must extend existing patterns           | Follow established oRPC/Drizzle conventions       |
+| **PostgreSQL**               | Brownfield  | Schema extension required               | Incremental migrations per sprint                 |
+| **oRPC Type Safety**         | Brownfield  | Router organization needed              | Nested routers by capability area                 |
+| **Shopify GraphQL API**      | Future      | Required by April 2025 for App Store    | Design API layer for multiple integrations        |
+| **Polling (not WebSocket)**  | PRD Scoping | MVP simplicity                          | Architecture hooks for future upgrade             |
 
 ### Cross-Cutting Concerns
 
-| Concern | Description | Architectural Decision Needed |
-|---------|-------------|------------------------------|
-| **Multi-Tenancy** | `org_id` isolation in all FlowPulse tables | RLS + application filtering hybrid |
-| **Authentication** | Extend session with org context | Add org membership to Better Auth |
-| **Kapso Abstraction** | Isolate external dependency | `packages/kapso/` or `packages/integrations/` |
-| **Error Handling** | Graceful degradation when Kapso unavailable | Retry queue, user-facing status |
-| **Usage Metering** | Track surveys per billing cycle | Usage table with period aggregation |
-| **Audit Trail** | Log key actions for compliance | Append-only audit log table |
-| **Owner WhatsApp Alerts** | Our differentiator feature | Consent flow, separate notification channel |
+| Concern                   | Description                                 | Architectural Decision Needed                 |
+| ------------------------- | ------------------------------------------- | --------------------------------------------- |
+| **Multi-Tenancy**         | `org_id` isolation in all FlowPulse tables  | RLS + application filtering hybrid            |
+| **Authentication**        | Extend session with org context             | Add org membership to Better Auth             |
+| **Kapso Abstraction**     | Isolate external dependency                 | `packages/kapso/` or `packages/integrations/` |
+| **Error Handling**        | Graceful degradation when Kapso unavailable | Retry queue, user-facing status               |
+| **Usage Metering**        | Track surveys per billing cycle             | Usage table with period aggregation           |
+| **Audit Trail**           | Log key actions for compliance              | Append-only audit log table                   |
+| **Owner WhatsApp Alerts** | Our differentiator feature                  | Consent flow, separate notification channel   |
 
 ### Kapso Integration Risk Mitigation
 
 **Risk Level:** HIGH - Single point of failure for core functionality
 
-| Risk | Probability | Impact | Mitigation Strategy |
-|------|------------|--------|---------------------|
-| Kapso API unavailable | Medium | Critical | Health check + graceful degradation UX |
-| Survey delivery failure | Medium | High | Retry queue with exponential backoff |
-| Webhook delivery failure | Medium | High | Idempotent processing, deduplication |
-| Rate limiting | Low | Medium | Queue with rate limiter |
-| Breaking API changes | Low | High | Version pinning, abstraction layer |
+| Risk                     | Probability | Impact   | Mitigation Strategy                    |
+| ------------------------ | ----------- | -------- | -------------------------------------- |
+| Kapso API unavailable    | Medium      | Critical | Health check + graceful degradation UX |
+| Survey delivery failure  | Medium      | High     | Retry queue with exponential backoff   |
+| Webhook delivery failure | Medium      | High     | Idempotent processing, deduplication   |
+| Rate limiting            | Low         | Medium   | Queue with rate limiter                |
+| Breaking API changes     | Low         | High     | Version pinning, abstraction layer     |
 
 **Architectural Requirements:**
+
 - Mock Kapso service for CI/CD (no external calls in tests)
 - Contract tests against Kapso API specification
 - Failure scenario coverage (timeouts, auth failures, rate limits)
@@ -191,13 +192,13 @@ export const appRouter = {
 
 ### Future Considerations
 
-| Feature | Architectural Preparation |
-|---------|--------------------------|
-| **Free Tier** | Usage limits table, tier enforcement middleware |
-| **Delighted Migration** | Data import API endpoint, CSV/JSON format support |
-| **Shopify Integration** | GraphQL client package, OAuth flow |
-| **WebSocket Upgrade** | Event emitter pattern, subscription-ready queries |
-| **Multi-language Surveys** | i18n table structure, locale in survey model |
+| Feature                    | Architectural Preparation                         |
+| -------------------------- | ------------------------------------------------- |
+| **Free Tier**              | Usage limits table, tier enforcement middleware   |
+| **Delighted Migration**    | Data import API endpoint, CSV/JSON format support |
+| **Shopify Integration**    | GraphQL client package, OAuth flow                |
+| **WebSocket Upgrade**      | Event emitter pattern, subscription-ready queries |
+| **Multi-language Surveys** | i18n table structure, locale in survey model      |
 
 ---
 
@@ -209,28 +210,28 @@ export const appRouter = {
 
 ### Existing Stack Confirmation
 
-| Layer | Technology | Version | Status |
-|-------|------------|---------|--------|
-| Runtime | Bun | Latest | ✅ Installed |
-| Frontend | React | 19.2.3 | ✅ Installed |
-| Build | Vite | 6.2.2 | ✅ Installed |
-| Backend | Elysia | 1.3.21 | ✅ Installed |
-| API | oRPC | 1.12.2 | ✅ Installed |
-| Database | PostgreSQL | 14+ | ✅ Configured |
-| ORM | Drizzle | 0.45.1 | ✅ Installed |
-| Auth | Better Auth | 1.4.9 | ✅ Installed |
-| Monorepo | Turbo | 2.6.3 | ✅ Installed |
-| Styling | TailwindCSS | 4.0.15 | ✅ Installed |
-| State | TanStack Query | 5.90.12 | ✅ Installed |
-| Routing | TanStack Router | 1.141.1 | ✅ Installed |
+| Layer    | Technology      | Version | Status        |
+| -------- | --------------- | ------- | ------------- |
+| Runtime  | Bun             | Latest  | ✅ Installed  |
+| Frontend | React           | 19.2.3  | ✅ Installed  |
+| Build    | Vite            | 6.2.2   | ✅ Installed  |
+| Backend  | Elysia          | 1.3.21  | ✅ Installed  |
+| API      | oRPC            | 1.12.2  | ✅ Installed  |
+| Database | PostgreSQL      | 14+     | ✅ Configured |
+| ORM      | Drizzle         | 0.45.1  | ✅ Installed  |
+| Auth     | Better Auth     | 1.4.9   | ✅ Installed  |
+| Monorepo | Turbo           | 2.6.3   | ✅ Installed  |
+| Styling  | TailwindCSS     | 4.0.15  | ✅ Installed  |
+| State    | TanStack Query  | 5.90.12 | ✅ Installed  |
+| Routing  | TanStack Router | 1.141.1 | ✅ Installed  |
 
 ### Starter Options Considered
 
-| Option | Description | Recommendation |
-|--------|-------------|----------------|
-| **A: Extend Better-T Stack** | Add FlowPulse packages to existing monorepo | ✅ **Selected** |
-| B: Replace with T3 Stack | Migrate to create-t3-app | ❌ Unnecessary churn |
-| C: Replace with Next.js | Migrate from Vite to Next.js | ❌ No SSR needed |
+| Option                       | Description                                 | Recommendation       |
+| ---------------------------- | ------------------------------------------- | -------------------- |
+| **A: Extend Better-T Stack** | Add FlowPulse packages to existing monorepo | ✅ **Selected**      |
+| B: Replace with T3 Stack     | Migrate to create-t3-app                    | ❌ Unnecessary churn |
+| C: Replace with Next.js      | Migrate from Vite to Next.js                | ❌ No SSR needed     |
 
 ### Selected Approach: Extend Better-T Stack
 
@@ -244,26 +245,26 @@ export const appRouter = {
 
 ### FlowPulse Additions to Existing Stack
 
-| Addition | Location | Purpose |
-|----------|----------|---------|
-| FlowPulse schema | `packages/db/src/schema/flowpulse.ts` | Survey, response, org tables |
-| FlowPulse routers | `packages/api/src/routers/` | Survey, response, analytics APIs |
-| Kapso integration | `packages/kapso/` (new package) | WhatsApp Flows abstraction |
-| Dashboard components | `apps/web/src/components/` | NPS, survey, response UI |
-| Dashboard routes | `apps/web/src/routes/` | /dashboard, /surveys, etc. |
+| Addition             | Location                              | Purpose                          |
+| -------------------- | ------------------------------------- | -------------------------------- |
+| FlowPulse schema     | `packages/db/src/schema/flowpulse.ts` | Survey, response, org tables     |
+| FlowPulse routers    | `packages/api/src/routers/`           | Survey, response, analytics APIs |
+| Kapso integration    | `packages/kapso/` (new package)       | WhatsApp Flows abstraction       |
+| Dashboard components | `apps/web/src/components/`            | NPS, survey, response UI         |
+| Dashboard routes     | `apps/web/src/routes/`                | /dashboard, /surveys, etc.       |
 
 ### Architectural Decisions Inherited from Stack
 
-| Decision | Current Choice | FlowPulse Alignment |
-|----------|---------------|---------------------|
-| Language | TypeScript (strict) | ✅ Perfect |
-| Runtime | Bun | ✅ Fast, modern |
-| API Pattern | oRPC | ✅ Extend with nested routers |
-| ORM | Drizzle | ✅ Add FlowPulse schema |
-| Auth | Better Auth | ⚠️ Extend with org membership |
-| Styling | TailwindCSS 4 + shadcn/ui | ✅ Matches UX spec |
-| State | TanStack Query | ✅ Perfect for polling |
-| Routing | TanStack Router | ✅ Add dashboard routes |
+| Decision    | Current Choice            | FlowPulse Alignment           |
+| ----------- | ------------------------- | ----------------------------- |
+| Language    | TypeScript (strict)       | ✅ Perfect                    |
+| Runtime     | Bun                       | ✅ Fast, modern               |
+| API Pattern | oRPC                      | ✅ Extend with nested routers |
+| ORM         | Drizzle                   | ✅ Add FlowPulse schema       |
+| Auth        | Better Auth               | ⚠️ Extend with org membership |
+| Styling     | TailwindCSS 4 + shadcn/ui | ✅ Matches UX spec            |
+| State       | TanStack Query            | ✅ Perfect for polling        |
+| Routing     | TanStack Router           | ✅ Add dashboard routes       |
 
 ### Better Auth Extension Required
 
@@ -304,6 +305,7 @@ export const auth = betterAuth({
 ```
 
 **Rationale:**
+
 - Native Better Auth plugin eliminates custom code
 - Creates `organization`, `member`, `invitation` tables automatically
 - Provides session context with `activeOrganizationId`
@@ -375,6 +377,7 @@ export class KapsoMockClient implements IKapsoClient {
 **Decision:** DB-backed job table with queue semantics (no external queue infrastructure)
 
 **Rationale:**
+
 - MVP simplicity - no Redis/BullMQ dependency
 - PostgreSQL provides ACID guarantees
 - Can migrate to proper queue later if scale demands
@@ -463,14 +466,15 @@ async function processWebhookJobs() {
 **Status:** Confirmed
 **Decision:** Railway.app with São Paulo region
 
-| Component | Hosting | Notes |
-|-----------|---------|-------|
-| Web App | Railway | Vite static + Bun server |
-| API Server | Railway | Elysia on Bun |
-| PostgreSQL | Railway | Managed PostgreSQL |
-| Region | São Paulo | LATAM target market proximity |
+| Component  | Hosting   | Notes                         |
+| ---------- | --------- | ----------------------------- |
+| Web App    | Railway   | Vite static + Bun server      |
+| API Server | Railway   | Elysia on Bun                 |
+| PostgreSQL | Railway   | Managed PostgreSQL            |
+| Region     | São Paulo | LATAM target market proximity |
 
 **Rationale:**
+
 - Railway supports Bun natively
 - São Paulo region for LATAM market (lower latency)
 - Simple Dockerfile-based deployment
@@ -502,6 +506,7 @@ export const queryClient = new QueryClient({
 **Decision:** Metrics pre-aggregation table with application-level updates
 
 **Rationale:**
+
 - Dashboard queries against pre-aggregated data (< 200ms)
 - Avoid complex query aggregation on each request
 - Application code updates metrics (not DB triggers - easier to maintain)
@@ -565,6 +570,7 @@ async function updateOrgMetrics(orgId: string, response: SurveyResponse) {
 **Decision:** Unified middleware combining rate limiting + usage tracking
 
 **Rationale:**
+
 - Both need to read session context and plan limits
 - Single middleware reduces overhead
 - Usage data serves both billing and rate limiting
@@ -621,13 +627,13 @@ export const usageMiddleware = async (ctx: Context, next: Next) => {
 
 ## Deferred Decisions
 
-| Decision | Defer Until | Notes |
-|----------|-------------|-------|
-| Email channel addition | Post-MVP | Architecture supports; Kapso-only for MVP |
-| WebSocket real-time | Post-MVP | Polling works; event emitter pattern ready |
-| Redis caching | Scale trigger | DB-backed job table sufficient for MVP |
-| CDN for assets | Post-launch | Railway handles static serving initially |
-| Multi-region deployment | Scale trigger | São Paulo only for MVP |
+| Decision                | Defer Until   | Notes                                      |
+| ----------------------- | ------------- | ------------------------------------------ |
+| Email channel addition  | Post-MVP      | Architecture supports; Kapso-only for MVP  |
+| WebSocket real-time     | Post-MVP      | Polling works; event emitter pattern ready |
+| Redis caching           | Scale trigger | DB-backed job table sufficient for MVP     |
+| CDN for assets          | Post-launch   | Railway handles static serving initially   |
+| Multi-region deployment | Scale trigger | São Paulo only for MVP                     |
 
 ---
 
@@ -635,20 +641,20 @@ export const usageMiddleware = async (ctx: Context, next: Next) => {
 
 ### Kapso Testing Strategy
 
-| Test Type | Implementation |
-|-----------|---------------|
-| Unit tests | `KapsoMockClient` for all client code |
-| Contract tests | Verify against Kapso API spec |
-| Integration tests | Mock server for webhook processing |
+| Test Type         | Implementation                          |
+| ----------------- | --------------------------------------- |
+| Unit tests        | `KapsoMockClient` for all client code   |
+| Contract tests    | Verify against Kapso API spec           |
+| Integration tests | Mock server for webhook processing      |
 | Failure scenarios | Timeout, auth failure, rate limit mocks |
 
 ### Multi-Tenancy Testing
 
-| Test Type | Implementation |
-|-----------|---------------|
-| Cross-org access | Automated tests that MUST fail |
-| Seed strategy | Multiple test orgs in fixtures |
-| CI gate | Block merge on isolation violations |
+| Test Type        | Implementation                      |
+| ---------------- | ----------------------------------- |
+| Cross-org access | Automated tests that MUST fail      |
+| Seed strategy    | Multiple test orgs in fixtures      |
+| CI gate          | Block merge on isolation violations |
 
 ---
 
@@ -669,12 +675,12 @@ graph TD
 
 ### Risk Summary
 
-| Decision | Risk Level | Mitigation |
-|----------|------------|------------|
-| Better Auth Plugin | Low | Verify table structure before migration |
-| DB-backed Jobs | Medium | Design for queue migration path |
-| No Redis | Low | Can add later if needed |
-| São Paulo Region | Low | Railway supports region migration |
+| Decision           | Risk Level | Mitigation                              |
+| ------------------ | ---------- | --------------------------------------- |
+| Better Auth Plugin | Low        | Verify table structure before migration |
+| DB-backed Jobs     | Medium     | Design for queue migration path         |
+| No Redis           | Low        | Can add later if needed                 |
+| São Paulo Region   | Low        | Railway supports region migration       |
 
 ---
 
@@ -692,32 +698,32 @@ Based on analysis of the existing Better-T Stack codebase, these patterns ensure
 
 **Database Naming Conventions:**
 
-| Element | Pattern | Example |
-|---------|---------|---------|
-| Tables | Singular, lowercase | `survey`, `response`, `alert` |
-| Columns | snake_case in SQL | `org_id`, `created_at`, `nps_score` |
-| TypeScript fields | camelCase | `orgId`, `createdAt`, `npsScore` |
-| Foreign keys | `{referenced_table}_id` | `survey_id`, `org_id` |
-| Indexes | `idx_{table}_{columns}` | `idx_survey_org_id` |
-| Unique constraints | `uq_{table}_{columns}` | `uq_response_idempotency` |
+| Element            | Pattern                 | Example                             |
+| ------------------ | ----------------------- | ----------------------------------- |
+| Tables             | Singular, lowercase     | `survey`, `response`, `alert`       |
+| Columns            | snake_case in SQL       | `org_id`, `created_at`, `nps_score` |
+| TypeScript fields  | camelCase               | `orgId`, `createdAt`, `npsScore`    |
+| Foreign keys       | `{referenced_table}_id` | `survey_id`, `org_id`               |
+| Indexes            | `idx_{table}_{columns}` | `idx_survey_org_id`                 |
+| Unique constraints | `uq_{table}_{columns}`  | `uq_response_idempotency`           |
 
 **API Naming Conventions:**
 
-| Element | Pattern | Example |
-|---------|---------|---------|
-| Router names | camelCase, noun | `surveyRouter`, `responseRouter` |
-| Procedure names | verb + noun | `create`, `getById`, `list`, `update`, `delete` |
-| Query keys | array with namespace | `['surveys', orgId]`, `['survey', surveyId]` |
+| Element         | Pattern              | Example                                         |
+| --------------- | -------------------- | ----------------------------------------------- |
+| Router names    | camelCase, noun      | `surveyRouter`, `responseRouter`                |
+| Procedure names | verb + noun          | `create`, `getById`, `list`, `update`, `delete` |
+| Query keys      | array with namespace | `['surveys', orgId]`, `['survey', surveyId]`    |
 
 **Code Naming Conventions:**
 
-| Element | Pattern | Example |
-|---------|---------|---------|
-| Component files | kebab-case | `survey-card.tsx`, `nps-gauge.tsx` |
-| Component exports | PascalCase | `SurveyCard`, `NpsGauge` |
-| Hook files | kebab-case with use- | `use-surveys.ts` |
-| Hook exports | camelCase with use | `useSurveys`, `useNpsScore` |
-| Utility files | kebab-case | `date-utils.ts`, `nps-calculator.ts` |
+| Element           | Pattern              | Example                              |
+| ----------------- | -------------------- | ------------------------------------ |
+| Component files   | kebab-case           | `survey-card.tsx`, `nps-gauge.tsx`   |
+| Component exports | PascalCase           | `SurveyCard`, `NpsGauge`             |
+| Hook files        | kebab-case with use- | `use-surveys.ts`                     |
+| Hook exports      | camelCase with use   | `useSurveys`, `useNpsScore`          |
+| Utility files     | kebab-case           | `date-utils.ts`, `nps-calculator.ts` |
 
 ---
 
@@ -801,19 +807,19 @@ return {
 
 **Date Formats:**
 
-| Context | Format | Example |
-|---------|--------|---------|
-| API responses | ISO 8601 string | `2025-12-26T10:30:00Z` |
-| Database | TIMESTAMPTZ | Native PostgreSQL |
-| UI display | Localized via Intl | `Dec 26, 2025` |
+| Context       | Format             | Example                |
+| ------------- | ------------------ | ---------------------- |
+| API responses | ISO 8601 string    | `2025-12-26T10:30:00Z` |
+| Database      | TIMESTAMPTZ        | Native PostgreSQL      |
+| UI display    | Localized via Intl | `Dec 26, 2025`         |
 
 **JSON Field Naming:**
 
-| Layer | Convention | Example |
-|-------|------------|---------|
-| API request/response | camelCase | `{ surveyId, npsScore }` |
-| Database columns | snake_case | `survey_id, nps_score` |
-| Drizzle handles | Automatic mapping | TypeScript ↔ SQL |
+| Layer                | Convention        | Example                  |
+| -------------------- | ----------------- | ------------------------ |
+| API request/response | camelCase         | `{ surveyId, npsScore }` |
+| Database columns     | snake_case        | `survey_id, nps_score`   |
+| Drizzle handles      | Automatic mapping | TypeScript ↔ SQL         |
 
 ---
 
@@ -845,12 +851,12 @@ export const analyticsKeys = {
 
 **Loading State Conventions:**
 
-| Pattern | Usage | Example |
-|---------|-------|---------|
-| `isPending` | Query is loading | `const { isPending } = useQuery(...)` |
-| `isLoading` | Initial load (no cache) | First render check |
-| `isFetching` | Background refetch | Show subtle indicator |
-| `isSubmitting` | Form submission | `form.state.isSubmitting` |
+| Pattern        | Usage                   | Example                               |
+| -------------- | ----------------------- | ------------------------------------- |
+| `isPending`    | Query is loading        | `const { isPending } = useQuery(...)` |
+| `isLoading`    | Initial load (no cache) | First render check                    |
+| `isFetching`   | Background refetch      | Show subtle indicator                 |
+| `isSubmitting` | Form submission         | `form.state.isSubmitting`             |
 
 ---
 
@@ -936,12 +942,12 @@ export const surveyRouter = {
 
 **Pattern Verification:**
 
-| Check | Tool | Config |
-|-------|------|--------|
-| Naming conventions | Biome linter | `biome.json` |
-| Type safety | TypeScript strict | `tsconfig.json` |
-| Org isolation | Custom ESLint rule | Warn on queries without `orgId` |
-| Test coverage | Vitest | 80% threshold |
+| Check              | Tool               | Config                          |
+| ------------------ | ------------------ | ------------------------------- |
+| Naming conventions | Biome linter       | `biome.json`                    |
+| Type safety        | TypeScript strict  | `tsconfig.json`                 |
+| Org isolation      | Custom ESLint rule | Warn on queries without `orgId` |
+| Test coverage      | Vitest             | 80% threshold                   |
 
 ---
 
@@ -997,19 +1003,19 @@ return { data: survey, success: true }; // Just return survey!
 
 Based on the PRD's 11 capability areas, here's how they map to the monorepo:
 
-| FR Category | Primary Location | Secondary Locations |
-|-------------|------------------|---------------------|
-| **Authentication & Onboarding** | `packages/auth/` | `apps/web/src/routes/`, `packages/db/schema/` |
-| **Survey Management** | `packages/api/src/routers/survey.ts` | `apps/web/src/components/surveys/` |
-| **Survey Distribution** | `packages/kapso/` | `packages/api/src/routers/distribution.ts` |
-| **Response Collection** | `apps/server/src/webhooks/` | `packages/api/src/routers/response.ts` |
-| **Analytics Dashboard** | `apps/web/src/routes/dashboard/` | `packages/api/src/routers/analytics.ts` |
-| **Alert System** | `packages/api/src/routers/alert.ts` | `packages/kapso/` (owner notifications) |
-| **Customer Context** | `packages/api/src/routers/customer.ts` | `packages/db/schema/flowpulse.ts` |
-| **Response Actions** | `apps/web/src/components/responses/` | `packages/api/src/routers/response.ts` |
-| **Billing & Usage** | `packages/api/src/routers/billing.ts` | `packages/db/schema/flowpulse.ts` |
-| **API Access** | `packages/api/src/routers/external.ts` | Documentation in `apps/fumadocs/` |
-| **Settings & Configuration** | `apps/web/src/routes/settings/` | `packages/api/src/routers/settings.ts` |
+| FR Category                     | Primary Location                       | Secondary Locations                           |
+| ------------------------------- | -------------------------------------- | --------------------------------------------- |
+| **Authentication & Onboarding** | `packages/auth/`                       | `apps/web/src/routes/`, `packages/db/schema/` |
+| **Survey Management**           | `packages/api/src/routers/survey.ts`   | `apps/web/src/components/surveys/`            |
+| **Survey Distribution**         | `packages/kapso/`                      | `packages/api/src/routers/distribution.ts`    |
+| **Response Collection**         | `apps/server/src/webhooks/`            | `packages/api/src/routers/response.ts`        |
+| **Analytics Dashboard**         | `apps/web/src/routes/dashboard/`       | `packages/api/src/routers/analytics.ts`       |
+| **Alert System**                | `packages/api/src/routers/alert.ts`    | `packages/kapso/` (owner notifications)       |
+| **Customer Context**            | `packages/api/src/routers/customer.ts` | `packages/db/schema/flowpulse.ts`             |
+| **Response Actions**            | `apps/web/src/components/responses/`   | `packages/api/src/routers/response.ts`        |
+| **Billing & Usage**             | `packages/api/src/routers/billing.ts`  | `packages/db/schema/flowpulse.ts`             |
+| **API Access**                  | `packages/api/src/routers/external.ts` | Documentation in `apps/fumadocs/`             |
+| **Settings & Configuration**    | `apps/web/src/routes/settings/`        | `packages/api/src/routers/settings.ts`        |
 
 ---
 
@@ -1272,15 +1278,15 @@ wp-nps/                                    # FlowPulse Monorepo
 
 **Package Dependency Graph:**
 
-| Package | Depends On | Depended By | Responsibility |
-|---------|------------|-------------|----------------|
-| `packages/config` | None | All | Shared configurations |
-| `packages/env` | None | api, server | Environment validation |
-| `packages/db` | drizzle | api, server | Schema & database client |
-| `packages/auth` | better-auth, db | api, web | Authentication |
-| `packages/kapso` | None | api, server | Kapso API abstraction |
-| `packages/shared` | zod | api, web | Shared types & schemas |
-| `packages/api` | db, auth, kapso, shared | web, server | Business logic |
+| Package           | Depends On              | Depended By | Responsibility           |
+| ----------------- | ----------------------- | ----------- | ------------------------ |
+| `packages/config` | None                    | All         | Shared configurations    |
+| `packages/env`    | None                    | api, server | Environment validation   |
+| `packages/db`     | drizzle                 | api, server | Schema & database client |
+| `packages/auth`   | better-auth, db         | api, web    | Authentication           |
+| `packages/kapso`  | None                    | api, server | Kapso API abstraction    |
+| `packages/shared` | zod                     | api, web    | Shared types & schemas   |
+| `packages/api`    | db, auth, kapso, shared | web, server | Business logic           |
 
 **Data Boundaries:**
 
@@ -1313,20 +1319,20 @@ wp-nps/                                    # FlowPulse Monorepo
 
 **Internal Communication:**
 
-| From | To | Method | Data |
-|------|-----|--------|------|
-| `apps/web` | `packages/api` | oRPC client | Type-safe RPC calls |
-| `apps/server` | `packages/api` | Direct import | Shared procedures |
-| `packages/api` | `packages/db` | Drizzle queries | Database operations |
-| `packages/api` | `packages/kapso` | IKapsoClient | WhatsApp operations |
+| From           | To               | Method          | Data                |
+| -------------- | ---------------- | --------------- | ------------------- |
+| `apps/web`     | `packages/api`   | oRPC client     | Type-safe RPC calls |
+| `apps/server`  | `packages/api`   | Direct import   | Shared procedures   |
+| `packages/api` | `packages/db`    | Drizzle queries | Database operations |
+| `packages/api` | `packages/kapso` | IKapsoClient    | WhatsApp operations |
 
 **External Integrations:**
 
-| Integration | Package | Endpoint | Purpose |
-|-------------|---------|----------|---------|
-| **Kapso API** | `packages/kapso` | Outbound HTTPS | Send surveys via WhatsApp |
-| **Kapso Webhooks** | `apps/server` | `/webhooks/kapso` | Receive responses |
-| **Shopify** (Future) | `packages/shopify` | GraphQL | Order data, customer sync |
+| Integration          | Package            | Endpoint          | Purpose                   |
+| -------------------- | ------------------ | ----------------- | ------------------------- |
+| **Kapso API**        | `packages/kapso`   | Outbound HTTPS    | Send surveys via WhatsApp |
+| **Kapso Webhooks**   | `apps/server`      | `/webhooks/kapso` | Receive responses         |
+| **Shopify** (Future) | `packages/shopify` | GraphQL           | Order data, customer sync |
 
 **Data Flow Diagrams:**
 
@@ -1387,7 +1393,7 @@ Railway Project
 
 ## Architecture Validation Results
 
-*Validated by multi-agent panel review (Winston, Amelia, Murat, John, Sally)*
+_Validated by multi-agent panel review (Winston, Amelia, Murat, John, Sally)_
 
 ### Coherence Validation ✅
 
@@ -1424,40 +1430,43 @@ Project structure supports all architectural decisions. Package boundaries are c
 
 **Important Gaps (Addressed by Panel):**
 
-| Gap | Resolution | Owner |
-|-----|------------|-------|
-| Webhook processor mechanism | `setInterval` with 5s polling in Bun | Dev |
-| Test database strategy | Transaction rollback + Docker Compose for CI | Test |
-| E2E test framework | Playwright for E2E tests | Test |
-| Query invalidation patterns | Added to Communication Patterns | Dev |
-| Contract test tooling | MSW (Mock Service Worker) for Kapso | Test |
+| Gap                         | Resolution                                   | Owner |
+| --------------------------- | -------------------------------------------- | ----- |
+| Webhook processor mechanism | `setInterval` with 5s polling in Bun         | Dev   |
+| Test database strategy      | Transaction rollback + Docker Compose for CI | Test  |
+| E2E test framework          | Playwright for E2E tests                     | Test  |
+| Query invalidation patterns | Added to Communication Patterns              | Dev   |
+| Contract test tooling       | MSW (Mock Service Worker) for Kapso          | Test  |
 
 **Medium Priority Enhancements:**
 
-| Enhancement | Location | Notes |
-|-------------|----------|-------|
-| Redis/BullMQ migration path | Decision 3 addendum | Scale trigger: >100 webhooks/min |
-| Graceful degradation UX | NFR section | Banner + local queue during outages |
-| Kapso health visibility | Dashboard | `kapso-status.tsx` prominent placement |
-| Responsive breakpoint patterns | Implementation Patterns | 640px, 768px, 1024px |
+| Enhancement                    | Location                | Notes                                  |
+| ------------------------------ | ----------------------- | -------------------------------------- |
+| Redis/BullMQ migration path    | Decision 3 addendum     | Scale trigger: >100 webhooks/min       |
+| Graceful degradation UX        | NFR section             | Banner + local queue during outages    |
+| Kapso health visibility        | Dashboard               | `kapso-status.tsx` prominent placement |
+| Responsive breakpoint patterns | Implementation Patterns | 640px, 768px, 1024px                   |
 
 ---
 
 ### Architecture Completeness Checklist
 
 **✅ Requirements Analysis**
+
 - [x] Project context thoroughly analyzed
 - [x] Scale and complexity assessed
 - [x] Technical constraints identified
 - [x] Cross-cutting concerns mapped
 
 **✅ Architectural Decisions**
+
 - [x] 6 critical decisions documented with versions
 - [x] Technology stack fully specified
 - [x] Integration patterns defined
 - [x] Performance considerations addressed
 
 **✅ Implementation Patterns**
+
 - [x] Naming conventions established
 - [x] Structure patterns defined
 - [x] Communication patterns specified
@@ -1465,12 +1474,14 @@ Project structure supports all architectural decisions. Package boundaries are c
 - [x] Query invalidation patterns added
 
 **✅ Project Structure**
+
 - [x] Complete directory structure defined
 - [x] Component boundaries established
 - [x] Integration points mapped
 - [x] Requirements to structure mapping complete
 
 **✅ Testing Strategy**
+
 - [x] Unit test patterns (co-located)
 - [x] Integration test approach (Vitest)
 - [x] E2E framework (Playwright)
@@ -1486,12 +1497,14 @@ Project structure supports all architectural decisions. Package boundaries are c
 **Confidence Level:** HIGH (validated by multi-agent panel)
 
 **Key Strengths:**
+
 - Defense-in-depth multi-tenancy (RLS + application filtering)
 - Clean Kapso abstraction with mockable interface
 - Brownfield extension preserves existing patterns
 - Comprehensive implementation patterns prevent agent conflicts
 
 **Areas for Future Enhancement:**
+
 - Redis migration path documented (trigger: >100 webhooks/min)
 - WebSocket upgrade path preserved
 - Shopify GraphQL integration slot ready
@@ -1501,6 +1514,7 @@ Project structure supports all architectural decisions. Package boundaries are c
 ### Implementation Handoff
 
 **AI Agent Guidelines:**
+
 1. Follow all architectural decisions exactly as documented
 2. Use implementation patterns consistently across all components
 3. Respect project structure and boundaries
@@ -1509,6 +1523,7 @@ Project structure supports all architectural decisions. Package boundaries are c
 6. Refer to this document for all architectural questions
 
 **First Implementation Priority:**
+
 ```bash
 # Sprint 1 starting point
 1. packages/auth/ - Add organization plugin

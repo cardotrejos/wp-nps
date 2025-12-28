@@ -1,12 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { sql } from "drizzle-orm";
 import { db } from "@wp-nps/db";
-import {
-  createTestOrg,
-  cleanupTestOrg,
-  setOrgContext,
-  clearOrgContext,
-} from "../utils/test-org";
+import { createTestOrg, cleanupTestOrg, setOrgContext, clearOrgContext } from "../utils/test-org";
 
 /**
  * Multi-Tenant Isolation Tests
@@ -60,10 +55,7 @@ describe("Multi-Tenant Isolation", () => {
         `);
 
         const row = result.rows[0] as { relrowsecurity: boolean } | undefined;
-        expect(
-          row?.relrowsecurity,
-          `RLS should be enabled on ${tableName}`,
-        ).toBe(true);
+        expect(row?.relrowsecurity, `RLS should be enabled on ${tableName}`).toBe(true);
       }
     });
 
@@ -89,10 +81,9 @@ describe("Multi-Tenant Isolation", () => {
           );
         });
 
-        expect(
-          hasOrgPolicy,
-          `${tableName} should have a policy using app.current_org_id`,
-        ).toBe(true);
+        expect(hasOrgPolicy, `${tableName} should have a policy using app.current_org_id`).toBe(
+          true,
+        );
       }
     });
   });
@@ -119,9 +110,7 @@ describe("Multi-Tenant Isolation", () => {
 
       // Switch to org2
       await setOrgContext(org2.id);
-      result = await db.execute(
-        sql`SELECT current_setting('app.current_org_id', true) as org_id`,
-      );
+      result = await db.execute(sql`SELECT current_setting('app.current_org_id', true) as org_id`);
       row = result.rows[0] as { org_id: string };
       expect(row.org_id).toBe(org2.id);
     });
@@ -149,9 +138,7 @@ describe("Multi-Tenant Isolation", () => {
       `);
 
       // Verify the survey was created with correct org_id
-      const result = await db.execute(
-        sql`SELECT org_id FROM survey WHERE id = ${surveyId}`,
-      );
+      const result = await db.execute(sql`SELECT org_id FROM survey WHERE id = ${surveyId}`);
       const row = result.rows[0] as { org_id: string };
       expect(row.org_id).toBe(org1.id);
     });
@@ -171,16 +158,12 @@ describe("Multi-Tenant Isolation", () => {
       `);
 
       // Query with org1 filter - should only see org1's survey
-      const org1Surveys = await db.execute(
-        sql`SELECT id FROM survey WHERE org_id = ${org1.id}`,
-      );
+      const org1Surveys = await db.execute(sql`SELECT id FROM survey WHERE org_id = ${org1.id}`);
       expect(org1Surveys.rows).toHaveLength(1);
       expect((org1Surveys.rows[0] as { id: string }).id).toBe(survey1Id);
 
       // Query with org2 filter - should only see org2's survey
-      const org2Surveys = await db.execute(
-        sql`SELECT id FROM survey WHERE org_id = ${org2.id}`,
-      );
+      const org2Surveys = await db.execute(sql`SELECT id FROM survey WHERE org_id = ${org2.id}`);
       expect(org2Surveys.rows).toHaveLength(1);
       expect((org2Surveys.rows[0] as { id: string }).id).toBe(survey2Id);
     });
@@ -279,9 +262,7 @@ describe("Multi-Tenant Isolation", () => {
       `);
 
       // Verify isolation
-      const org1Alerts = await db.execute(
-        sql`SELECT id FROM alert WHERE org_id = ${org1.id}`,
-      );
+      const org1Alerts = await db.execute(sql`SELECT id FROM alert WHERE org_id = ${org1.id}`);
       expect(org1Alerts.rows).toHaveLength(1);
       expect((org1Alerts.rows[0] as { id: string }).id).toBe(alert1Id);
     });
@@ -321,9 +302,7 @@ describe("Multi-Tenant Isolation", () => {
       `);
 
       // Verify isolation
-      const org1Usage = await db.execute(
-        sql`SELECT id FROM org_usage WHERE org_id = ${org1.id}`,
-      );
+      const org1Usage = await db.execute(sql`SELECT id FROM org_usage WHERE org_id = ${org1.id}`);
       expect(org1Usage.rows).toHaveLength(1);
       expect((org1Usage.rows[0] as { id: string }).id).toBe(usage1Id);
     });
@@ -342,9 +321,7 @@ describe("Multi-Tenant Isolation", () => {
       `);
 
       // Verify isolation
-      const org1Jobs = await db.execute(
-        sql`SELECT id FROM webhook_job WHERE org_id = ${org1.id}`,
-      );
+      const org1Jobs = await db.execute(sql`SELECT id FROM webhook_job WHERE org_id = ${org1.id}`);
       expect(org1Jobs.rows).toHaveLength(1);
       expect((org1Jobs.rows[0] as { id: string }).id).toBe(job1Id);
     });

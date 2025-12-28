@@ -46,9 +46,7 @@ describe("Organization Management", () => {
       expect(testOrg1.slug).toBe("acme-corp");
 
       // Verify in database
-      const result = await db.execute(
-        sql`SELECT * FROM organization WHERE id = ${testOrg1.id}`,
-      );
+      const result = await db.execute(sql`SELECT * FROM organization WHERE id = ${testOrg1.id}`);
       expect(result.rows).toHaveLength(1);
       const org = result.rows[0] as { id: string; name: string; slug: string };
       expect(org.name).toBe("Acme Corp");

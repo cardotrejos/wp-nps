@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * FlowPulse E2E Test Configuration
@@ -10,7 +10,7 @@ import { defineConfig, devices } from '@playwright/test';
  * - Assertion timeout: 15s (expect statements)
  */
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: "./tests/e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -24,12 +24,12 @@ export default defineConfig({
 
   use: {
     // Base URL from environment or default to local dev
-    baseURL: process.env.BASE_URL || 'http://localhost:3001',
+    baseURL: process.env.BASE_URL || "http://localhost:3001",
 
     // Artifact capture: failure-only to reduce storage
-    trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
 
     // Action timeouts
     actionTimeout: 15 * 1000, // 15s for clicks, fills
@@ -38,21 +38,21 @@ export default defineConfig({
 
   // Reporter configuration
   reporter: [
-    ['html', { outputFolder: 'test-results/html' }],
-    ['junit', { outputFile: 'test-results/junit.xml' }],
-    ['list'],
+    ["html", { outputFolder: "test-results/html" }],
+    ["junit", { outputFile: "test-results/junit.xml" }],
+    ["list"],
   ],
 
   // Browser projects - mobile-first dashboard testing
   projects: [
     // Desktop browsers
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
 
     // Mobile devices (FlowPulse is mobile-first)
-    { name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
-    { name: 'mobile-safari', use: { ...devices['iPhone 13'] } },
+    { name: "mobile-chrome", use: { ...devices["Pixel 5"] } },
+    { name: "mobile-safari", use: { ...devices["iPhone 13"] } },
   ],
 
   // Web server configuration (optional - use when running standalone)

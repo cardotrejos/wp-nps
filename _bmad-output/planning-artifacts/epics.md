@@ -279,20 +279,20 @@ This document provides the complete epic and story breakdown for FlowPulse, deco
 
 ### FR Coverage Map
 
-| FR Range | Epic | Description |
-|----------|------|-------------|
-| FR1-FR6 | Epic 1 | Authentication & Onboarding |
-| FR7-FR13 | Epic 2 | Survey Creation & Management |
-| FR14-FR20 | Epic 3 | Survey Distribution |
-| FR21-FR27 | Epic 3 | Response Collection |
-| FR28-FR35 | Epic 4 | Analytics Dashboard |
-| FR36-FR41 | Epic 5a | Detractor Alerts |
-| FR42-FR46 | Epic 5b | Customer Context |
-| FR47-FR53 | Epic 5b | Response Actions |
-| FR54-FR63 | Epic 6 | Billing & Subscription |
-| FR64-FR69 | Epic 3 | API Access (merged) |
-| FR70-FR75 | Epic 7 | Settings & Configuration |
-| FR76-FR78 | Epic 7 | Onboarding Analytics |
+| FR Range  | Epic    | Description                  |
+| --------- | ------- | ---------------------------- |
+| FR1-FR6   | Epic 1  | Authentication & Onboarding  |
+| FR7-FR13  | Epic 2  | Survey Creation & Management |
+| FR14-FR20 | Epic 3  | Survey Distribution          |
+| FR21-FR27 | Epic 3  | Response Collection          |
+| FR28-FR35 | Epic 4  | Analytics Dashboard          |
+| FR36-FR41 | Epic 5a | Detractor Alerts             |
+| FR42-FR46 | Epic 5b | Customer Context             |
+| FR47-FR53 | Epic 5b | Response Actions             |
+| FR54-FR63 | Epic 6  | Billing & Subscription       |
+| FR64-FR69 | Epic 3  | API Access (merged)          |
+| FR70-FR75 | Epic 7  | Settings & Configuration     |
+| FR76-FR78 | Epic 7  | Onboarding Analytics         |
 
 ---
 
@@ -300,26 +300,26 @@ This document provides the complete epic and story breakdown for FlowPulse, deco
 
 These are addressed incrementally across epics, not as standalone stories:
 
-| Concern | Addressed In | Notes |
-|---------|--------------|-------|
-| CI/CD & Deployment | Epic 1 (foundation), then incremental | Railway.app São Paulo (AR5) |
-| Testing Infrastructure | Epic 1 (Vitest/MSW setup), then per-epic | AR15, AR16 |
-| Accessibility Compliance | Every UI epic | axe-core gate (UX18), WCAG AA |
-| Multi-Tenancy Enforcement | Every data epic | AR8, AR11 - orgId filtering |
-| Error Handling & Logging | Every epic | NFR-O1, graceful degradation |
+| Concern                   | Addressed In                             | Notes                         |
+| ------------------------- | ---------------------------------------- | ----------------------------- |
+| CI/CD & Deployment        | Epic 1 (foundation), then incremental    | Railway.app São Paulo (AR5)   |
+| Testing Infrastructure    | Epic 1 (Vitest/MSW setup), then per-epic | AR15, AR16                    |
+| Accessibility Compliance  | Every UI epic                            | axe-core gate (UX18), WCAG AA |
+| Multi-Tenancy Enforcement | Every data epic                          | AR8, AR11 - orgId filtering   |
+| Error Handling & Logging  | Every epic                               | NFR-O1, graceful degradation  |
 
 ---
 
 ## Sprint Mapping
 
-| Sprint | Epics | Deliverable |
-|--------|-------|-------------|
-| Sprint 1 | Epic 1 + Epic 2 (partial) | Auth, org model, survey templates, CI/CD foundation |
-| Sprint 2 | Epic 2 (complete) + Epic 3 | Survey CRUD, Kapso integration, API endpoint |
-| Sprint 3 | Epic 4 + Epic 5a | Dashboard with NPS hero, detractor alerts |
-| Sprint 4 | Epic 5b + Epic 6 | Response actions, Crisis Averted, Stripe billing |
-| Sprint 5 | Epic 7 + Polish | Settings, GDPR, onboarding analytics, error handling |
-| Sprint 6 | Launch Prep | E2E testing, performance optimization, documentation |
+| Sprint   | Epics                      | Deliverable                                          |
+| -------- | -------------------------- | ---------------------------------------------------- |
+| Sprint 1 | Epic 1 + Epic 2 (partial)  | Auth, org model, survey templates, CI/CD foundation  |
+| Sprint 2 | Epic 2 (complete) + Epic 3 | Survey CRUD, Kapso integration, API endpoint         |
+| Sprint 3 | Epic 4 + Epic 5a           | Dashboard with NPS hero, detractor alerts            |
+| Sprint 4 | Epic 5b + Epic 6           | Response actions, Crisis Averted, Stripe billing     |
+| Sprint 5 | Epic 7 + Polish            | Settings, GDPR, onboarding analytics, error handling |
+| Sprint 6 | Launch Prep                | E2E testing, performance optimization, documentation |
 
 ---
 
@@ -353,7 +353,7 @@ These are addressed incrementally across epics, not as standalone stories:
 **Additional Requirements:** AR2-AR4, AR14, NFR-I1, NFR-I2, NFR-I4, NFR-I5, NFR-I6
 **Sprint Target:** Sprint 2
 
-*Note: API merged per Party Mode recommendation - the API IS the survey send mechanism*
+_Note: API merged per Party Mode recommendation - the API IS the survey send mechanism_
 
 ---
 
@@ -375,7 +375,7 @@ These are addressed incrementally across epics, not as standalone stories:
 **Additional Requirements:** AR14 (webhook processor for alerts)
 **Sprint Target:** Sprint 3
 
-*Note: Split from original Epic 5 per Party Mode recommendation - delivers alert value independently*
+_Note: Split from original Epic 5 per Party Mode recommendation - delivers alert value independently_
 
 ---
 
@@ -387,7 +387,7 @@ These are addressed incrementally across epics, not as standalone stories:
 **Additional Requirements:** UX8-UX10, UX19
 **Sprint Target:** Sprint 4
 
-*Note: Split from original Epic 5 - enables incremental delivery of response capabilities*
+_Note: Split from original Epic 5 - enables incremental delivery of response capabilities_
 
 ---
 
@@ -442,6 +442,7 @@ So that **all subsequent stories have a secure, testable foundation**.
 **Then** `org_id` filter is automatically enforced (AR11)
 
 **Technical Notes:**
+
 - Creates: Base tables via Better Auth org plugin (AR1)
 - Implements: RLS policies + application-level filtering (AR8)
 - Sets up: Vitest + MSW + Docker Compose test DB (AR15, AR16)
@@ -470,6 +471,7 @@ So that **I can start using FlowPulse without manual setup steps**.
 **And** I am not logged in
 
 **Technical Notes:**
+
 - Uses: Better Auth org plugin (AR1)
 - Implements: NFR-S5 (bcrypt), NFR-S4 (session expiry)
 
@@ -501,6 +503,7 @@ So that **FlowPulse can send surveys on my behalf**.
 **And** a "Retry" button generates a fresh QR code
 
 **Technical Notes:**
+
 - Creates: `whatsapp_connection` table with `org_id` FK
 - Integrates: Kapso QR endpoint (AR2)
 - Components: QRScanner (UX6)
@@ -531,6 +534,7 @@ So that **I know the integration is working before sending to customers**.
 **And** troubleshooting guidance is displayed
 
 **Technical Notes:**
+
 - Uses: Kapso send message API (AR2)
 - Updates: `whatsapp_connection.verified = true`
 
@@ -560,6 +564,7 @@ So that **I don't have to start over when I return**.
 **And** I can scan the fresh QR code to connect
 
 **Technical Notes:**
+
 - Creates: `onboarding_state` column on `organization` table
 - Stores: current_step, completed_steps, last_activity_at
 - Handles: QR TTL expiry gracefully
@@ -592,6 +597,7 @@ So that **I'm ready to create my survey in the next step**.
 **And** I am redirected to the dashboard
 
 **Technical Notes:**
+
 - Stores: `selected_template_id` in onboarding state
 - Does NOT create survey yet (that's Epic 2)
 - Tracks: Time to First Template Selection (FR77)
@@ -619,6 +625,7 @@ So that **I can choose the right survey type for my needs**.
 **Then** I see a brief preview of the survey questions
 
 **Technical Notes:**
+
 - Uses: Seeded template data from Story 1.0
 - Components: TemplateCard (UX design spec)
 - Route: `/surveys/new`
@@ -646,6 +653,7 @@ So that **I can quickly set up a survey without starting from scratch**.
 **And** the survey has a unique ID
 
 **Technical Notes:**
+
 - Creates: `survey` table record with `org_id` FK
 - Creates: `survey_question` table records
 - Status: Draft by default
@@ -676,6 +684,7 @@ So that **I can customize the wording for my brand**.
 **And** the empty value is not saved
 
 **Technical Notes:**
+
 - Updates: `survey_question.text`
 - Uses: TanStack Form with debounced auto-save
 - Validation: Non-empty text required
@@ -705,6 +714,7 @@ So that **I can see exactly what my customers will see**.
 **Then** the phone mockup remains properly sized
 
 **Technical Notes:**
+
 - Component: SurveyPreview with phone-frame variant
 - Uses: WhatsApp beige background (#ece5dd - UX3)
 - Responsive: Works on all screen sizes
@@ -734,6 +744,7 @@ So that **I can experience the survey as my customers will**.
 **Then** I see "Please connect WhatsApp first" with a link
 
 **Technical Notes:**
+
 - Uses: Kapso send survey API (AR2)
 - Flags: `is_test = true` on response record
 - Requires: Verified WhatsApp connection
@@ -765,6 +776,7 @@ So that **I can control when surveys are being sent**.
 **Then** I see an error "Add at least one question before activating"
 
 **Technical Notes:**
+
 - Updates: `survey.status` (draft, active, inactive)
 - API behavior: Only active surveys can be triggered
 
@@ -794,6 +806,7 @@ So that **I can choose between API automation or manual sends**.
 **And** I can manually enter a phone number to send to
 
 **Technical Notes:**
+
 - Creates: `survey.trigger_type` column (api, manual)
 - Displays: Inline API docs for "api" type
 - Enables: Manual send UI for "manual" type
@@ -826,6 +839,7 @@ So that **all Kapso API calls go through a consistent, testable interface**.
 **And** signature verification behavior is testable without real Kapso
 
 **Technical Notes:**
+
 - Creates: `packages/kapso/` with `IKapsoClient` interface
 - Implements: `KapsoClient` (real) and `KapsoMockClient` (test)
 - Methods: `sendSurvey()`, `getQRCode()`, `sendMessage()`, `verifyWebhookSignature()`
@@ -857,6 +871,7 @@ So that **I can reliably process async operations without Redis**.
 **And** retry_count is incremented
 
 **Technical Notes:**
+
 - Creates: `webhook_jobs` table (AR4)
 - Processor: setInterval with 5s polling in Bun (AR14)
 - Statuses: pending, processing, completed, failed
@@ -887,6 +902,7 @@ So that **I can authenticate API requests programmatically**.
 **Then** I receive a 401 Unauthorized response
 
 **Technical Notes:**
+
 - Creates: `api_key` table with hashed key and `org_id`
 - Uses: crypto.randomBytes for key generation
 - Stores: Only hashed version (NFR-S3)
@@ -916,6 +932,7 @@ So that **I can automate survey delivery from my application**.
 **Then** I receive a 400 Bad Request with message "Survey is not active"
 
 **Technical Notes:**
+
 - Endpoint: POST `/api/v1/surveys/:surveyId/send`
 - Queue: Inserts into `webhook_jobs` for async delivery
 
@@ -939,6 +956,7 @@ So that **no single organization can overwhelm the system**.
 **Then** the organization can make requests again
 
 **Technical Notes:**
+
 - Middleware: Applied to all `/api/v1/*` routes
 - Storage: In-memory counter per org (reset every 60s)
 - Header: `X-RateLimit-Remaining` on all responses
@@ -978,6 +996,7 @@ So that **customers receive surveys in their WhatsApp**.
 **Then** I can verify: first success, retry success, all-fail-undeliverable
 
 **Technical Notes:**
+
 - Uses: `KapsoClient.sendSurvey()` (AR2)
 - Creates: `survey_delivery` table with states
 - States: pending, delivered, failed, undeliverable, responded
@@ -1008,6 +1027,7 @@ So that **I know which customers received the survey**.
 **And** I can filter by status
 
 **Technical Notes:**
+
 - Queries: `survey_delivery` with `org_id` filter (AR11)
 - Phone masking: Show last 4 digits only
 - Pagination: Offset-based with 20 per page
@@ -1038,6 +1058,7 @@ So that **customer feedback is captured in real-time**.
 **And** no data is stored
 
 **Technical Notes:**
+
 - Endpoint: POST `/webhooks/kapso`
 - Creates: `survey_response` table with `org_id` FK
 - Validates: Webhook signature from Kapso
@@ -1069,6 +1090,7 @@ So that **analytics are immediately updated**.
 **And** NPS score reflects the new response immediately (NFR-P5)
 
 **Technical Notes:**
+
 - Updates: `org_metrics` table for pre-aggregated NPS (AR6)
 - Categorizes: score into promoter/passive/detractor
 - Real-time: Same transaction update
@@ -1095,6 +1117,7 @@ So that **I can understand how to integrate with FlowPulse**.
 **And** I see error codes and their meanings (NFR-I5)
 
 **Technical Notes:**
+
 - Uses: oRPC OpenAPI generation (@orpc/openapi)
 - Displays: Inline in dashboard, not external link
 - Includes: All survey send endpoints
@@ -1123,6 +1146,7 @@ So that **we can recover users who got interrupted**.
 **Then** no duplicate email is sent
 
 **Technical Notes:**
+
 - Uses: `webhook_jobs` queue from Story 3.1
 - Creates: `onboarding_email_log` table
 - Tracks: FR76 onboarding funnel events
@@ -1154,6 +1178,7 @@ So that **I can send surveys to individual customers without API integration**.
 **And** the survey is not sent
 
 **Technical Notes:**
+
 - Uses: Same `webhook_jobs` queue as API sends
 - Validates: E.164 phone format
 - Component: Modal with phone input + send button
@@ -1186,6 +1211,7 @@ So that **I can quickly access key sections with my thumb**.
 **Then** the transition is smooth (< 300ms)
 
 **Technical Notes:**
+
 - Component: BottomNav (UX design spec)
 - Responsive: Bottom nav on mobile, sidebar on desktop
 - Route: `/dashboard`
@@ -1217,6 +1243,7 @@ So that **I can understand my customer sentiment in 3 seconds**.
 **And** a tooltip explains "Score based on limited responses"
 
 **Technical Notes:**
+
 - Component: NPSScoreRing (SVG-based, UX2)
 - Reads from: `org_metrics.current_nps` (AR6)
 - Thresholds: 70+ Excellent, 50-69 Great, 30-49 Good, 0-29 Room to grow, <0 Opportunity
@@ -1245,6 +1272,7 @@ So that **I know if things are improving or need attention**.
 **Then** the trend indicator shows "--" with "Not enough data"
 
 **Technical Notes:**
+
 - Compares: Current period vs previous period (same duration)
 - Default period: Last 30 days vs prior 30 days
 - Reads from: `org_metrics` table
@@ -1274,6 +1302,7 @@ So that **I understand the composition of my NPS score**.
 **Then** each category has an icon AND text label (triple encoding - UX14)
 
 **Technical Notes:**
+
 - Reads from: `org_metrics` table (pre-aggregated)
 - Component: CategoryBreakdown with bar chart
 - Accessibility: Color + icon + text (UX14)
@@ -1303,6 +1332,7 @@ So that **I can read the latest customer feedback**.
 **Then** I see full customer context (links to Epic 5b)
 
 **Technical Notes:**
+
 - Component: ResponseCard with chat bubble styling
 - Background: WhatsApp beige (UX3)
 - Queries: `survey_response` with `org_id` filter, ordered by created_at DESC
@@ -1331,6 +1361,7 @@ So that **I can identify patterns and spikes in feedback**.
 **Then** I see the date and response count
 
 **Technical Notes:**
+
 - Component: Sparkline or line chart (Recharts or similar)
 - Period selector: 7d, 30d, 90d
 - Data: Aggregated by day from `survey_response`
@@ -1355,8 +1386,9 @@ So that **I can measure my feedback collection effectiveness**.
 **Then** I see "5x better than email" value prop (UX13)
 
 **Technical Notes:**
+
 - Reads from: `org_metrics` table
-- Calculation: response_count / delivery_count * 100
+- Calculation: response_count / delivery_count \* 100
 - Value prop: Show comparison to email industry average
 
 ---
@@ -1380,6 +1412,7 @@ So that **I always see the latest data without manual refresh**.
 **And** I see a brief loading indicator
 
 **Technical Notes:**
+
 - Uses: TanStack Query with `refetchInterval: 30_000` (AR13)
 - Pattern: Polling, not WebSockets (MVP decision)
 - Loading: Skeleton states during refresh (UX12)
@@ -1410,6 +1443,7 @@ So that **I can still view my dashboard during network issues**.
 **Then** I see a friendly error message with retry button
 
 **Technical Notes:**
+
 - Uses: TanStack Query stale-while-revalidate
 - Stores: Last successful response in query cache
 - Shows: "Last updated" timestamp from cache
@@ -1439,6 +1473,7 @@ So that **the moment feels significant and memorable**.
 **Then** the score appears instantly without animation (UX16)
 
 **Technical Notes:**
+
 - Tracks: `user.has_seen_first_nps` flag
 - Animation: Count-up (800ms), ring fill (500ms)
 - Respects: `prefers-reduced-motion` media query
@@ -1469,6 +1504,7 @@ So that **Business Owners can be alerted to unhappy customers in real-time**.
 **Then** it does NOT trigger an alert (respects custom threshold - FR39)
 
 **Technical Notes:**
+
 - Extends: Story 3.7 (Response Storage and Processing)
 - Queries: `organization.alert_threshold` (default: 6)
 - Creates: `detractor_alert` record with status "pending"
@@ -1500,6 +1536,7 @@ So that **I can reach out immediately and resolve their concern**.
 **And** it remains visible in the dashboard (fallback)
 
 **Technical Notes:**
+
 - Uses: `KapsoClient.sendMessage()` (AR2)
 - Message template: "🚨 {customer_name} needs you! Score: {score}/10. '{feedback_preview}...'"
 - Success rate target: ≥99% (NFR-R5)
@@ -1531,6 +1568,7 @@ So that **I can adjust sensitivity based on my standards**.
 **But** scores 1-6 do not trigger alerts
 
 **Technical Notes:**
+
 - Creates: `organization.alert_threshold` column (default: 6)
 - Range: 0-6 (NPS detractor range)
 - UI: Slider with value display
@@ -1561,6 +1599,7 @@ So that **I notice unhappy customers immediately upon login**.
 **And** the NPS hero metric is the dominant element
 
 **Technical Notes:**
+
 - Component: AlertBanner (UX11) with visual hierarchy inversion
 - Queries: `detractor_alert` where status = 'pending' AND org_id = context.org
 - Copy: Heroic framing (UX19)
@@ -1590,6 +1629,7 @@ So that **I can prioritize which customers to contact first**.
 **Then** I can view "Pending", "Contacted", or "All" alerts
 
 **Technical Notes:**
+
 - Route: `/alerts`
 - Component: AlertCard with customer summary
 - Filters: status (pending, contacted, all)
@@ -1617,6 +1657,7 @@ So that **I can track which detractors I've addressed**.
 **And** the alert is no longer counted in the pending count
 
 **Technical Notes:**
+
 - Updates: `detractor_alert.status` to 'contacted'
 - Updates: `detractor_alert.contacted_at` timestamp
 - Refreshes: Alert count in header/banner
@@ -1645,6 +1686,7 @@ So that **unhappy customers don't go unaddressed**.
 **Then** no additional escalations are sent (max 1 escalation per alert)
 
 **Technical Notes:**
+
 - Uses: `webhook_jobs` queue with 24h scheduled_at
 - Creates: `detractor_alert.escalation_sent_at` timestamp
 - Max escalations: 1 per alert
@@ -1676,6 +1718,7 @@ So that **I understand who the customer is before reaching out**.
 **And** I can see their "sentiment journey"
 
 **Technical Notes:**
+
 - Component: CustomerContextCard (UX8)
 - Queries: `survey_response` with `phone` match + `org_id` filter
 - Phone: Masked display, full number on tap
@@ -1703,6 +1746,7 @@ So that **I can prioritize high-value customers**.
 **Then** I see a "High Value" badge for prioritization
 
 **Technical Notes:**
+
 - Reads: LTV from response metadata (`ltv` or `customer_value`)
 - Display: Currency formatted based on org locale
 - Optional: Shows only when data exists
@@ -1733,6 +1777,7 @@ So that **I can respond to customers efficiently with consistent messaging**.
 **And** the alert is marked as contacted (FR48)
 
 **Technical Notes:**
+
 - Creates: `response_template` table with org-level defaults
 - Component: QuickResponseMenu (UX9)
 - Uses: `KapsoClient.sendMessage()` for delivery
@@ -1762,6 +1807,7 @@ So that **I can personalize the message for the specific situation**.
 **Then** a new template is created for my organization
 
 **Technical Notes:**
+
 - Modal: Edit textarea with send/cancel buttons
 - Stores: Sent message in `customer_interaction` table
 - Optional: Save custom template functionality
@@ -1792,6 +1838,7 @@ So that **I can measure if my response resolved their concern**.
 **And** I can still override if needed
 
 **Technical Notes:**
+
 - Creates: `survey_delivery` with `followup_for_alert_id` FK
 - Cooldown: 7 days default between follow-ups to same customer
 - Queue: Uses `webhook_jobs` like regular sends
@@ -1821,6 +1868,7 @@ So that **Business Owners can celebrate successful recovery**.
 **Then** it is NOT marked as "Crisis Averted" (only 9-10 counts)
 
 **Technical Notes:**
+
 - Compares: Original score vs follow-up score
 - Threshold: Requires score ≥9 (promoter) for crisis averted
 - Updates: `detractor_alert.crisis_averted = true`
@@ -1851,6 +1899,7 @@ So that **my successful recovery effort is recognized**.
 **And** I can find it in "Wins" history
 
 **Technical Notes:**
+
 - Component: CelebrationCard (UX10)
 - Animation: Confetti (respects reduced motion)
 - Tracks: `user.seen_celebration_ids` for one-time display
@@ -1880,6 +1929,7 @@ So that **I can celebrate with my team or on social media**.
 **Then** the image is properly formatted for each platform
 
 **Technical Notes:**
+
 - Size: 1200x630px (social media optimal)
 - Generation: Canvas/SVG export or server-side
 - Privacy: Only first name and scores, no PII
@@ -1913,6 +1963,7 @@ So that **I can track my usage against my plan limits**.
 **And** the reset date is displayed
 
 **Technical Notes:**
+
 - Reads: `org_usage` table (AR7)
 - Tracks: `surveys_sent_this_period`, `period_start_date`
 - Component: UsageProgressBar with percentage fill
@@ -1943,6 +1994,7 @@ So that **Business Owners can upgrade before hitting their cap**.
 **And** I see "Upgrade to continue sending surveys"
 
 **Technical Notes:**
+
 - Thresholds: 75%, 90%, 100%
 - Colors: Yellow (warning), Orange (urgent), Red (blocked)
 - Banner: Persists until dismissed or resolved
@@ -1973,6 +2025,7 @@ So that **usage is enforced according to subscription terms**.
 **And** I can send surveys again
 
 **Technical Notes:**
+
 - Check: `org_usage.surveys_sent >= org.plan_limit` before send
 - API: Returns 402 with upgrade link
 - Real-time: No cache delay on limit enforcement
@@ -2003,6 +2056,7 @@ So that **I can choose the right plan for my needs**.
 **And** key differences are highlighted
 
 **Technical Notes:**
+
 - Plans: Starter ($49/1K surveys), Growth ($99/5K), Scale ($149/15K)
 - Static data for MVP (no admin plan management)
 - Component: PlanCard with feature list
@@ -2034,6 +2088,7 @@ So that **I can access higher limits and more features**.
 **And** I can retry or use a different card
 
 **Technical Notes:**
+
 - Uses: Stripe Checkout Sessions
 - Webhook: Handles `checkout.session.completed`
 - Updates: `organization.plan_id`, `org_usage.period_limit`
@@ -2069,6 +2124,7 @@ So that **billing events are reliably captured**.
 **And** no data is modified
 
 **Technical Notes:**
+
 - Endpoint: POST `/webhooks/stripe`
 - Signature: Verified using Stripe SDK
 - Events: checkout.session.completed, invoice.paid, invoice.payment_failed
@@ -2098,6 +2154,7 @@ So that **I can manage my expenses and accounting**.
 **Then** I see "No invoices yet" with helpful context
 
 **Technical Notes:**
+
 - Uses: Stripe API to fetch invoices
 - Storage: Only references in DB, PDFs from Stripe
 - Pagination: 10 invoices per page
@@ -2128,6 +2185,7 @@ So that **I can ensure uninterrupted service**.
 **And** I see "Payment method updated" confirmation
 
 **Technical Notes:**
+
 - Uses: Stripe Customer Portal or SetupIntent
 - Stores: Stripe customer ID in organization table
 - Displays: Last 4 digits only (not full card)
@@ -2158,6 +2216,7 @@ So that **I can reduce costs while honoring my current period**.
 **And** I must acknowledge before proceeding
 
 **Technical Notes:**
+
 - Stripe: Uses subscription schedule for future changes
 - Validates: Current usage vs target plan limit
 - Creates: `organization.pending_plan_change` record
@@ -2190,6 +2249,7 @@ So that **my business information is accurate across the platform**.
 **And** old logo is replaced
 
 **Technical Notes:**
+
 - Updates: `organization` table
 - Logo: Store in object storage, 200x200px max
 - Route: `/settings/organization`
@@ -2221,6 +2281,7 @@ So that **I can verify the correct number is connected**.
 **And** a "Connect WhatsApp" button is prominent
 
 **Technical Notes:**
+
 - Reads: `whatsapp_connection` table
 - Shows: Masked phone number, last activity timestamp
 - Route: `/settings/whatsapp`
@@ -2252,6 +2313,7 @@ So that **I can change to a different number if needed**.
 **And** survey sends resume
 
 **Technical Notes:**
+
 - Updates: `whatsapp_connection.status` to 'disconnected'
 - Creates: New `whatsapp_connection` record on reconnect
 - Reuses: QR Scanner from Story 1.2
@@ -2282,6 +2344,7 @@ So that **I receive alerts in my preferred way**.
 **And** I can set preferred email address
 
 **Technical Notes:**
+
 - Creates: `notification_preference` table
 - Columns: `org_id`, `type`, `channel` (whatsapp, email, dashboard)
 - Default: All enabled for new orgs
@@ -2312,6 +2375,7 @@ So that **I can exercise my GDPR rights**.
 **And** the download link expires after 7 days
 
 **Technical Notes:**
+
 - Creates: `data_export_request` table
 - Queue: Uses `webhook_jobs` for async processing
 - Format: JSON + CSV in ZIP file
@@ -2343,6 +2407,7 @@ So that **I can exercise my right to be forgotten**.
 **And** my email is hashed for anti-spam purposes only
 
 **Technical Notes:**
+
 - Creates: `deletion_request` table with `scheduled_at`
 - Grace period: 30 days for user to cancel
 - Cascade: Deletes org, surveys, responses, alerts, etc.
@@ -2372,6 +2437,7 @@ So that **we can measure onboarding success and identify drop-offs**.
 **Then** the "Time to First Response" metric is calculated (FR77)
 
 **Technical Notes:**
+
 - Creates: `onboarding_event` table
 - Columns: `org_id`, `event_type`, `created_at`
 - Analysis: Internal analytics dashboard (post-MVP) or SQL queries
@@ -2401,6 +2467,7 @@ So that **we can measure how quickly users get value**.
 **Then** the organization is flagged for onboarding analysis
 
 **Technical Notes:**
+
 - Stores: `organization.time_to_first_response` (seconds)
 - Calculates: On first response receipt
 - Target: < 600 seconds (10 minutes)
@@ -2431,6 +2498,7 @@ So that **I can ensure my account is secure**.
 **And** the device must log in again
 
 **Technical Notes:**
+
 - Reads: `session` table from Better Auth
 - Location: Derived from IP (rough city/country)
 - Password: bcrypt with cost ≥10 (NFR-S5)

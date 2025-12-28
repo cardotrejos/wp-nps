@@ -3,6 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
+import { OnboardingGuard } from "@/components/onboarding/onboarding-guard";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
@@ -23,11 +24,14 @@ function RouteComponent() {
 
   const privateData = useQuery(orpc.privateData.queryOptions());
 
+  // Wrap dashboard in OnboardingGuard to ensure onboarding is complete (Story 1.4 - AC #4, #5)
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Welcome {session.data?.user.name}</p>
-      <p>API: {privateData.data?.message}</p>
-    </div>
+    <OnboardingGuard>
+      <div>
+        <h1>Dashboard</h1>
+        <p>Welcome {session.data?.user.name}</p>
+        <p>API: {privateData.data?.message}</p>
+      </div>
+    </OnboardingGuard>
   );
 }

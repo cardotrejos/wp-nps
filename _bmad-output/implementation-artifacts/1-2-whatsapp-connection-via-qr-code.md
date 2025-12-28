@@ -121,6 +121,7 @@ export interface IKapsoClient {
 ```
 
 **WhatsApp Connection Table Schema (Already Created in 1.0):**
+
 ```typescript
 // packages/db/src/schema/flowpulse.ts - whatsappConnection table
 // Fields: id, orgId, phoneNumber, status, kapsoId, connectedAt, lastSeenAt, metadata
@@ -128,6 +129,7 @@ export interface IKapsoClient {
 ```
 
 **Multi-Tenancy Enforcement (AR8, AR11):**
+
 ```typescript
 // EVERY query MUST include orgId filter
 const connection = await db.query.whatsappConnection.findFirst({
@@ -138,6 +140,7 @@ const connection = await db.query.whatsappConnection.findFirst({
 ### Project Structure Notes
 
 **Files to Create:**
+
 - `packages/kapso/src/client.ts` - Real KapsoClient implementation (scaffold)
 - `packages/api/src/routers/whatsapp.ts` - WhatsApp connection router
 - `apps/web/src/components/onboarding/qr-scanner.tsx` - QR code display component
@@ -147,16 +150,19 @@ const connection = await db.query.whatsappConnection.findFirst({
 - `tests/integration/whatsapp-connection.test.ts` - Integration tests
 
 **Files to Modify:**
+
 - `packages/kapso/src/types.ts` - Add QR code types and methods to interface
 - `packages/kapso/src/mock.ts` - Add QR code mock methods
 - `packages/kapso/src/index.ts` - Export new types
 - `packages/api/src/routers/index.ts` - Add whatsappRouter
 
 **Dependencies:**
+
 - No new dependencies required
 - Uses existing: TanStack Query, TanStack Router, shadcn/ui
 
 **Naming Conventions:**
+
 - Component files: kebab-case (`qr-scanner.tsx`)
 - Component exports: PascalCase (`QRScanner`)
 - Hook files: kebab-case with use- prefix (`use-whatsapp-connection.ts`)
@@ -166,6 +172,7 @@ const connection = await db.query.whatsappConnection.findFirst({
 ### Component Implementation Patterns
 
 **QRScanner Component Structure:**
+
 ```typescript
 // apps/web/src/components/onboarding/qr-scanner.tsx
 import { useState, useEffect } from 'react';
@@ -273,6 +280,7 @@ export function QRScanner({ onConnected }: { onConnected: () => void }) {
 ```
 
 **useWhatsAppConnection Hook:**
+
 ```typescript
 // apps/web/src/hooks/use-whatsapp-connection.ts
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -321,6 +329,7 @@ export function useWhatsAppConnection() {
 ```
 
 **WhatsApp Router Implementation:**
+
 ```typescript
 // packages/api/src/routers/whatsapp.ts
 import { protectedProcedure } from '../context';
@@ -403,6 +412,7 @@ export const whatsappRouter = {
 ### Testing Standards
 
 **KapsoMockClient Extension for QR Testing:**
+
 ```typescript
 // packages/kapso/src/mock.ts - ADD these methods
 export class KapsoMockClient implements IKapsoClient {
@@ -454,6 +464,7 @@ export class KapsoMockClient implements IKapsoClient {
 ```
 
 **Integration Test Pattern:**
+
 ```typescript
 // tests/integration/whatsapp-connection.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -527,27 +538,32 @@ describe('WhatsApp Connection Flow', () => {
 ### UX Guidelines (from UX Specification)
 
 **QR Scanner Component (UX6):**
+
 - 60-second countdown timer with visual progress bar
 - Clear step-by-step instructions
 - Troubleshooting tips on timeout
 - Mobile-responsive design
 
 **Progress Stepper (UX7):**
+
 - Already created in Story 1.0/1.1
 - Show step 2 of onboarding (WhatsApp Connection)
 - Steps: 1) Account → 2) WhatsApp → 3) Template → 4) Complete
 
 **Loading States:**
+
 - Use `<Loader />` component for pending states
 - Show skeleton UI for QR code while loading
 - 1s minimum display for loading states (UX12)
 
 **Success State:**
+
 - Show "Connected!" with checkmark animation
-- Display connected phone number (masked: +55 ** *** **99)
+- Display connected phone number (masked: +55 ** \*** \*\*99)
 - Auto-navigate to next step after 2 seconds
 
 **Error Handling:**
+
 - Use `toast.error()` for API errors
 - Show inline error messages for recoverable errors
 - Provide clear "Try Again" actions
@@ -567,12 +583,14 @@ describe('WhatsApp Connection Flow', () => {
 ### Previous Story Intelligence
 
 **From Story 1.0 (Foundation):**
+
 - `whatsapp_connection` table already created with proper schema
 - KapsoMockClient class exists with basic structure
 - RLS policies enabled on all tenant-scoped tables
 - Test infrastructure (Vitest, MSW) configured
 
 **From Story 1.1 (Registration):**
+
 - Better Auth organization plugin configured
 - Session provides `activeOrganizationId` for multi-tenancy
 - Sign-up form pattern with TanStack Form established
@@ -581,17 +599,20 @@ describe('WhatsApp Connection Flow', () => {
 ### Latest Technical Specifics
 
 **TanStack Query Polling (v5.90.12):**
+
 - Use `refetchInterval` option for polling
 - Return `false` from `refetchInterval` function to stop polling
 - Use `enabled` option to conditionally enable queries
 
 **Kapso API Integration Notes:**
+
 - QR code endpoint returns image URL (not base64)
 - Connection status polling should be 2-5 seconds interval
 - Session IDs are used to track individual QR code sessions
 - Phone numbers returned in E.164 format (+5511999999999)
 
 **shadcn/ui Components to Use:**
+
 - `Card`, `CardHeader`, `CardContent` for QR container
 - `Button` for refresh action
 - `Progress` for countdown timer visualization
@@ -614,6 +635,7 @@ None - implementation proceeded without blocking errors.
 After researching Kapso's actual API (https://docs.kapso.ai/llms.txt), we discovered they use Setup Links (OAuth-style redirect flow) NOT QR codes. The implementation was completely refactored:
 
 **Correct Kapso Flow:**
+
 1. Create Setup Link via `POST /platform/v1/customers/{id}/setup_links` → returns URL
 2. Redirect user to Kapso's hosted page (the URL)
 3. User completes Facebook login and WhatsApp Business connection on Kapso's page
@@ -635,26 +657,28 @@ After researching Kapso's actual API (https://docs.kapso.ai/llms.txt), we discov
 All 91 tests pass (19 Kapso mock unit + 19 WhatsApp integration + others). TypeScript compiles successfully.
 
 ### Change Log
-| Change | File(s) | Reason |
-|--------|---------|--------|
-| Add Setup Link types to IKapsoClient | packages/kapso/src/types.ts | AC #1 - Define contract for Setup Link operations |
-| Rewrite KapsoMockClient for Setup Links | packages/kapso/src/mock.ts | AC #1, #3, #4 - Testing support |
-| Rewrite mock client unit tests | packages/kapso/src/mock.test.ts | 19 tests for Setup Link flow |
-| Rewrite WhatsApp connection router | packages/api/src/routers/whatsapp.ts | Setup Link creation and confirmation |
-| Register whatsappRouter | packages/api/src/routers/index.ts | Export router to app |
-| Rewrite useWhatsAppConnection hook | apps/web/src/hooks/use-whatsapp-connection.ts | Setup Link redirect flow |
-| Create WhatsAppConnector component | apps/web/src/components/onboarding/whatsapp-connector.tsx | AC #1, #2 - Setup Link UI |
-| Delete QRScanner component | apps/web/src/components/onboarding/qr-scanner.tsx | Replaced by WhatsAppConnector |
-| Delete QRTroubleshooting component | apps/web/src/components/onboarding/qr-troubleshooting.tsx | Not needed for redirect flow |
-| Update onboarding route | apps/web/src/routes/onboarding.tsx | Use WhatsAppConnector |
-| Create success redirect route | apps/web/src/routes/onboarding.whatsapp.success.tsx | Handle Kapso success redirect |
-| Create failure redirect route | apps/web/src/routes/onboarding.whatsapp.failed.tsx | Handle Kapso failure redirect |
-| Rewrite WhatsApp connection tests | tests/integration/whatsapp-connection.test.ts | 19 tests for Setup Link flow |
-| Update vitest config | vitest.config.ts | Include packages/**/*.test.ts |
+
+| Change                                  | File(s)                                                   | Reason                                            |
+| --------------------------------------- | --------------------------------------------------------- | ------------------------------------------------- |
+| Add Setup Link types to IKapsoClient    | packages/kapso/src/types.ts                               | AC #1 - Define contract for Setup Link operations |
+| Rewrite KapsoMockClient for Setup Links | packages/kapso/src/mock.ts                                | AC #1, #3, #4 - Testing support                   |
+| Rewrite mock client unit tests          | packages/kapso/src/mock.test.ts                           | 19 tests for Setup Link flow                      |
+| Rewrite WhatsApp connection router      | packages/api/src/routers/whatsapp.ts                      | Setup Link creation and confirmation              |
+| Register whatsappRouter                 | packages/api/src/routers/index.ts                         | Export router to app                              |
+| Rewrite useWhatsAppConnection hook      | apps/web/src/hooks/use-whatsapp-connection.ts             | Setup Link redirect flow                          |
+| Create WhatsAppConnector component      | apps/web/src/components/onboarding/whatsapp-connector.tsx | AC #1, #2 - Setup Link UI                         |
+| Delete QRScanner component              | apps/web/src/components/onboarding/qr-scanner.tsx         | Replaced by WhatsAppConnector                     |
+| Delete QRTroubleshooting component      | apps/web/src/components/onboarding/qr-troubleshooting.tsx | Not needed for redirect flow                      |
+| Update onboarding route                 | apps/web/src/routes/onboarding.tsx                        | Use WhatsAppConnector                             |
+| Create success redirect route           | apps/web/src/routes/onboarding.whatsapp.success.tsx       | Handle Kapso success redirect                     |
+| Create failure redirect route           | apps/web/src/routes/onboarding.whatsapp.failed.tsx        | Handle Kapso failure redirect                     |
+| Rewrite WhatsApp connection tests       | tests/integration/whatsapp-connection.test.ts             | 19 tests for Setup Link flow                      |
+| Update vitest config                    | vitest.config.ts                                          | Include packages/\*_/_.test.ts                    |
 
 ### File List
 
 **Created:**
+
 - packages/kapso/src/mock.test.ts (Setup Link unit tests)
 - packages/api/src/routers/whatsapp.ts (Setup Link router)
 - apps/web/src/hooks/use-whatsapp-connection.ts (Setup Link hook)
@@ -665,6 +689,7 @@ All 91 tests pass (19 Kapso mock unit + 19 WhatsApp integration + others). TypeS
 - tests/integration/whatsapp-connection.test.ts (Setup Link integration tests)
 
 **Modified:**
+
 - packages/kapso/src/types.ts (Setup Link types)
 - packages/kapso/src/mock.ts (Setup Link methods)
 - packages/api/src/routers/index.ts (added whatsappRouter)
@@ -679,6 +704,7 @@ All 91 tests pass (19 Kapso mock unit + 19 WhatsApp integration + others). TypeS
 **Outcome:** Changes Requested -> Fixed
 
 **Issues Found & Fixed:**
+
 1. **HIGH**: Story title/user story still referenced QR codes - Updated to reflect Setup Link implementation
 2. **HIGH**: Acceptance Criteria #1-5 all referenced QR code flow - Rewrote all 5 ACs for Setup Link OAuth flow
 3. **HIGH**: confirmConnection accepted pending status without env guard - Added isDevelopment check, only relaxes in dev/test
@@ -691,6 +717,7 @@ All 91 tests pass (19 Kapso mock unit + 19 WhatsApp integration + others). TypeS
 10. **LOW**: Success page stuck on spinner if sessionStorage empty - Added isProcessing state and proper error handling
 
 **Security Notes:**
+
 - confirmConnection now verifies setup link belongs to requesting org before updating
 - confirmConnection checks for already-active connections to prevent duplicate updates
 - Added TODO for production: verify phone details via Kapso API instead of trusting client params

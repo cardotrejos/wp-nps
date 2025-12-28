@@ -21,9 +21,7 @@ test.describe("User Registration Flow", () => {
     await page.goto("/login");
   });
 
-  test("should display signup form with all required fields", async ({
-    page,
-  }) => {
+  test("should display signup form with all required fields", async ({ page }) => {
     // Look for signup mode toggle or signup form elements
     // The form should have email, password, and organization name fields
     const emailField = page.getByLabel(/email/i);
@@ -33,9 +31,7 @@ test.describe("User Registration Flow", () => {
     await expect(passwordField).toBeVisible();
   });
 
-  test("AC #4: should show validation error for invalid email format", async ({
-    page,
-  }) => {
+  test("AC #4: should show validation error for invalid email format", async ({ page }) => {
     // Fill with invalid email
     await page.getByLabel(/email/i).fill("invalid-email");
     await page.getByLabel(/password/i).fill("validpassword123");
@@ -44,14 +40,10 @@ test.describe("User Registration Flow", () => {
     await page.getByRole("button", { name: /sign up|create account/i }).click();
 
     // Should show email validation error
-    await expect(
-      page.getByText(/please enter a valid email|invalid email/i),
-    ).toBeVisible();
+    await expect(page.getByText(/please enter a valid email|invalid email/i)).toBeVisible();
   });
 
-  test("AC #3: should show validation error for short password", async ({
-    page,
-  }) => {
+  test("AC #3: should show validation error for short password", async ({ page }) => {
     // Fill with short password
     await page.getByLabel(/email/i).fill("test@example.com");
     await page.getByLabel(/password/i).fill("short");
@@ -60,14 +52,10 @@ test.describe("User Registration Flow", () => {
     await page.getByRole("button", { name: /sign up|create account/i }).click();
 
     // Should show password validation error
-    await expect(
-      page.getByText(/at least 8 characters|password must be/i),
-    ).toBeVisible();
+    await expect(page.getByText(/at least 8 characters|password must be/i)).toBeVisible();
   });
 
-  test("AC #5: should show validation error for empty organization name", async ({
-    page,
-  }) => {
+  test("AC #5: should show validation error for empty organization name", async ({ page }) => {
     // Fill email and password but leave org empty
     await page.getByLabel(/email/i).fill("test@example.com");
     await page.getByLabel(/password/i).fill("validpassword123");
@@ -111,9 +99,7 @@ test.describe("User Registration Flow", () => {
     await expect(page.getByText(/welcome/i)).toBeVisible();
   });
 
-  test("AC #2: should show error for duplicate email registration", async ({
-    page,
-  }) => {
+  test("AC #2: should show error for duplicate email registration", async ({ page }) => {
     // This test assumes we can attempt registration twice with same email
     // First registration would need to be set up in test fixtures
     // For now, we test the error handling UI
@@ -131,9 +117,7 @@ test.describe("User Registration Flow", () => {
 
     // If user already exists, should see error message
     // This may or may not trigger depending on database state
-    const errorMessage = page.getByText(
-      /already registered|email already|user already exists/i,
-    );
+    const errorMessage = page.getByText(/already registered|email already|user already exists/i);
 
     // Either shows error or succeeds - both are valid outcomes
     const result = await Promise.race([
@@ -144,9 +128,7 @@ test.describe("User Registration Flow", () => {
     expect(["error", "success"]).toContain(result);
   });
 
-  test("AC #5: should show loading state during submission", async ({
-    page,
-  }) => {
+  test("AC #5: should show loading state during submission", async ({ page }) => {
     const testEmail = uniqueEmail();
 
     // Fill form
@@ -168,9 +150,7 @@ test.describe("User Registration Flow", () => {
     await expect(submitButton).toContainText(/creating|submitting|loading/i);
   });
 
-  test("AC #4: should maintain form state on validation error", async ({
-    page,
-  }) => {
+  test("AC #4: should maintain form state on validation error", async ({ page }) => {
     // Fill form with valid data except password
     const testEmail = "test@example.com";
     await page.getByLabel(/email/i).fill(testEmail);

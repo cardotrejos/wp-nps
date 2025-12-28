@@ -1,11 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { sql } from "drizzle-orm";
 import { db } from "@wp-nps/db";
-import {
-  createTestOrg,
-  cleanupTestOrg,
-  clearOrgContext,
-} from "../utils/test-org";
+import { createTestOrg, cleanupTestOrg, clearOrgContext } from "../utils/test-org";
 
 /**
  * Org Context Middleware Integration Tests
@@ -36,9 +32,7 @@ describe("Org Context Middleware", () => {
       // Simulate what the middleware does: set context within transaction
       const result = await db.transaction(async (tx) => {
         // Set context for RLS (is_local=true means transaction-scoped)
-        await tx.execute(
-          sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`,
-        );
+        await tx.execute(sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`);
 
         // Verify context is set within transaction
         const contextResult = await tx.execute(
@@ -57,9 +51,7 @@ describe("Org Context Middleware", () => {
       try {
         // Transaction 1: Set to testOrg
         await db.transaction(async (tx) => {
-          await tx.execute(
-            sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`,
-          );
+          await tx.execute(sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`);
         });
 
         // Transaction 2: Should not see previous context
@@ -83,9 +75,7 @@ describe("Org Context Middleware", () => {
 
       await db.transaction(async (tx) => {
         // Set org context
-        await tx.execute(
-          sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`,
-        );
+        await tx.execute(sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`);
 
         // Insert survey with org context
         await tx.execute(sql`
@@ -95,9 +85,7 @@ describe("Org Context Middleware", () => {
       });
 
       // Verify survey was created with correct org_id
-      const result = await db.execute(
-        sql`SELECT org_id FROM survey WHERE id = ${surveyId}`,
-      );
+      const result = await db.execute(sql`SELECT org_id FROM survey WHERE id = ${surveyId}`);
       const row = result.rows[0] as { org_id: string };
       expect(row.org_id).toBe(testOrg.id);
 
@@ -119,14 +107,10 @@ describe("Org Context Middleware", () => {
     it("should allow clearing context within transaction", async () => {
       const result = await db.transaction(async (tx) => {
         // Set context
-        await tx.execute(
-          sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`,
-        );
+        await tx.execute(sql`SELECT set_config('app.current_org_id', ${testOrg.id}, true)`);
 
         // Clear context
-        await tx.execute(
-          sql`SELECT set_config('app.current_org_id', '', true)`,
-        );
+        await tx.execute(sql`SELECT set_config('app.current_org_id', '', true)`);
 
         // Verify cleared
         const contextResult = await tx.execute(

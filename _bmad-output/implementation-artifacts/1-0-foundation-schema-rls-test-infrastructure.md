@@ -71,12 +71,14 @@ So that **all subsequent stories have a secure, testable foundation**.
 ### Critical Architecture Compliance
 
 **Multi-Tenancy Strategy (AR8, AR11):**
+
 - Hybrid approach: RLS policies + application-level filtering
 - RLS provides defense against SQL injection and query bugs
 - Application filtering provides performance optimization
 - EVERY FlowPulse query MUST include `orgId` filter - NON-NEGOTIABLE
 
 **Better Auth Organization Plugin (AR1):**
+
 ```typescript
 // packages/auth/src/index.ts
 import { betterAuth } from "better-auth";
@@ -96,6 +98,7 @@ export const auth = betterAuth({
 ```
 
 **RLS Implementation Pattern (Drizzle v1.0.0+):**
+
 ```typescript
 // Use pgTable.withRLS() NOT .enableRLS()
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
@@ -109,6 +112,7 @@ export const survey = pgTable.withRLS('survey', {
 ```
 
 **Org Context Middleware Pattern:**
+
 ```typescript
 // packages/api/src/middleware/org-context.ts
 export const orgContextMiddleware = async (ctx: Context, next: Next) => {
@@ -126,6 +130,7 @@ export const orgContextMiddleware = async (ctx: Context, next: Next) => {
 ### Project Structure Notes
 
 **Files to Create:**
+
 - `packages/auth/src/index.ts` - EXTEND with organization plugin
 - `packages/db/src/schema/flowpulse.ts` - NEW FlowPulse schema
 - `packages/db/src/schema/index.ts` - EXTEND to export flowpulse
@@ -136,6 +141,7 @@ export const orgContextMiddleware = async (ctx: Context, next: Next) => {
 - `docker/docker-compose.test.yml` - NEW test environment
 
 **Naming Conventions:**
+
 - Tables: Singular, lowercase (`survey`, `response`, `alert`)
 - Columns: snake_case in SQL (`org_id`, `created_at`)
 - TypeScript fields: camelCase (`orgId`, `createdAt`)
@@ -145,6 +151,7 @@ export const orgContextMiddleware = async (ctx: Context, next: Next) => {
 ### Testing Standards
 
 **Vitest Configuration:**
+
 ```typescript
 // vitest.config.ts
 import { defineConfig } from 'vitest/config';
@@ -171,6 +178,7 @@ export default defineConfig({
 ```
 
 **MSW Kapso Mock Pattern:**
+
 ```typescript
 // packages/kapso/src/mock.ts
 export class KapsoMockClient implements IKapsoClient {
@@ -187,6 +195,7 @@ export class KapsoMockClient implements IKapsoClient {
 ```
 
 **Cross-Tenant Isolation Test (MUST FAIL):**
+
 ```typescript
 // Tests that MUST fail to verify isolation
 test('cross-tenant access should fail', async () => {
@@ -214,17 +223,20 @@ test('cross-tenant access should fail', async () => {
 ### Latest Technical Specifics
 
 **Better Auth Organization Plugin (v1.4.9):**
+
 - Use `organization()` from `better-auth/plugins`
 - Creates `organization`, `member`, `invitation` tables automatically
 - Provides session context with `activeOrganizationId`
 - Role-based access control built-in
 
 **Drizzle RLS (v0.45.1 → targeting v1.0.0 patterns):**
+
 - Use `pgTable.withRLS()` for enabling RLS (NOT deprecated `.enableRLS()`)
 - Define policies with `pgPolicy()` function
 - Set session context with `set_config('app.current_org_id', $1, true)`
 
 **Vitest (Latest):**
+
 - Native Vite integration - fast startup
 - Use `@vitest/coverage-v8` for coverage
 - Configure in `vitest.config.ts` NOT `vite.config.ts`
@@ -251,23 +263,25 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 7. **Foundation Tests**: Full test coverage for organization management, RLS policy verification, multi-tenant isolation, and Kapso mock client
 
 ### Change Log
-| Change | File(s) | Reason |
-|--------|---------|--------|
-| Added organization plugin | packages/auth/src/index.ts | Better Auth multi-tenancy |
-| Extended auth schema | packages/db/src/schema/auth.ts | Organization, member, invitation tables |
-| Created FlowPulse schema | packages/db/src/schema/flowpulse.ts | Core business entities |
-| Added org context middleware | packages/api/src/middleware/org-context.ts | RLS session variable injection |
-| Created RLS migration | packages/db/src/migrations/enable-rls.sql | Row-level security policies |
-| Added Kapso package | packages/kapso/ | WhatsApp integration mock |
-| Added Vitest config | vitest.config.ts | Test infrastructure |
-| Added test setup | tests/setup.ts, tests/env-setup.ts | MSW and environment setup |
-| Added test utilities | tests/utils/test-org.ts | Multi-tenant test helpers |
-| Added Docker compose | docker/docker-compose.test.yml | Test database container |
-| Added integration tests | tests/integration/*.test.ts | Foundation tests |
+
+| Change                       | File(s)                                    | Reason                                  |
+| ---------------------------- | ------------------------------------------ | --------------------------------------- |
+| Added organization plugin    | packages/auth/src/index.ts                 | Better Auth multi-tenancy               |
+| Extended auth schema         | packages/db/src/schema/auth.ts             | Organization, member, invitation tables |
+| Created FlowPulse schema     | packages/db/src/schema/flowpulse.ts        | Core business entities                  |
+| Added org context middleware | packages/api/src/middleware/org-context.ts | RLS session variable injection          |
+| Created RLS migration        | packages/db/src/migrations/enable-rls.sql  | Row-level security policies             |
+| Added Kapso package          | packages/kapso/                            | WhatsApp integration mock               |
+| Added Vitest config          | vitest.config.ts                           | Test infrastructure                     |
+| Added test setup             | tests/setup.ts, tests/env-setup.ts         | MSW and environment setup               |
+| Added test utilities         | tests/utils/test-org.ts                    | Multi-tenant test helpers               |
+| Added Docker compose         | docker/docker-compose.test.yml             | Test database container                 |
+| Added integration tests      | tests/integration/\*.test.ts               | Foundation tests                        |
 
 ### File List
+
 - packages/auth/src/index.ts (modified)
-- apps/web/src/lib/auth-client.ts (modified) 
+- apps/web/src/lib/auth-client.ts (modified)
 - packages/db/src/schema/auth.ts (modified)
 - packages/db/src/schema/flowpulse.ts (new)
 - packages/db/src/schema/index.ts (modified)
@@ -304,15 +318,15 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Issues Found and Resolved
 
-| Severity | Issue | Resolution |
-|----------|-------|------------|
-| HIGH | `bun test` script not matching AC - used wrapper script | Fixed: Changed to direct `vitest` command |
-| HIGH | RLS migration not integrated into `db:push` | Fixed: Added `&& bun run db:rls` to db:push script |
-| MEDIUM | File List had incorrect path for auth-client.ts | Fixed: Corrected to `apps/web/src/lib/auth-client.ts` |
-| MEDIUM | File List missing several new files | Fixed: Added all undocumented files |
-| MEDIUM | 80% code coverage not verified | Fixed: Ran coverage, achieved 100% statements/lines/functions, 90% branches |
-| MEDIUM | Missing org context middleware integration test | Fixed: Added `tests/integration/org-context-middleware.test.ts` with 6 tests |
-| LOW | Unused imports in test files | Fixed: Removed unused `eq`, `and` imports |
+| Severity | Issue                                                   | Resolution                                                                   |
+| -------- | ------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| HIGH     | `bun test` script not matching AC - used wrapper script | Fixed: Changed to direct `vitest` command                                    |
+| HIGH     | RLS migration not integrated into `db:push`             | Fixed: Added `&& bun run db:rls` to db:push script                           |
+| MEDIUM   | File List had incorrect path for auth-client.ts         | Fixed: Corrected to `apps/web/src/lib/auth-client.ts`                        |
+| MEDIUM   | File List missing several new files                     | Fixed: Added all undocumented files                                          |
+| MEDIUM   | 80% code coverage not verified                          | Fixed: Ran coverage, achieved 100% statements/lines/functions, 90% branches  |
+| MEDIUM   | Missing org context middleware integration test         | Fixed: Added `tests/integration/org-context-middleware.test.ts` with 6 tests |
+| LOW      | Unused imports in test files                            | Fixed: Removed unused `eq`, `and` imports                                    |
 
 ### Technical Notes
 
@@ -339,6 +353,7 @@ All files | 100% Stmts | 90% Branch | 100% Funcs | 100% Lines
 ```
 
 All acceptance criteria verified:
+
 - [x] AC1: `bun db:push` creates tables AND enables RLS
 - [x] AC2: `bun test` runs Vitest with MSW and proper isolation
 - [x] AC3: `org_id` filter enforced via middleware + RLS policies

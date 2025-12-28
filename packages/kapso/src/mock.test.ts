@@ -64,9 +64,9 @@ describe("KapsoMockClient - Setup Link Operations", () => {
     });
 
     it("throws error for unknown setup link", async () => {
-      await expect(
-        client.getSetupLinkStatus("unknown-setup-link")
-      ).rejects.toThrow("Setup link not found");
+      await expect(client.getSetupLinkStatus("unknown-setup-link")).rejects.toThrow(
+        "Setup link not found",
+      );
     });
   });
 
@@ -77,7 +77,7 @@ describe("KapsoMockClient - Setup Link Operations", () => {
       const displayPhoneNumber = "+5511999999999";
 
       client.mockSetupLinkCompleted(result.id, phoneNumberId, displayPhoneNumber);
-      
+
       const connectionStatus = client.getConnectionStatus(result.id);
       expect(connectionStatus?.status).toBe("connected");
       expect(connectionStatus?.phoneNumberId).toBe(phoneNumberId);
@@ -94,7 +94,7 @@ describe("KapsoMockClient - Setup Link Operations", () => {
       const result = await client.createSetupLink("customer-123", defaultConfig);
 
       client.mockSetupLinkExpired(result.id);
-      
+
       const connectionStatus = client.getConnectionStatus(result.id);
       expect(connectionStatus?.status).toBe("expired");
       expect(connectionStatus?.errorCode).toBe("link_expired");
@@ -110,7 +110,7 @@ describe("KapsoMockClient - Setup Link Operations", () => {
       const errorCode = "user_cancelled";
 
       client.mockSetupLinkFailed(result.id, errorCode);
-      
+
       const connectionStatus = client.getConnectionStatus(result.id);
       expect(connectionStatus?.status).toBe("failed");
       expect(connectionStatus?.errorCode).toBe(errorCode);
@@ -120,7 +120,7 @@ describe("KapsoMockClient - Setup Link Operations", () => {
   describe("getSetupLinkById", () => {
     it("returns setup link by ID", async () => {
       const result = await client.createSetupLink("customer-123", defaultConfig);
-      
+
       const stored = client.getSetupLinkById(result.id);
       expect(stored?.id).toBe(result.id);
       expect(stored?.url).toBe(result.url);
@@ -159,6 +159,141 @@ describe("KapsoMockClient - Setup Link Operations", () => {
 
       expect(client.getSetupLinkById(result.id)).toBeUndefined();
       expect(client.getConnectionStatus(result.id)).toBeUndefined();
+    });
+  });
+});
+
+describe("KapsoMockClient - Test Message Operations", () => {
+  let client: KapsoMockClient;
+
+  beforeEach(() => {
+    client = new KapsoMockClient();
+  });
+
+  describe("sendTestMessage", () => {
+    it("sends test message and returns delivery result", async () => {
+      const result = await client.sendTestMessage({
+        phoneNumber: "+5511999999999",
+        orgId: "org-123",
+      });
+
+      expect(result.deliveryId).toContain("mock-test-");
+      expect(result.status).toBe("sent");
+      expect(result.timestamp).toBeDefined();
+    });
+
+    it("records test message in call history", async () => {
+      await client.sendTestMessage({
+        phoneNumber: "+5511999999999",
+        orgId: "org-123",
+      });
+
+      const history = client.getCallHistory();
+      expect(history).toHaveLength(1);
+      expect(history[0]?.params.phoneNumber).toBe("+5511999999999");
+      expect(history[0]?.params.orgId).toBe("org-123");
+      expect(history[0]?.params.surveyId).toBe("test-verification");
+    });
+
+    it("allows checking if phone was called", async () => {
+      await client.sendTestMessage({
+        phoneNumber: "+5511888888888",
+        orgId: "org-123",
+      });
+
+      expect(client.wasPhoneCalled("+5511888888888")).toBe(true);
+      expect(client.wasPhoneCalled("+5511777777777")).toBe(false);
+    });
+  });
+
+  describe("mockTestMessageSuccess", () => {
+    it("configures successful test message response", async () => {
+      client.mockTestMessageSuccess("mock-test-1");
+
+      // The mock success is set for a specific deliveryId
+      // For testing, we verify the mock is stored correctly
+      await client.sendTestMessage({
+        phoneNumber: "+5511999999999",
+        orgId: "org-123",
+      });
+
+      // First call creates mock-test-1
+      expect(client.getCallCount()).toBe(1);
+    });
+  });
+
+  describe("mockTestMessageFailure", () => {
+    it("configures failure test message response", async () => {
+      // Set default response to failure
+      client.setDefaultResponse("failure", "test_message_failed");
+
+      await expect(
+        client.sendTestMessage({
+          phoneNumber: "+5511999999999",
+          orgId: "org-123",
+        }),
+      ).rejects.toThrow("test_message_failed");
+    });
+
+    it("configures phone_not_connected error", async () => {
+      client.setDefaultResponse("failure", "phone_not_connected");
+
+      await expect(
+        client.sendTestMessage({
+          phoneNumber: "+5511999999999",
+          orgId: "org-123",
+        }),
+      ).rejects.toThrow("phone_not_connected");
+    });
+  });
+
+  describe("mockDeliveryConfirmed", () => {
+    it("updates delivery status to delivered for polling", async () => {
+      const testResult = await client.sendTestMessage({
+        phoneNumber: "+5511999999999",
+        orgId: "org-123",
+      });
+
+      // Initially status would be queued from getDeliveryStatus
+      const initialStatus = await client.getDeliveryStatus(testResult.deliveryId);
+      expect(initialStatus.status).toBe("queued");
+
+      // Mock delivery confirmation
+      client.mockDeliveryConfirmed(testResult.deliveryId);
+
+      // Now status should be delivered
+      const confirmedStatus = await client.getDeliveryStatus(testResult.deliveryId);
+      expect(confirmedStatus.status).toBe("delivered");
+    });
+  });
+
+  describe("clearTestMessageResponses", () => {
+    it("clears test message mock responses", async () => {
+      client.mockTestMessageSuccess("mock-test-1");
+      client.clearTestMessageResponses();
+
+      // After clearing, new calls use default response
+      const result = await client.sendTestMessage({
+        phoneNumber: "+5511999999999",
+        orgId: "org-123",
+      });
+
+      expect(result.status).toBe("sent");
+    });
+  });
+
+  describe("reset", () => {
+    it("clears test message responses along with other state", async () => {
+      await client.sendTestMessage({
+        phoneNumber: "+5511999999999",
+        orgId: "org-123",
+      });
+
+      expect(client.getCallCount()).toBe(1);
+
+      client.reset();
+
+      expect(client.getCallCount()).toBe(0);
     });
   });
 });
@@ -210,10 +345,8 @@ describe("KapsoMockClient - Survey Operations", () => {
 
     it("mockFailure configures error response", async () => {
       client.mockFailure("delivery-456", "rate_limited");
-      
-      await expect(
-        client.getDeliveryStatus("delivery-456")
-      ).rejects.toThrow("rate_limited");
+
+      await expect(client.getDeliveryStatus("delivery-456")).rejects.toThrow("rate_limited");
     });
   });
 

@@ -12,11 +12,11 @@
   },
   "scripts": {},
   "dependencies": {
-    "zod": "catalog:",
-    "@wp-nps/env": "workspace:*"
+    "@wp-nps/env": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@wp-nps/config": "workspace:*"
+    "@wp-nps/config": "workspace:*",
+    "typescript": "^5"
   }
 }

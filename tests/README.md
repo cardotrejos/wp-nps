@@ -122,12 +122,12 @@ test('dashboard test', async ({ authenticatedPage }) => {
 
 ### Timeouts
 
-| Type | Duration | Purpose |
-|------|----------|---------|
-| Action | 15s | Button clicks, form fills |
-| Navigation | 30s | Page loads |
-| Test | 60s | Full test execution |
-| Assertion | 15s | expect() statements |
+| Type       | Duration | Purpose                   |
+| ---------- | -------- | ------------------------- |
+| Action     | 15s      | Button clicks, form fills |
+| Navigation | 30s      | Page loads                |
+| Test       | 60s      | Full test execution       |
+| Assertion  | 15s      | expect() statements       |
 
 ### Browser Projects
 

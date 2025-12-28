@@ -8,173 +8,282 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as OnboardingWhatsappSuccessRouteImport } from './routes/onboarding.whatsapp.success'
-import { Route as OnboardingWhatsappFailedRouteImport } from './routes/onboarding.whatsapp.failed'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as SurveysRouteImport } from "./routes/surveys";
+import { Route as OnboardingRouteImport } from "./routes/onboarding";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as DashboardRouteImport } from "./routes/dashboard";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as SurveysNewRouteImport } from "./routes/surveys.new";
+import { Route as SurveysSurveyIdRouteImport } from "./routes/surveys.$surveyId";
+import { Route as OnboardingTemplateRouteImport } from "./routes/onboarding.template";
+import { Route as OnboardingCompleteRouteImport } from "./routes/onboarding.complete";
+import { Route as OnboardingWhatsappSuccessRouteImport } from "./routes/onboarding.whatsapp.success";
+import { Route as OnboardingWhatsappFailedRouteImport } from "./routes/onboarding.whatsapp.failed";
 
+const SurveysRoute = SurveysRouteImport.update({
+  id: "/surveys",
+  path: "/surveys",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
+  id: "/onboarding",
+  path: "/onboarding",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+  id: "/login",
+  path: "/login",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+  id: "/dashboard",
+  path: "/dashboard",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingWhatsappSuccessRoute =
-  OnboardingWhatsappSuccessRouteImport.update({
-    id: '/whatsapp/success',
-    path: '/whatsapp/success',
-    getParentRoute: () => OnboardingRoute,
-  } as any)
-const OnboardingWhatsappFailedRoute =
-  OnboardingWhatsappFailedRouteImport.update({
-    id: '/whatsapp/failed',
-    path: '/whatsapp/failed',
-    getParentRoute: () => OnboardingRoute,
-  } as any)
+} as any);
+const SurveysNewRoute = SurveysNewRouteImport.update({
+  id: "/new",
+  path: "/new",
+  getParentRoute: () => SurveysRoute,
+} as any);
+const SurveysSurveyIdRoute = SurveysSurveyIdRouteImport.update({
+  id: "/$surveyId",
+  path: "/$surveyId",
+  getParentRoute: () => SurveysRoute,
+} as any);
+const OnboardingTemplateRoute = OnboardingTemplateRouteImport.update({
+  id: "/template",
+  path: "/template",
+  getParentRoute: () => OnboardingRoute,
+} as any);
+const OnboardingCompleteRoute = OnboardingCompleteRouteImport.update({
+  id: "/complete",
+  path: "/complete",
+  getParentRoute: () => OnboardingRoute,
+} as any);
+const OnboardingWhatsappSuccessRoute = OnboardingWhatsappSuccessRouteImport.update({
+  id: "/whatsapp/success",
+  path: "/whatsapp/success",
+  getParentRoute: () => OnboardingRoute,
+} as any);
+const OnboardingWhatsappFailedRoute = OnboardingWhatsappFailedRouteImport.update({
+  id: "/whatsapp/failed",
+  path: "/whatsapp/failed",
+  getParentRoute: () => OnboardingRoute,
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRouteWithChildren
-  '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
-  '/onboarding/whatsapp/success': typeof OnboardingWhatsappSuccessRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/login": typeof LoginRoute;
+  "/onboarding": typeof OnboardingRouteWithChildren;
+  "/surveys": typeof SurveysRouteWithChildren;
+  "/onboarding/complete": typeof OnboardingCompleteRoute;
+  "/onboarding/template": typeof OnboardingTemplateRoute;
+  "/surveys/$surveyId": typeof SurveysSurveyIdRoute;
+  "/surveys/new": typeof SurveysNewRoute;
+  "/onboarding/whatsapp/failed": typeof OnboardingWhatsappFailedRoute;
+  "/onboarding/whatsapp/success": typeof OnboardingWhatsappSuccessRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRouteWithChildren
-  '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
-  '/onboarding/whatsapp/success': typeof OnboardingWhatsappSuccessRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/login": typeof LoginRoute;
+  "/onboarding": typeof OnboardingRouteWithChildren;
+  "/surveys": typeof SurveysRouteWithChildren;
+  "/onboarding/complete": typeof OnboardingCompleteRoute;
+  "/onboarding/template": typeof OnboardingTemplateRoute;
+  "/surveys/$surveyId": typeof SurveysSurveyIdRoute;
+  "/surveys/new": typeof SurveysNewRoute;
+  "/onboarding/whatsapp/failed": typeof OnboardingWhatsappFailedRoute;
+  "/onboarding/whatsapp/success": typeof OnboardingWhatsappSuccessRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
-  '/onboarding': typeof OnboardingRouteWithChildren
-  '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
-  '/onboarding/whatsapp/success': typeof OnboardingWhatsappSuccessRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRoute;
+  "/login": typeof LoginRoute;
+  "/onboarding": typeof OnboardingRouteWithChildren;
+  "/surveys": typeof SurveysRouteWithChildren;
+  "/onboarding/complete": typeof OnboardingCompleteRoute;
+  "/onboarding/template": typeof OnboardingTemplateRoute;
+  "/surveys/$surveyId": typeof SurveysSurveyIdRoute;
+  "/surveys/new": typeof SurveysNewRoute;
+  "/onboarding/whatsapp/failed": typeof OnboardingWhatsappFailedRoute;
+  "/onboarding/whatsapp/success": typeof OnboardingWhatsappSuccessRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/onboarding'
-    | '/onboarding/whatsapp/failed'
-    | '/onboarding/whatsapp/success'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/dashboard"
+    | "/login"
+    | "/onboarding"
+    | "/surveys"
+    | "/onboarding/complete"
+    | "/onboarding/template"
+    | "/surveys/$surveyId"
+    | "/surveys/new"
+    | "/onboarding/whatsapp/failed"
+    | "/onboarding/whatsapp/success";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/onboarding'
-    | '/onboarding/whatsapp/failed'
-    | '/onboarding/whatsapp/success'
+    | "/"
+    | "/dashboard"
+    | "/login"
+    | "/onboarding"
+    | "/surveys"
+    | "/onboarding/complete"
+    | "/onboarding/template"
+    | "/surveys/$surveyId"
+    | "/surveys/new"
+    | "/onboarding/whatsapp/failed"
+    | "/onboarding/whatsapp/success";
   id:
-    | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/onboarding'
-    | '/onboarding/whatsapp/failed'
-    | '/onboarding/whatsapp/success'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/dashboard"
+    | "/login"
+    | "/onboarding"
+    | "/surveys"
+    | "/onboarding/complete"
+    | "/onboarding/template"
+    | "/surveys/$surveyId"
+    | "/surveys/new"
+    | "/onboarding/whatsapp/failed"
+    | "/onboarding/whatsapp/success";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  LoginRoute: typeof LoginRoute
-  OnboardingRoute: typeof OnboardingRouteWithChildren
+  IndexRoute: typeof IndexRoute;
+  DashboardRoute: typeof DashboardRoute;
+  LoginRoute: typeof LoginRoute;
+  OnboardingRoute: typeof OnboardingRouteWithChildren;
+  SurveysRoute: typeof SurveysRouteWithChildren;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding/whatsapp/success': {
-      id: '/onboarding/whatsapp/success'
-      path: '/whatsapp/success'
-      fullPath: '/onboarding/whatsapp/success'
-      preLoaderRoute: typeof OnboardingWhatsappSuccessRouteImport
-      parentRoute: typeof OnboardingRoute
-    }
-    '/onboarding/whatsapp/failed': {
-      id: '/onboarding/whatsapp/failed'
-      path: '/whatsapp/failed'
-      fullPath: '/onboarding/whatsapp/failed'
-      preLoaderRoute: typeof OnboardingWhatsappFailedRouteImport
-      parentRoute: typeof OnboardingRoute
-    }
+    "/surveys": {
+      id: "/surveys";
+      path: "/surveys";
+      fullPath: "/surveys";
+      preLoaderRoute: typeof SurveysRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/onboarding": {
+      id: "/onboarding";
+      path: "/onboarding";
+      fullPath: "/onboarding";
+      preLoaderRoute: typeof OnboardingRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/dashboard": {
+      id: "/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/surveys/new": {
+      id: "/surveys/new";
+      path: "/new";
+      fullPath: "/surveys/new";
+      preLoaderRoute: typeof SurveysNewRouteImport;
+      parentRoute: typeof SurveysRoute;
+    };
+    "/surveys/$surveyId": {
+      id: "/surveys/$surveyId";
+      path: "/$surveyId";
+      fullPath: "/surveys/$surveyId";
+      preLoaderRoute: typeof SurveysSurveyIdRouteImport;
+      parentRoute: typeof SurveysRoute;
+    };
+    "/onboarding/template": {
+      id: "/onboarding/template";
+      path: "/template";
+      fullPath: "/onboarding/template";
+      preLoaderRoute: typeof OnboardingTemplateRouteImport;
+      parentRoute: typeof OnboardingRoute;
+    };
+    "/onboarding/complete": {
+      id: "/onboarding/complete";
+      path: "/complete";
+      fullPath: "/onboarding/complete";
+      preLoaderRoute: typeof OnboardingCompleteRouteImport;
+      parentRoute: typeof OnboardingRoute;
+    };
+    "/onboarding/whatsapp/success": {
+      id: "/onboarding/whatsapp/success";
+      path: "/whatsapp/success";
+      fullPath: "/onboarding/whatsapp/success";
+      preLoaderRoute: typeof OnboardingWhatsappSuccessRouteImport;
+      parentRoute: typeof OnboardingRoute;
+    };
+    "/onboarding/whatsapp/failed": {
+      id: "/onboarding/whatsapp/failed";
+      path: "/whatsapp/failed";
+      fullPath: "/onboarding/whatsapp/failed";
+      preLoaderRoute: typeof OnboardingWhatsappFailedRouteImport;
+      parentRoute: typeof OnboardingRoute;
+    };
   }
 }
 
 interface OnboardingRouteChildren {
-  OnboardingWhatsappFailedRoute: typeof OnboardingWhatsappFailedRoute
-  OnboardingWhatsappSuccessRoute: typeof OnboardingWhatsappSuccessRoute
+  OnboardingCompleteRoute: typeof OnboardingCompleteRoute;
+  OnboardingTemplateRoute: typeof OnboardingTemplateRoute;
+  OnboardingWhatsappFailedRoute: typeof OnboardingWhatsappFailedRoute;
+  OnboardingWhatsappSuccessRoute: typeof OnboardingWhatsappSuccessRoute;
 }
 
 const OnboardingRouteChildren: OnboardingRouteChildren = {
+  OnboardingCompleteRoute: OnboardingCompleteRoute,
+  OnboardingTemplateRoute: OnboardingTemplateRoute,
   OnboardingWhatsappFailedRoute: OnboardingWhatsappFailedRoute,
   OnboardingWhatsappSuccessRoute: OnboardingWhatsappSuccessRoute,
+};
+
+const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(OnboardingRouteChildren);
+
+interface SurveysRouteChildren {
+  SurveysSurveyIdRoute: typeof SurveysSurveyIdRoute;
+  SurveysNewRoute: typeof SurveysNewRoute;
 }
 
-const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
-  OnboardingRouteChildren,
-)
+const SurveysRouteChildren: SurveysRouteChildren = {
+  SurveysSurveyIdRoute: SurveysSurveyIdRoute,
+  SurveysNewRoute: SurveysNewRoute,
+};
+
+const SurveysRouteWithChildren = SurveysRoute._addFileChildren(SurveysRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
-}
+  SurveysRoute: SurveysRouteWithChildren,
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();

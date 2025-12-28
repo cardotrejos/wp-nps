@@ -46,9 +46,7 @@ export const requireOrgContext = o.middleware(async ({ context, next }) => {
   return db.transaction(async (tx) => {
     // Set PostgreSQL session variable for RLS policies on the same connection.
     // This enables RLS policies to use: current_setting('app.current_org_id')
-    await tx.execute(
-      sql`SELECT set_config('app.current_org_id', ${orgId}, true)`,
-    );
+    await tx.execute(sql`SELECT set_config('app.current_org_id', ${orgId}, true)`);
 
     return next({
       context: {

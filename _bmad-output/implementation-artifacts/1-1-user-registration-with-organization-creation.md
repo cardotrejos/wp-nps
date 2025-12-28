@@ -74,6 +74,7 @@ so that **I can start using FlowPulse without manual setup steps**.
 
 **Better Auth Organization Plugin (AR1):**
 The organization plugin is already configured in `packages/auth/src/index.ts`. The signup flow must:
+
 1. Create user via `signUp.email()`
 2. Create organization via `organization.create()` (requires authenticated session)
 3. Set active organization via `organization.setActive()`
@@ -102,6 +103,7 @@ export const auth = betterAuth({
 ```
 
 **Client-Side Registration Pattern:**
+
 ```typescript
 // apps/web/src/components/sign-up-form.tsx
 import { authClient } from "@/lib/auth-client";
@@ -142,6 +144,7 @@ const handleSubmit = async (values: FormValues) => {
 ```
 
 **Form Validation Schema:**
+
 ```typescript
 import { z } from "zod";
 
@@ -157,6 +160,7 @@ const signUpSchema = z.object({
 **Scenario:** User signup succeeds but organization creation fails.
 
 **Chosen Approach:** Sign out the user and show error for retry.
+
 - Simplest MVP approach - no orphaned user records
 - User retries from clean state
 - Better Auth handles session cleanup automatically
@@ -208,39 +212,47 @@ export function generateSlug(name: string): string {
 ### UX Polish Guidelines
 
 **Field Order (cognitive flow):**
+
 1. Email (account identity)
 2. Password (account security)
 3. Organization Name (context for the account)
 
 **Error Display Pattern:**
+
 - Inline validation errors under each field (primary)
 - Toast for API errors like "Email already registered" (secondary)
 - Both for maximum visibility
 
 **Loading State:**
+
 - Single "Creating your account..." message covers both API calls
 - User doesn't need to know about the two-step process
 
 **Success Message:**
+
 - "Welcome! Let's get you set up" (sets expectation for onboarding)
 
 ### Project Structure Notes
 
 **Files to Modify:**
+
 - `packages/auth/src/index.ts` - Add bcrypt password hashing config
 - `apps/web/src/components/sign-up-form.tsx` - Add organization name field and registration logic
 - `apps/web/src/lib/utils.ts` - Add `generateSlug()` utility function
 - `apps/web/src/routes/login.tsx` - May need route adjustment for redirect
 
 **Files to Create:**
+
 - `tests/integration/registration.test.ts` - Registration flow integration tests
 - `tests/e2e/registration.spec.ts` - Playwright E2E test for signup flow
 
 **Dependencies to Add:**
+
 - `bcryptjs` - For bcrypt password hashing (add to packages/auth)
 - `@types/bcryptjs` - TypeScript types (dev dependency)
 
 **Naming Conventions:**
+
 - Component file: `sign-up-form.tsx` (kebab-case) ✅ Already correct
 - Route file: `login.tsx` contains SignUpForm, consider renaming to `auth.tsx` or keep as is
 - Test file: `registration.test.ts` (co-located pattern)
@@ -293,6 +305,7 @@ export function generateSlug(name: string): string {
 ### Testing Standards
 
 **Integration Test Pattern:**
+
 ```typescript
 // tests/integration/registration.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -344,6 +357,7 @@ describe('User Registration with Organization', () => {
 ```
 
 **E2E Test Pattern (Playwright):**
+
 ```typescript
 // tests/e2e/registration.spec.ts
 import { test, expect } from '@playwright/test';
@@ -390,17 +404,20 @@ test('complete signup flow redirects to onboarding', async ({ page }) => {
 ### Latest Technical Specifics
 
 **Better Auth v1.4.9:**
+
 - Organization plugin creates `organization`, `member`, `invitation` tables automatically
 - Session provides `activeOrganizationId` for multi-tenancy context
 - Password hashing customizable via `password.hash` and `password.verify` callbacks
 - Session expiration via `session.expiresIn` (seconds) and `session.updateAge`
 
 **bcryptjs:**
+
 - Pure JavaScript implementation of bcrypt (no native dependencies)
 - Use cost factor 10+ for security compliance (NFR-S5)
 - Async methods: `bcrypt.hash(password, saltRounds)`, `bcrypt.compare(password, hash)`
 
 **TanStack Form v1.12.3:**
+
 - `useForm` hook with `onSubmit` async handler
 - `form.Field` component for individual field management
 - `form.Subscribe` for reactive form state
@@ -428,31 +445,34 @@ None - implementation proceeded without errors.
 All 53 tests pass. Build completes successfully.
 
 ### Change Log
-| Change | File(s) | Reason |
-|--------|---------|--------|
-| Add bcrypt password hashing | packages/auth/src/index.ts | AC #1 - NFR-S5 compliance |
-| Add session expiration config | packages/auth/src/index.ts | AC #1 - 24h inactivity expiration |
-| Add bcryptjs dependency | packages/auth/package.json | Password hashing library |
-| Rewrite signup form | apps/web/src/components/sign-up-form.tsx | AC #1-6 - Full registration flow |
-| Add generateSlug utility | apps/web/src/lib/utils.ts | AC #1 - Organization slug generation |
-| Add integration tests | tests/integration/registration.test.ts | AC #1, #2, #6 - Test coverage |
-| Add E2E tests | tests/e2e/registration.spec.ts | AC #1-6 - Browser flow testing |
-| Add test dependencies | package.json (root) | bcryptjs for test assertions |
+
+| Change                        | File(s)                                  | Reason                               |
+| ----------------------------- | ---------------------------------------- | ------------------------------------ |
+| Add bcrypt password hashing   | packages/auth/src/index.ts               | AC #1 - NFR-S5 compliance            |
+| Add session expiration config | packages/auth/src/index.ts               | AC #1 - 24h inactivity expiration    |
+| Add bcryptjs dependency       | packages/auth/package.json               | Password hashing library             |
+| Rewrite signup form           | apps/web/src/components/sign-up-form.tsx | AC #1-6 - Full registration flow     |
+| Add generateSlug utility      | apps/web/src/lib/utils.ts                | AC #1 - Organization slug generation |
+| Add integration tests         | tests/integration/registration.test.ts   | AC #1, #2, #6 - Test coverage        |
+| Add E2E tests                 | tests/e2e/registration.spec.ts           | AC #1-6 - Browser flow testing       |
+| Add test dependencies         | package.json (root)                      | bcryptjs for test assertions         |
 
 ### File List
 
 **Modified:**
+
 - packages/auth/src/index.ts
 - packages/auth/package.json
 - apps/web/src/components/sign-up-form.tsx
 - apps/web/src/lib/utils.ts
 - package.json (root - dev dependencies)
-- _bmad-output/implementation-artifacts/sprint-status.yaml
+- \_bmad-output/implementation-artifacts/sprint-status.yaml
 - tests/integration/registration.test.ts
 - tests/e2e/registration.spec.ts
 - bun.lock
 
 **Created:**
+
 - tests/integration/registration.test.ts
 - tests/e2e/registration.spec.ts
 - apps/web/src/routes/onboarding.tsx (Round 2 fix)
@@ -461,6 +481,7 @@ All 53 tests pass. Build completes successfully.
 ## Senior Developer Review (AI)
 
 ### Review Findings (Initial)
+
 - **CRITICAL**: Retry logic for organization creation was missing, potentially leaving users in a broken state if slug collision occurred.
 - **CRITICAL**: `generateSlug` collision handling was missing.
 - **MEDIUM**: Tests were using raw SQL instead of Drizzle ORM helpers.
@@ -468,12 +489,14 @@ All 53 tests pass. Build completes successfully.
 - **LOW**: `bun.lock` changes not tracked.
 
 ### Fixes Applied (Initial)
+
 - **Slug Collision**: Implemented retry logic in `sign-up-form.tsx` to handle slug collisions by appending random suffix.
 - **Redirect**: Updated redirect URL to `/onboarding` to match AC.
 - **Tests**: Refactored `tests/integration/registration.test.ts` to use proper Drizzle ORM `db.insert`, `db.query`, and `eq()` syntax.
 - **Tracking**: Added `bun.lock` to file list.
 
 ### Review Findings (Adversarial - Round 2)
+
 - **HIGH**: Missing `/onboarding` route - code navigated there but route didn't exist.
 - **MEDIUM**: No test for slug collision retry logic.
 - **MEDIUM**: Retry suffix too short (4 chars) - should be 8 chars for better uniqueness.
@@ -483,6 +506,7 @@ All 53 tests pass. Build completes successfully.
 - **LOW**: Toast message "Welcome! Let's get you set up" doesn't exactly match Dev Notes "Welcome to FlowPulse!" (acceptable - current is better).
 
 ### Fixes Applied (Round 2)
+
 - **Onboarding Route**: Created `apps/web/src/routes/onboarding.tsx` with placeholder UI and auth guard.
 - **Retry Suffix**: Improved from 4 chars to 8 chars (timestamp base36 + random) in `sign-up-form.tsx`.
 - **Utils Tests**: Created `apps/web/src/lib/utils.test.ts` with 11 tests for `generateSlug()` and `cn()`.
@@ -491,6 +515,7 @@ All 53 tests pass. Build completes successfully.
 - **Unused Import**: Removed `sql` from imports in registration.test.ts.
 
 ### Outcome
+
 - **Status**: [x] Approved
 - **Tests**: All 53 integration tests + 11 utils tests pass.
 - **Quality**: Code now fully compliant with NFRs and project standards.

@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import dotenv from "dotenv";
 import pg from "pg";
+
+// Load environment from apps/server/.env
+dotenv.config({ path: join(import.meta.dirname, "../../../../apps/server/.env") });
 
 const { Client } = pg;
 
@@ -31,9 +35,7 @@ async function runRlsMigration() {
         console.log("\nRLS Status:");
         for (const row of lastResult.rows) {
           const tableRow = row as { tablename: string; rowsecurity: boolean };
-          console.log(
-            `  ${tableRow.tablename}: ${tableRow.rowsecurity ? "enabled" : "disabled"}`,
-          );
+          console.log(`  ${tableRow.tablename}: ${tableRow.rowsecurity ? "enabled" : "disabled"}`);
         }
       }
     }

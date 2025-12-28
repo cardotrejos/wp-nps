@@ -29,15 +29,15 @@ export const user = pgTable("user", {
 });
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | text | PRIMARY KEY | Unique user identifier |
-| `name` | text | NOT NULL | User display name |
-| `email` | text | NOT NULL, UNIQUE | User email address |
-| `emailVerified` | boolean | NOT NULL, DEFAULT false | Email verification status |
-| `image` | text | NULLABLE | Profile image URL |
-| `createdAt` | timestamp | NOT NULL, DEFAULT now() | Creation timestamp |
-| `updatedAt` | timestamp | NOT NULL, AUTO-UPDATE | Last update timestamp |
+| Column          | Type      | Constraints             | Description               |
+| --------------- | --------- | ----------------------- | ------------------------- |
+| `id`            | text      | PRIMARY KEY             | Unique user identifier    |
+| `name`          | text      | NOT NULL                | User display name         |
+| `email`         | text      | NOT NULL, UNIQUE        | User email address        |
+| `emailVerified` | boolean   | NOT NULL, DEFAULT false | Email verification status |
+| `image`         | text      | NULLABLE                | Profile image URL         |
+| `createdAt`     | timestamp | NOT NULL, DEFAULT now() | Creation timestamp        |
+| `updatedAt`     | timestamp | NOT NULL, AUTO-UPDATE   | Last update timestamp     |
 
 ### Session Table
 
@@ -56,14 +56,14 @@ export const session = pgTable("session", {
 }, (table) => [index("session_userId_idx").on(table.userId)]);
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | text | PRIMARY KEY | Session identifier |
-| `expiresAt` | timestamp | NOT NULL | Session expiration time |
-| `token` | text | NOT NULL, UNIQUE | Session token |
-| `ipAddress` | text | NULLABLE | Client IP address |
-| `userAgent` | text | NULLABLE | Client user agent |
-| `userId` | text | NOT NULL, FK → user.id | Associated user |
+| Column      | Type      | Constraints            | Description             |
+| ----------- | --------- | ---------------------- | ----------------------- |
+| `id`        | text      | PRIMARY KEY            | Session identifier      |
+| `expiresAt` | timestamp | NOT NULL               | Session expiration time |
+| `token`     | text      | NOT NULL, UNIQUE       | Session token           |
+| `ipAddress` | text      | NULLABLE               | Client IP address       |
+| `userAgent` | text      | NULLABLE               | Client user agent       |
+| `userId`    | text      | NOT NULL, FK → user.id | Associated user         |
 
 **Indexes**: `session_userId_idx` on `userId`
 
@@ -89,15 +89,15 @@ export const account = pgTable("account", {
 }, (table) => [index("account_userId_idx").on(table.userId)]);
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | text | PRIMARY KEY | Account identifier |
-| `accountId` | text | NOT NULL | Provider account ID |
-| `providerId` | text | NOT NULL | Auth provider (e.g., "credential", "google") |
-| `userId` | text | NOT NULL, FK → user.id | Associated user |
-| `accessToken` | text | NULLABLE | OAuth access token |
-| `refreshToken` | text | NULLABLE | OAuth refresh token |
-| `password` | text | NULLABLE | Hashed password (for credential auth) |
+| Column         | Type | Constraints            | Description                                  |
+| -------------- | ---- | ---------------------- | -------------------------------------------- |
+| `id`           | text | PRIMARY KEY            | Account identifier                           |
+| `accountId`    | text | NOT NULL               | Provider account ID                          |
+| `providerId`   | text | NOT NULL               | Auth provider (e.g., "credential", "google") |
+| `userId`       | text | NOT NULL, FK → user.id | Associated user                              |
+| `accessToken`  | text | NULLABLE               | OAuth access token                           |
+| `refreshToken` | text | NULLABLE               | OAuth refresh token                          |
+| `password`     | text | NULLABLE               | Hashed password (for credential auth)        |
 
 **Indexes**: `account_userId_idx` on `userId`
 
@@ -116,12 +116,12 @@ export const verification = pgTable("verification", {
 }, (table) => [index("verification_identifier_idx").on(table.identifier)]);
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | text | PRIMARY KEY | Verification record ID |
-| `identifier` | text | NOT NULL | Email or phone to verify |
-| `value` | text | NOT NULL | Verification token/code |
-| `expiresAt` | timestamp | NOT NULL | Token expiration time |
+| Column       | Type      | Constraints | Description              |
+| ------------ | --------- | ----------- | ------------------------ |
+| `id`         | text      | PRIMARY KEY | Verification record ID   |
+| `identifier` | text      | NOT NULL    | Email or phone to verify |
+| `value`      | text      | NOT NULL    | Verification token/code  |
+| `expiresAt`  | timestamp | NOT NULL    | Token expiration time    |
 
 **Indexes**: `verification_identifier_idx` on `identifier`
 
@@ -216,4 +216,4 @@ const userWithSessions = await db.query.user.findFirst({
 
 ---
 
-*Generated by BMAD Document Project Workflow*
+_Generated by BMAD Document Project Workflow_

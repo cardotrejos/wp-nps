@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
+import { ORPCError } from "@orpc/server";
 import { db } from "@wp-nps/db";
 import { whatsappConnection } from "@wp-nps/db/schema/flowpulse";
 import { KapsoMockClient } from "@wp-nps/kapso";
@@ -11,8 +12,7 @@ import { protectedProcedure } from "../index";
 const kapsoClient = new KapsoMockClient();
 
 // Check if we're in development/test mode (for relaxed validation)
-const isDevelopment =
-  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+const isDevelopment = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 
 /**
  * WhatsApp Connection Router
@@ -42,7 +42,7 @@ export const whatsappRouter = {
     .handler(async ({ context, input }) => {
       const orgId = context.session.session.activeOrganizationId;
       if (!orgId) {
-        throw new Error("No active organization");
+        throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
       }
 
       // Call Kapso to create setup link
@@ -102,7 +102,7 @@ export const whatsappRouter = {
     .handler(async ({ context, input }) => {
       const orgId = context.session.session.activeOrganizationId;
       if (!orgId) {
-        throw new Error("No active organization");
+        throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
       }
 
       // First verify this setup link belongs to this org (prevents cross-org attacks)
@@ -114,7 +114,7 @@ export const whatsappRouter = {
       });
 
       if (!existingConnection) {
-        throw new Error("Setup link not found for this organization");
+        throw new ORPCError("NOT_FOUND", { message: "Setup link not found for this organization" });
       }
 
       if (existingConnection.status === "active") {
@@ -126,9 +126,7 @@ export const whatsappRouter = {
       }
 
       // Verify setup link status with Kapso
-      const setupLinkStatus = await kapsoClient.getSetupLinkStatus(
-        input.setupLinkId,
-      );
+      const setupLinkStatus = await kapsoClient.getSetupLinkStatus(input.setupLinkId);
 
       // In production: strictly require "completed" status
       // In development/test: also accept "pending" for testing flows
@@ -137,9 +135,9 @@ export const whatsappRouter = {
         (isDevelopment && setupLinkStatus.status === "pending");
 
       if (!isValidStatus) {
-        throw new Error(
-          `Setup link is not completed: ${setupLinkStatus.status}`,
-        );
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: `Setup link is not completed: ${setupLinkStatus.status}`,
+        });
       }
 
       // TODO: In production, fetch verified phone details from Kapso API
@@ -170,9 +168,9 @@ export const whatsappRouter = {
 
       // Verify we actually updated a row
       if (!result[0]) {
-        throw new Error(
-          "Failed to update connection - setup link may have expired or been used",
-        );
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: "Failed to update connection - setup link may have expired or been used",
+        });
       }
 
       return {
@@ -190,7 +188,7 @@ export const whatsappRouter = {
     .handler(async ({ context, input }) => {
       const orgId = context.session.session.activeOrganizationId;
       if (!orgId) {
-        throw new Error("No active organization");
+        throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
       }
 
       // Verify the setup link belongs to this org
@@ -202,7 +200,7 @@ export const whatsappRouter = {
       });
 
       if (!connection) {
-        throw new Error("Setup link not found for this organization");
+        throw new ORPCError("NOT_FOUND", { message: "Setup link not found for this organization" });
       }
 
       const status = await kapsoClient.getSetupLinkStatus(input.setupLinkId);
@@ -216,7 +214,7 @@ export const whatsappRouter = {
   getConnection: protectedProcedure.handler(async ({ context }) => {
     const orgId = context.session.session.activeOrganizationId;
     if (!orgId) {
-      throw new Error("No active organization");
+      throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
     }
 
     // CRITICAL: Always filter by orgId for multi-tenancy
@@ -234,7 +232,7 @@ export const whatsappRouter = {
   disconnect: protectedProcedure.handler(async ({ context }) => {
     const orgId = context.session.session.activeOrganizationId;
     if (!orgId) {
-      throw new Error("No active organization");
+      throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
     }
 
     await db
@@ -246,5 +244,121 @@ export const whatsappRouter = {
       .where(eq(whatsappConnection.orgId, orgId));
 
     return { disconnected: true };
+  }),
+
+  // ==========================================
+  // Verification Methods (Story 1.3)
+  // ==========================================
+
+  /**
+   * Send test message to verify WhatsApp connection
+   * Sends a message to the connected phone number to verify it works
+   *
+   * Prerequisite: WhatsApp connection must be in "active" status
+   */
+  sendTestMessage: protectedProcedure.handler(async ({ context }) => {
+    const orgId = context.session.session.activeOrganizationId;
+    if (!orgId) {
+      throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
+    }
+
+    // Get the connected WhatsApp - MUST filter by orgId
+    const connection = await db.query.whatsappConnection.findFirst({
+      where: and(eq(whatsappConnection.orgId, orgId), eq(whatsappConnection.status, "active")),
+    });
+
+    if (!connection?.phoneNumber) {
+      throw new ORPCError("PRECONDITION_FAILED", {
+        message: "WhatsApp not connected. Please scan QR code first.",
+      });
+    }
+
+    // Call Kapso to send test message
+    const result = await kapsoClient.sendTestMessage({
+      phoneNumber: connection.phoneNumber,
+      orgId,
+    });
+
+    // Store delivery ID in metadata for tracking verification attempts
+    const currentMetadata = (connection.metadata as Record<string, unknown>) ?? {};
+    await db
+      .update(whatsappConnection)
+      .set({
+        metadata: {
+          ...currentMetadata,
+          lastTestDeliveryId: result.deliveryId,
+          lastTestSentAt: new Date().toISOString(),
+          testAttempts: ((currentMetadata.testAttempts as number) ?? 0) + 1,
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(whatsappConnection.id, connection.id));
+
+    return {
+      deliveryId: result.deliveryId,
+      status: result.status,
+    };
+  }),
+
+  /**
+   * Get verification/delivery status (for polling)
+   * Checks with Kapso if the test message was delivered
+   */
+  getVerificationStatus: protectedProcedure
+    .input(z.object({ deliveryId: z.string() }))
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
+      }
+
+      // Verify the org has a connection (security check)
+      const connection = await db.query.whatsappConnection.findFirst({
+        where: eq(whatsappConnection.orgId, orgId),
+      });
+
+      if (!connection) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "No WhatsApp connection found for this organization",
+        });
+      }
+
+      // Check Kapso for delivery status
+      const status = await kapsoClient.getDeliveryStatus(input.deliveryId);
+
+      return {
+        deliveryId: input.deliveryId,
+        status: status.status,
+      };
+    }),
+
+  /**
+   * Confirm verification manually
+   * User clicks "I Received It" to confirm they got the test message
+   * Updates connection status from "active" to "verified"
+   */
+  confirmVerification: protectedProcedure.handler(async ({ context }) => {
+    const orgId = context.session.session.activeOrganizationId;
+    if (!orgId) {
+      throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
+    }
+
+    // Update connection status to verified - MUST filter by orgId AND status
+    const result = await db
+      .update(whatsappConnection)
+      .set({
+        status: "verified",
+        updatedAt: new Date(),
+      })
+      .where(and(eq(whatsappConnection.orgId, orgId), eq(whatsappConnection.status, "active")))
+      .returning({ id: whatsappConnection.id });
+
+    if (!result[0]) {
+      throw new ORPCError("PRECONDITION_FAILED", {
+        message: "No active WhatsApp connection to verify.",
+      });
+    }
+
+    return { verified: true };
   }),
 };

@@ -16,6 +16,14 @@ export const sendSurveyParamsSchema = z.object({
 
 export type SendSurveyParams = z.infer<typeof sendSurveyParamsSchema>;
 
+// Test message parameters (for WhatsApp verification)
+export const sendTestParamsSchema = z.object({
+  phoneNumber: z.string(),
+  orgId: z.string(),
+});
+
+export type SendTestParams = z.infer<typeof sendTestParamsSchema>;
+
 // Survey delivery result
 export const surveyDeliveryResultSchema = z.object({
   deliveryId: z.string(),
@@ -35,6 +43,8 @@ export const kapsoErrorCodeSchema = z.enum([
   "unknown_error",
   "qr_expired",
   "qr_generation_failed",
+  "test_message_failed",
+  "phone_not_connected",
 ]);
 
 export type KapsoErrorCode = z.infer<typeof kapsoErrorCodeSchema>;
@@ -70,9 +80,7 @@ export type KapsoWebhookPayload = z.infer<typeof kapsoWebhookPayloadSchema>;
 export const setupLinkConfigSchema = z.object({
   successRedirectUrl: z.string().url(),
   failureRedirectUrl: z.string().url(),
-  allowedConnectionTypes: z
-    .array(z.enum(["coexistence", "dedicated"]))
-    .optional(),
+  allowedConnectionTypes: z.array(z.enum(["coexistence", "dedicated"])).optional(),
   provisionPhoneNumber: z.boolean().optional(),
   phoneNumberCountryIsos: z.array(z.string()).optional(),
   themeConfig: z
@@ -116,9 +124,9 @@ export interface IKapsoClient {
   verifyWebhook(signature: string, payload: string): boolean;
 
   // Setup Link / WhatsApp connection operations
-  createSetupLink(
-    customerId: string,
-    config: SetupLinkConfig,
-  ): Promise<SetupLinkResult>;
+  createSetupLink(customerId: string, config: SetupLinkConfig): Promise<SetupLinkResult>;
   getSetupLinkStatus(setupLinkId: string): Promise<SetupLinkResult>;
+
+  // Test message for WhatsApp verification
+  sendTestMessage(params: SendTestParams): Promise<SurveyDeliveryResult>;
 }

@@ -20,10 +20,7 @@ afterAll(async () => {
 });
 
 // Test utilities for org context
-export async function withTestOrg<T>(
-  _orgId: string,
-  fn: () => Promise<T>,
-): Promise<T> {
+export async function withTestOrg<T>(_orgId: string, fn: () => Promise<T>): Promise<T> {
   // This would set up the org context for database operations
   // In the actual implementation, this sets the PostgreSQL session variable
   return fn();

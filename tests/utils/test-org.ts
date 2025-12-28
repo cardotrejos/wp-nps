@@ -62,9 +62,7 @@ export async function createTestUser(
  * Using false for is_local parameter to make it session-scoped (not transaction-scoped)
  */
 export async function setOrgContext(orgId: string): Promise<void> {
-  await db.execute(
-    sql`SELECT set_config('app.current_org_id', ${orgId}, false)`,
-  );
+  await db.execute(sql`SELECT set_config('app.current_org_id', ${orgId}, false)`);
 }
 
 /**
@@ -78,10 +76,7 @@ export async function clearOrgContext(): Promise<void> {
  * Executes a function within an org context
  * Useful for testing org-scoped operations
  */
-export async function withOrgContext<T>(
-  orgId: string,
-  fn: () => Promise<T>,
-): Promise<T> {
+export async function withOrgContext<T>(orgId: string, fn: () => Promise<T>): Promise<T> {
   await setOrgContext(orgId);
   try {
     return await fn();
@@ -100,16 +95,12 @@ export async function cleanupTestOrg(orgId: string): Promise<void> {
   await db.execute(sql`DELETE FROM survey_response WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM survey WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM webhook_job WHERE org_id = ${orgId}`);
-  await db.execute(
-    sql`DELETE FROM whatsapp_connection WHERE org_id = ${orgId}`,
-  );
+  await db.execute(sql`DELETE FROM whatsapp_connection WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM org_metrics WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM org_usage WHERE org_id = ${orgId}`);
 
   // Delete member and invitation records
-  await db.execute(
-    sql`DELETE FROM invitation WHERE organization_id = ${orgId}`,
-  );
+  await db.execute(sql`DELETE FROM invitation WHERE organization_id = ${orgId}`);
   await db.execute(sql`DELETE FROM member WHERE organization_id = ${orgId}`);
 
   // Finally delete the organization

@@ -165,11 +165,7 @@ describe("KapsoMockClient", () => {
 
   describe("Mock Next Calls", () => {
     it("should mock next calls with success statuses", async () => {
-      client.mockNextCalls([
-        { status: "queued" },
-        { status: "sent" },
-        { status: "delivered" },
-      ]);
+      client.mockNextCalls([{ status: "queued" }, { status: "sent" }, { status: "delivered" }]);
 
       // These won't use the mocked responses since they generate new delivery IDs
       // But the setup exercises the code paths

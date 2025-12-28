@@ -22,10 +22,8 @@ export function useWhatsAppConnection() {
 
   // Create setup link mutation
   const createSetupLinkMutation = useMutation({
-    mutationFn: (params: {
-      successRedirectUrl: string;
-      failureRedirectUrl: string;
-    }) => client.whatsapp.createSetupLink(params),
+    mutationFn: (params: { successRedirectUrl: string; failureRedirectUrl: string }) =>
+      client.whatsapp.createSetupLink(params),
   });
 
   // Confirm connection after redirect
@@ -71,15 +69,15 @@ export function useWhatsAppConnection() {
     if (!setupLinkId) {
       throw new Error("No setup link ID found. Please start the connection process again.");
     }
-    
+
     const result = await confirmConnectionMutation.mutateAsync({
       setupLinkId,
       ...params,
     });
-    
+
     // Clean up
     sessionStorage.removeItem("whatsapp_setup_link_id");
-    
+
     return result;
   };
 
@@ -88,22 +86,23 @@ export function useWhatsAppConnection() {
     connection: connectionQuery.data,
     isConnected: connectionQuery.data?.status === "active",
     phoneNumber: connectionQuery.data?.phoneNumber,
-    
+
     // Loading states
     isLoading: connectionQuery.isPending,
     isCreatingSetupLink: createSetupLinkMutation.isPending,
     isConfirming: confirmConnectionMutation.isPending,
-    
+
     // Errors
-    error: connectionQuery.error ?? createSetupLinkMutation.error ?? confirmConnectionMutation.error,
-    
+    error:
+      connectionQuery.error ?? createSetupLinkMutation.error ?? confirmConnectionMutation.error,
+
     // Actions
     startConnection,
     confirmConnection,
-    
+
     // Setup link data (available after createSetupLink)
     setupLink: createSetupLinkMutation.data,
-    
+
     // Refresh connection data
     refetch: () => queryClient.invalidateQueries({ queryKey: ["whatsapp", "connection"] }),
   };
@@ -120,11 +119,11 @@ export function parseWhatsAppSuccessParams(searchParams: URLSearchParams): {
 } | null {
   const phoneNumberId = searchParams.get("phone_number_id");
   const displayPhoneNumber = searchParams.get("display_phone_number");
-  
+
   if (!phoneNumberId || !displayPhoneNumber) {
     return null;
   }
-  
+
   return {
     phoneNumberId,
     displayPhoneNumber,
@@ -140,13 +139,14 @@ export function parseWhatsAppFailureParams(searchParams: URLSearchParams): {
   errorMessage?: string;
 } | null {
   const errorCode = searchParams.get("error_code") ?? searchParams.get("error");
-  
+
   if (!errorCode) {
     return null;
   }
-  
+
   return {
     errorCode,
-    errorMessage: searchParams.get("error_message") ?? searchParams.get("error_description") ?? undefined,
+    errorMessage:
+      searchParams.get("error_message") ?? searchParams.get("error_description") ?? undefined,
   };
 }

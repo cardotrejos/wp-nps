@@ -11,6 +11,19 @@ import {
   decimal,
 } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
+import { surveyTemplate } from "./survey-template";
+
+/**
+ * SurveyQuestion type - shared between templates and surveys
+ * Story 2.1: Added type export for use in components
+ */
+export interface SurveyQuestion {
+  id: string;
+  text: string;
+  type: "rating" | "text";
+  scale?: { min: number; max: number; labels?: { min: string; max: string } };
+  required: boolean;
+}
 
 // WhatsApp Connection table - tracks WhatsApp connections per organization
 export const whatsappConnection = pgTable(
@@ -119,7 +132,7 @@ export const orgUsage = pgTable(
   ],
 );
 
-// Survey table - survey definitions
+// Survey table - survey definitions (Story 2.1: Updated with proper types)
 export const survey = pgTable(
   "survey",
   {
@@ -128,10 +141,10 @@ export const survey = pgTable(
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    type: text("type").notNull().default("nps"),
-    status: text("status").notNull().default("draft"),
-    templateId: text("template_id"),
-    questions: jsonb("questions"),
+    type: text("type").notNull().default("nps"), // 'nps' | 'csat' | 'ces'
+    status: text("status").notNull().default("draft"), // 'draft' | 'active' | 'inactive'
+    templateId: text("template_id").references(() => surveyTemplate.id),
+    questions: jsonb("questions").$type<SurveyQuestion[]>().notNull().default([]),
     settings: jsonb("settings"),
     isActive: boolean("is_active").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -145,6 +158,9 @@ export const survey = pgTable(
     index("idx_survey_status").on(table.status),
   ],
 );
+
+export type Survey = typeof survey.$inferSelect;
+export type NewSurvey = typeof survey.$inferInsert;
 
 // Survey Response table - individual survey responses
 export const surveyResponse = pgTable(
@@ -202,15 +218,12 @@ export const alert = pgTable(
 );
 
 // Relations
-export const whatsappConnectionRelations = relations(
-  whatsappConnection,
-  ({ one }) => ({
-    organization: one(organization, {
-      fields: [whatsappConnection.orgId],
-      references: [organization.id],
-    }),
+export const whatsappConnectionRelations = relations(whatsappConnection, ({ one }) => ({
+  organization: one(organization, {
+    fields: [whatsappConnection.orgId],
+    references: [organization.id],
   }),
-);
+}));
 
 export const webhookJobRelations = relations(webhookJob, ({ one }) => ({
   organization: one(organization, {
@@ -238,23 +251,24 @@ export const surveyRelations = relations(survey, ({ one, many }) => ({
     fields: [survey.orgId],
     references: [organization.id],
   }),
+  template: one(surveyTemplate, {
+    fields: [survey.templateId],
+    references: [surveyTemplate.id],
+  }),
   responses: many(surveyResponse),
 }));
 
-export const surveyResponseRelations = relations(
-  surveyResponse,
-  ({ one, many }) => ({
-    organization: one(organization, {
-      fields: [surveyResponse.orgId],
-      references: [organization.id],
-    }),
-    survey: one(survey, {
-      fields: [surveyResponse.surveyId],
-      references: [survey.id],
-    }),
-    alerts: many(alert),
+export const surveyResponseRelations = relations(surveyResponse, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [surveyResponse.orgId],
+    references: [organization.id],
   }),
-);
+  survey: one(survey, {
+    fields: [surveyResponse.surveyId],
+    references: [survey.id],
+  }),
+  alerts: many(alert),
+}));
 
 export const alertRelations = relations(alert, ({ one }) => ({
   organization: one(organization, {

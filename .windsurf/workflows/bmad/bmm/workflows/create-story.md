@@ -8,7 +8,8 @@ description: "Create the next user story from epics+stories with enhanced contex
 author: "BMad"
 
 # Critical variables from config
-config_source: "{project-root}/_bmad/bmm/config.yaml"
+
+config_source: "{project-root}/\_bmad/bmm/config.yaml"
 user_name: "{config_source}:user_name"
 communication_language: "{config_source}:communication_language"
 date: system-generated
@@ -17,47 +18,52 @@ output_folder: "{implementation_artifacts}"
 story_dir: "{implementation_artifacts}"
 
 # Workflow components
-installed_path: "{project-root}/_bmad/bmm/workflows/4-implementation/create-story"
+
+installed_path: "{project-root}/\_bmad/bmm/workflows/4-implementation/create-story"
 template: "{installed_path}/template.md"
 instructions: "{installed_path}/instructions.xml"
 validation: "{installed_path}/checklist.md"
 
 # Variables and inputs
+
 variables:
-  sprint_status: "{implementation_artifacts}/sprint-status.yaml || {output_folder}/sprint-status.yaml" # Primary source for story tracking
-  epics_file: "{output_folder}/epics.md" # Enhanced epics+stories with BDD and source hints
-  prd_file: "{output_folder}/PRD.md" # Fallback for requirements (if not in epics file)
-  architecture_file: "{planning_artifacts}/architecture.md" # Fallback for constraints (if not in epics file)
-  ux_file: "{output_folder}/ux.md" # Fallback for UX requirements (if not in epics file)
-  story_title: "" # Will be elicited if not derivable
+sprint_status: "{implementation_artifacts}/sprint-status.yaml || {output_folder}/sprint-status.yaml" # Primary source for story tracking
+epics_file: "{output_folder}/epics.md" # Enhanced epics+stories with BDD and source hints
+prd_file: "{output_folder}/PRD.md" # Fallback for requirements (if not in epics file)
+architecture_file: "{planning_artifacts}/architecture.md" # Fallback for constraints (if not in epics file)
+ux_file: "{output_folder}/ux.md" # Fallback for UX requirements (if not in epics file)
+story_title: "" # Will be elicited if not derivable
 
 # Project context
-project_context: "**/project-context.md"
+
+project_context: "\*\*/project-context.md"
 
 default_output_file: "{story_dir}/{{story_key}}.md"
 
 # Smart input file references - Simplified for enhanced approach
+
 # The epics+stories file should contain everything needed with source hints
+
 input_file_patterns:
-  prd:
-    description: "PRD (fallback - epics file should have most content)"
-    whole: "{output_folder}/*prd*.md"
-    sharded: "{output_folder}/*prd*/*.md"
-    load_strategy: "SELECTIVE_LOAD" # Only load if needed
-  architecture:
-    description: "Architecture (fallback - epics file should have relevant sections)"
-    whole: "{output_folder}/*architecture*.md"
-    sharded: "{output_folder}/*architecture*/*.md"
-    load_strategy: "SELECTIVE_LOAD" # Only load if needed
-  ux:
-    description: "UX design (fallback - epics file should have relevant sections)"
-    whole: "{output_folder}/*ux*.md"
-    sharded: "{output_folder}/*ux*/*.md"
-    load_strategy: "SELECTIVE_LOAD" # Only load if needed
-  epics:
-    description: "Enhanced epics+stories file with BDD and source hints"
-    whole: "{output_folder}/*epic*.md"
-    sharded: "{output_folder}/*epic*/*.md"
-    load_strategy: "SELECTIVE_LOAD" # Only load needed epic
+prd:
+description: "PRD (fallback - epics file should have most content)"
+whole: "{output_folder}/_prd_.md"
+sharded: "{output_folder}/_prd_/*.md"
+load_strategy: "SELECTIVE_LOAD" # Only load if needed
+architecture:
+description: "Architecture (fallback - epics file should have relevant sections)"
+whole: "{output_folder}/*architecture*.md"
+sharded: "{output_folder}/*architecture*/*.md"
+load_strategy: "SELECTIVE_LOAD" # Only load if needed
+ux:
+description: "UX design (fallback - epics file should have relevant sections)"
+whole: "{output_folder}/_ux_.md"
+sharded: "{output_folder}/_ux_/*.md"
+load_strategy: "SELECTIVE_LOAD" # Only load if needed
+epics:
+description: "Enhanced epics+stories file with BDD and source hints"
+whole: "{output_folder}/*epic*.md"
+sharded: "{output_folder}/*epic*/*.md"
+load_strategy: "SELECTIVE_LOAD" # Only load needed epic
 
 standalone: true

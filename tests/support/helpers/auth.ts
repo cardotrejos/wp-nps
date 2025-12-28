@@ -4,19 +4,15 @@
  * Utility functions for test authentication flows.
  * Follows FlowPulse Better Auth patterns (AR1).
  */
-import type { Page } from '@playwright/test';
+import type { Page } from "@playwright/test";
 
 /**
  * Login via UI
  *
  * Use when testing the actual login flow.
  */
-export async function loginViaUI(
-  page: Page,
-  email: string,
-  password: string
-): Promise<void> {
-  await page.goto('/login');
+export async function loginViaUI(page: Page, email: string, password: string): Promise<void> {
+  await page.goto("/login");
   await page.fill('[data-testid="email-input"]', email);
   await page.fill('[data-testid="password-input"]', password);
   await page.click('[data-testid="login-button"]');
@@ -30,7 +26,7 @@ export async function loginViaUI(
  */
 export async function getAuthToken(page: Page): Promise<string | null> {
   const cookies = await page.context().cookies();
-  const sessionCookie = cookies.find((c) => c.name === 'better-auth.session');
+  const sessionCookie = cookies.find((c) => c.name === "better-auth.session");
   return sessionCookie?.value || null;
 }
 
@@ -48,5 +44,5 @@ export async function isAuthenticated(page: Page): Promise<boolean> {
 export async function logout(page: Page): Promise<void> {
   await page.click('[data-testid="user-menu"]');
   await page.click('[data-testid="logout-button"]');
-  await page.waitForURL('/login');
+  await page.waitForURL("/login");
 }

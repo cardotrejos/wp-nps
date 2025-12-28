@@ -6,12 +6,7 @@ export default defineConfig({
     environment: "node",
     root: "./",
     include: ["tests/**/*.test.ts", "packages/**/*.test.ts"],
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/.git/**",
-      "tests/e2e/**",
-    ],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/.git/**", "tests/e2e/**"],
     setupFiles: ["./tests/env-setup.ts", "./tests/setup.ts"],
     coverage: {
       provider: "v8",

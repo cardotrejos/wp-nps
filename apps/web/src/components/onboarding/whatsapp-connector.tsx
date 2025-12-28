@@ -17,14 +17,8 @@ interface WhatsAppConnectorProps {
  * 4. Kapso redirects back to our success/failure route
  */
 export function WhatsAppConnector({ onConnected }: WhatsAppConnectorProps) {
-  const {
-    isConnected,
-    phoneNumber,
-    isLoading,
-    isCreatingSetupLink,
-    startConnection,
-    error,
-  } = useWhatsAppConnection();
+  const { isConnected, phoneNumber, isLoading, isCreatingSetupLink, startConnection, error } =
+    useWhatsAppConnection();
 
   // If already connected, show success state
   if (isConnected && phoneNumber) {
@@ -68,12 +62,9 @@ export function WhatsAppConnector({ onConnected }: WhatsAppConnectorProps) {
         {/* Description */}
         <div className="space-y-3 text-center text-sm text-muted-foreground">
           <p>
-            Connect your WhatsApp Business account to start sending NPS surveys
-            to your customers.
+            Connect your WhatsApp Business account to start sending NPS surveys to your customers.
           </p>
-          <p>
-            You'll be redirected to Facebook to authorize the connection.
-          </p>
+          <p>You'll be redirected to Facebook to authorize the connection.</p>
         </div>
 
         {/* Connect Button */}
@@ -106,8 +97,8 @@ export function WhatsAppConnector({ onConnected }: WhatsAppConnectorProps) {
         {/* Info box */}
         <div className="rounded-md bg-muted p-3 text-center text-xs text-muted-foreground">
           <p>
-            <strong>Requirements:</strong> You need a WhatsApp Business account
-            connected to a Facebook Business account.
+            <strong>Requirements:</strong> You need a WhatsApp Business account connected to a
+            Facebook Business account.
           </p>
         </div>
 

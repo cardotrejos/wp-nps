@@ -26,7 +26,7 @@ export class UserFactory {
   private apiUrl: string;
 
   constructor() {
-    this.apiUrl = process.env.API_URL || 'http://localhost:3000/api';
+    this.apiUrl = process.env.API_URL || "http://localhost:3000/api";
   }
 
   /**
@@ -45,8 +45,8 @@ export class UserFactory {
 
     // Create user via signup endpoint
     const response = await fetch(`${this.apiUrl}/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email: user.email,
         password: user.password,
@@ -86,7 +86,7 @@ export class UserFactory {
     for (const user of this.createdUsers) {
       try {
         await fetch(`${this.apiUrl}/test/cleanup/user/${user.id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
       } catch {
         // Silently fail cleanup - test environment may be reset

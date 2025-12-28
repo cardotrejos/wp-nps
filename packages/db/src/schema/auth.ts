@@ -1,5 +1,32 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, jsonb } from "drizzle-orm/pg-core";
+import { z } from "zod";
+
+// Onboarding state type definition (Story 1.4)
+export const onboardingStateSchema = z.object({
+  currentStep: z.number().min(1).max(4).default(1),
+  completedSteps: z.array(z.number()).default([]),
+  lastActivityAt: z.string().nullable().default(null),
+  onboardingCompletedAt: z.string().nullable().default(null),
+  metadata: z
+    .object({
+      selectedTemplateId: z.string().optional(),
+      whatsappConnected: z.boolean().optional(),
+      stepCompletedAt: z.record(z.string(), z.string()).optional(),
+    })
+    .default({}),
+});
+
+export type OnboardingState = z.infer<typeof onboardingStateSchema>;
+
+// Default onboarding state for new organizations
+export const defaultOnboardingState: OnboardingState = {
+  currentStep: 1,
+  completedSteps: [],
+  lastActivityAt: null,
+  onboardingCompletedAt: null,
+  metadata: {},
+};
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -82,6 +109,11 @@ export const organization = pgTable("organization", {
   logo: text("logo"),
   metadata: text("metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  // Onboarding state (Story 1.4) - tracks user progress through onboarding flow
+  onboardingState: jsonb("onboarding_state")
+    .$type<OnboardingState>()
+    .default(defaultOnboardingState)
+    .notNull(),
 });
 
 export const member = pgTable(

@@ -43,7 +43,7 @@ function WhatsAppFailedComponent() {
           </div>
           <h2 className="mb-2 text-xl font-bold">Connection Failed</h2>
           <p className="mb-6 text-muted-foreground">{errorMessage}</p>
-          
+
           {errorParams?.errorCode && (
             <p className="mb-4 text-xs text-muted-foreground">
               Error code: {errorParams.errorCode}
@@ -51,10 +51,7 @@ function WhatsAppFailedComponent() {
           )}
 
           <div className="space-y-2">
-            <Button
-              className="w-full"
-              onClick={() => navigate({ to: "/onboarding" })}
-            >
+            <Button className="w-full" onClick={() => navigate({ to: "/onboarding" })}>
               Try Again
             </Button>
             <Button

@@ -10,11 +10,6 @@
     }
   },
   "scripts": {},
-  "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
-    "@wp-nps/config": "workspace:*",
-    "typescript": "^5"
-  },
   "dependencies": {
     "@wp-nps/db": "workspace:*",
     "@wp-nps/env": "workspace:*",
@@ -22,5 +17,10 @@
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@wp-nps/config": "workspace:*",
+    "typescript": "^5"
   }
 }

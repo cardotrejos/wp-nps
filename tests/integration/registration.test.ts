@@ -3,12 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@wp-nps/db";
 import { user, session, account, member, organization } from "@wp-nps/db/schema/auth";
 import bcrypt from "bcryptjs";
-import {
-  createTestOrg,
-  createTestUser,
-  cleanupTestOrg,
-  clearOrgContext,
-} from "../utils/test-org";
+import { createTestOrg, createTestUser, cleanupTestOrg, clearOrgContext } from "../utils/test-org";
 
 /**
  * User Registration with Organization Creation Integration Tests
@@ -113,11 +108,7 @@ describe("User Registration with Organization Creation", () => {
 
   describe("AC #1: User and Organization Creation", () => {
     it("should create a user record in the database", async () => {
-      const { userId } = await createUserWithPassword(
-        testEmail,
-        "SecurePass123!",
-        "Test User",
-      );
+      const { userId } = await createUserWithPassword(testEmail, "SecurePass123!", "Test User");
 
       // Verify user exists using ORM
       const foundUser = await db.query.user.findFirst({
@@ -220,10 +211,7 @@ describe("User Registration with Organization Creation", () => {
 
       // Verify membership role
       const foundMember = await db.query.member.findFirst({
-        where: and(
-          eq(member.userId, userId),
-          eq(member.organizationId, org.id)
-        ),
+        where: and(eq(member.userId, userId), eq(member.organizationId, org.id)),
       });
 
       expect(foundMember).toBeDefined();
@@ -251,10 +239,7 @@ describe("User Registration with Organization Creation", () => {
       const testUser = await createTestUser(org.id, testEmail, "owner");
 
       const foundMember = await db.query.member.findFirst({
-        where: and(
-          eq(member.userId, testUser.userId),
-          eq(member.organizationId, org.id)
-        ),
+        where: and(eq(member.userId, testUser.userId), eq(member.organizationId, org.id)),
       });
 
       expect(foundMember).toBeDefined();
@@ -263,11 +248,7 @@ describe("User Registration with Organization Creation", () => {
 
   describe("Session Management", () => {
     it("should create session record in database", async () => {
-      const { userId } = await createUserWithPassword(
-        testEmail,
-        "SecurePass123!",
-        "Test User",
-      );
+      const { userId } = await createUserWithPassword(testEmail, "SecurePass123!", "Test User");
 
       const sessionId = crypto.randomUUID();
       const token = crypto.randomUUID();
@@ -293,11 +274,7 @@ describe("User Registration with Organization Creation", () => {
     });
 
     it("should set session expiration to approximately 24 hours", async () => {
-      const { userId } = await createUserWithPassword(
-        testEmail,
-        "SecurePass123!",
-        "Test User",
-      );
+      const { userId } = await createUserWithPassword(testEmail, "SecurePass123!", "Test User");
 
       const sessionId = crypto.randomUUID();
       const expiresAt = new Date(Date.now() + 86400 * 1000); // 24 hours
@@ -316,8 +293,7 @@ describe("User Registration with Organization Creation", () => {
       });
 
       const now = new Date();
-      const diffInSeconds =
-        (foundSession!.expiresAt.getTime() - now.getTime()) / 1000;
+      const diffInSeconds = (foundSession!.expiresAt.getTime() - now.getTime()) / 1000;
 
       // Approx 24 hours (86400s)
       expect(diffInSeconds).toBeGreaterThan(86000);
