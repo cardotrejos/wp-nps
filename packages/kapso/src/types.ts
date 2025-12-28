@@ -78,8 +78,8 @@ export type KapsoWebhookPayload = z.infer<typeof kapsoWebhookPayloadSchema>;
 
 // Setup Link configuration for WhatsApp onboarding
 export const setupLinkConfigSchema = z.object({
-  successRedirectUrl: z.string().url(),
-  failureRedirectUrl: z.string().url(),
+  successRedirectUrl: z.url(),
+  failureRedirectUrl: z.url(),
   allowedConnectionTypes: z.array(z.enum(["coexistence", "dedicated"])).optional(),
   provisionPhoneNumber: z.boolean().optional(),
   phoneNumberCountryIsos: z.array(z.string()).optional(),
@@ -97,7 +97,7 @@ export type SetupLinkConfig = z.infer<typeof setupLinkConfigSchema>;
 // Setup Link result from Kapso
 export const setupLinkResultSchema = z.object({
   id: z.string(),
-  url: z.string().url(),
+  url: z.url(),
   expiresAt: z.string().datetime(),
   status: z.enum(["pending", "completed", "expired", "revoked"]),
 });

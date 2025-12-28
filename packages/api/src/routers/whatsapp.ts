@@ -35,8 +35,8 @@ export const whatsappRouter = {
   createSetupLink: protectedProcedure
     .input(
       z.object({
-        successRedirectUrl: z.string().url(),
-        failureRedirectUrl: z.string().url(),
+        successRedirectUrl: z.url(),
+        failureRedirectUrl: z.url(),
       }),
     )
     .handler(async ({ context, input }) => {

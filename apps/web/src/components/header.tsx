@@ -7,12 +7,8 @@ import { cn } from "@/lib/utils";
 export default function Header() {
   const location = useLocation();
 
-  // Navigation links - Story 2.1: Added Surveys link
-  const links = [
-    { to: "/", label: "Home" },
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/surveys", label: "Surveys" },
-  ] as const;
+  // Navigation links
+  const links = [{ to: "/", label: "Home" }] as const;
 
   return (
     <div>
