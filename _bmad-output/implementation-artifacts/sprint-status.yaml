@@ -63,8 +63,8 @@ development_status:
 
   # Epic 3: Survey Distribution, Response Collection & API (12 stories)
   epic-3: in-progress
-  3-0-kapso-integration-package: ready-for-dev
-  3-1-webhook-job-queue-infrastructure: backlog
+  3-0-kapso-integration-package: done
+  3-1-webhook-job-queue-infrastructure: review
   3-2-api-key-generation: backlog
   3-3-survey-send-api-endpoint: backlog
   3-3b-api-rate-limiting-middleware: backlog

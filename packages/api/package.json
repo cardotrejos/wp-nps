@@ -10,6 +10,9 @@
     },
     "./lib/*": {
       "default": "./src/lib/*.ts"
+    },
+    "./services/*": {
+      "default": "./src/services/*.ts"
     }
   },
   "scripts": {},

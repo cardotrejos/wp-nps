@@ -12,6 +12,7 @@
   },
   "scripts": {},
   "dependencies": {
+    "@kapso/whatsapp-cloud-api": "^0.1.1",
     "@wp-nps/env": "workspace:*",
     "zod": "catalog:"
   },

@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -8,6 +8,7 @@ import {
   boolean,
   jsonb,
   index,
+  uniqueIndex,
   decimal,
 } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
@@ -48,7 +49,6 @@ export const whatsappConnection = pgTable(
   (table) => [index("idx_whatsapp_connection_org_id").on(table.orgId)],
 );
 
-// Webhook Jobs table - job queue for async processing (AR3)
 export const webhookJob = pgTable(
   "webhook_job",
   {
@@ -56,26 +56,31 @@ export const webhookJob = pgTable(
     orgId: text("org_id")
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    type: text("type").notNull(),
-    status: text("status").notNull().default("pending"),
+    idempotencyKey: text("idempotency_key").notNull(),
+    source: text("source").notNull().default("kapso"),
+    eventType: text("event_type").notNull(),
     payload: jsonb("payload").notNull(),
+    status: text("status").notNull().default("pending"),
     attempts: integer("attempts").notNull().default(0),
     maxAttempts: integer("max_attempts").notNull().default(3),
-    lastError: text("last_error"),
-    scheduledFor: timestamp("scheduled_for").defaultNow().notNull(),
-    processedAt: timestamp("processed_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
+    nextRetryAt: timestamp("next_retry_at", { withTimezone: true }).defaultNow(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
   },
   (table) => [
     index("idx_webhook_job_org_id").on(table.orgId),
-    index("idx_webhook_job_status").on(table.status),
-    index("idx_webhook_job_scheduled_for").on(table.scheduledFor),
+    index("idx_webhook_job_pending").on(table.nextRetryAt).where(sql`status = 'pending'`),
+    uniqueIndex("uq_webhook_job_idempotency").on(table.idempotencyKey),
   ],
 );
+
+export type WebhookJob = typeof webhookJob.$inferSelect;
+export type NewWebhookJob = typeof webhookJob.$inferInsert;
 
 // Org Metrics table - pre-aggregated metrics for dashboard (AR5)
 export const orgMetrics = pgTable(

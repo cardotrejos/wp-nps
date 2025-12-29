@@ -1,44 +1,32 @@
 import type { IKapsoClient } from "@wp-nps/kapso";
-import { KapsoMockClient } from "@wp-nps/kapso";
-
-/**
- * Kapso Client Factory (Story 2.5)
- *
- * Provides dependency injection for Kapso client.
- * - In tests: Use KapsoMockClient (set via setKapsoClient)
- * - In production: Real client (Story 3.0)
- * - For MVP: Default to mock client
- *
- * CRITICAL: Tests must use KapsoMockClient to avoid real API calls.
- */
+import { createKapsoClient } from "@wp-nps/kapso";
+import { env } from "@wp-nps/env/server";
 
 let kapsoClient: IKapsoClient | null = null;
 
-/**
- * Get the current Kapso client instance.
- * Creates a new mock client if none is set.
- */
 export function getKapsoClient(): IKapsoClient {
   if (!kapsoClient) {
-    // For MVP, default to mock client
-    // Real client implementation comes in Story 3.0
-    kapsoClient = new KapsoMockClient();
+    const isTestEnv = env.NODE_ENV === "test";
+
+    if (!isTestEnv && (!env.KAPSO_API_KEY || !env.KAPSO_WEBHOOK_SECRET)) {
+      throw new Error(
+        "Kapso credentials required: Set KAPSO_API_KEY and KAPSO_WEBHOOK_SECRET environment variables",
+      );
+    }
+
+    kapsoClient = createKapsoClient({
+      apiKey: env.KAPSO_API_KEY,
+      webhookSecret: env.KAPSO_WEBHOOK_SECRET,
+      baseUrl: env.KAPSO_BASE_URL,
+    });
   }
   return kapsoClient;
 }
 
-/**
- * Set the Kapso client instance.
- * Use this in tests to inject a mock client with specific behavior.
- */
 export function setKapsoClient(client: IKapsoClient): void {
   kapsoClient = client;
 }
 
-/**
- * Reset the Kapso client to null.
- * Call this in test cleanup to ensure fresh state.
- */
 export function resetKapsoClient(): void {
   kapsoClient = null;
 }

@@ -182,11 +182,32 @@ export class KapsoMockClient implements IKapsoClient {
     );
   }
 
-  /**
-   * Verify webhook signature (mock always returns true)
-   */
-  verifyWebhook(_signature: string, _payload: string): boolean {
-    return true;
+  private validSignatures: Set<string> = new Set();
+  private invalidSignatures: Set<string> = new Set();
+  private defaultWebhookVerification = true;
+
+  mockValidSignature(signature: string): void {
+    this.validSignatures.add(signature);
+    this.invalidSignatures.delete(signature);
+  }
+
+  mockInvalidSignature(signature: string): void {
+    this.invalidSignatures.add(signature);
+    this.validSignatures.delete(signature);
+  }
+
+  setDefaultWebhookVerification(valid: boolean): void {
+    this.defaultWebhookVerification = valid;
+  }
+
+  verifyWebhook(signature: string, _payload: string): boolean {
+    if (this.invalidSignatures.has(signature)) {
+      return false;
+    }
+    if (this.validSignatures.has(signature)) {
+      return true;
+    }
+    return this.defaultWebhookVerification;
   }
 
   // ==========================================
@@ -301,6 +322,9 @@ export class KapsoMockClient implements IKapsoClient {
     this.connectionStatuses.clear();
     this.setupLinkCounter = 0;
     this.testMessageResponses.clear();
+    this.validSignatures.clear();
+    this.invalidSignatures.clear();
+    this.defaultWebhookVerification = true;
   }
 
   /**

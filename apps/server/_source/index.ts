@@ -9,6 +9,7 @@ import { appRouter } from "@wp-nps/api/routers/index";
 import { auth } from "@wp-nps/auth";
 import { env } from "@wp-nps/env/server";
 import { Elysia } from "elysia";
+import { startProcessor, isProcessorRunning } from "./jobs/processor";
 
 const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
@@ -64,10 +65,14 @@ const app = new Elysia()
     });
     return response ?? new Response("Not Found", { status: 404 });
   })
-  .get("/", () => "OK");
+  .get("/", () => "OK")
+  .get("/health", () => ({
+    status: "ok",
+    jobProcessor: isProcessorRunning() ? "running" : "stopped",
+  }));
 
-// Local development only
 if (env.NODE_ENV !== "production") {
+  startProcessor();
   app.listen(3000, () => {
     console.log("Server is running on http://localhost:3000");
   });

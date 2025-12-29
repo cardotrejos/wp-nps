@@ -298,6 +298,86 @@ describe("KapsoMockClient - Test Message Operations", () => {
   });
 });
 
+describe("KapsoMockClient - Webhook Signature Verification", () => {
+  let client: KapsoMockClient;
+
+  beforeEach(() => {
+    client = new KapsoMockClient();
+  });
+
+  describe("default behavior", () => {
+    it("returns true by default", () => {
+      expect(client.verifyWebhook("any-signature", '{"data":"test"}')).toBe(true);
+    });
+  });
+
+  describe("mockValidSignature", () => {
+    it("makes specific signature valid", () => {
+      client.mockValidSignature("valid-sig-123");
+      expect(client.verifyWebhook("valid-sig-123", '{"data":"test"}')).toBe(true);
+    });
+
+    it("other signatures use default (true)", () => {
+      client.mockValidSignature("valid-sig-123");
+      expect(client.verifyWebhook("other-sig", '{"data":"test"}')).toBe(true);
+    });
+  });
+
+  describe("mockInvalidSignature", () => {
+    it("makes specific signature invalid", () => {
+      client.mockInvalidSignature("invalid-sig-456");
+      expect(client.verifyWebhook("invalid-sig-456", '{"data":"test"}')).toBe(false);
+    });
+
+    it("other signatures use default (true)", () => {
+      client.mockInvalidSignature("invalid-sig-456");
+      expect(client.verifyWebhook("other-sig", '{"data":"test"}')).toBe(true);
+    });
+  });
+
+  describe("setDefaultWebhookVerification", () => {
+    it("can set default to false", () => {
+      client.setDefaultWebhookVerification(false);
+      expect(client.verifyWebhook("unknown-sig", '{"data":"test"}')).toBe(false);
+    });
+
+    it("explicit valid overrides default false", () => {
+      client.setDefaultWebhookVerification(false);
+      client.mockValidSignature("valid-sig");
+      expect(client.verifyWebhook("valid-sig", '{"data":"test"}')).toBe(true);
+      expect(client.verifyWebhook("unknown-sig", '{"data":"test"}')).toBe(false);
+    });
+
+    it("explicit invalid overrides default true", () => {
+      client.setDefaultWebhookVerification(true);
+      client.mockInvalidSignature("invalid-sig");
+      expect(client.verifyWebhook("invalid-sig", '{"data":"test"}')).toBe(false);
+      expect(client.verifyWebhook("unknown-sig", '{"data":"test"}')).toBe(true);
+    });
+  });
+
+  describe("reset clears webhook state", () => {
+    it("clears valid signatures", () => {
+      client.mockValidSignature("valid-sig");
+      client.setDefaultWebhookVerification(false);
+      client.reset();
+      expect(client.verifyWebhook("valid-sig", '{"data":"test"}')).toBe(true);
+    });
+
+    it("clears invalid signatures", () => {
+      client.mockInvalidSignature("invalid-sig");
+      client.reset();
+      expect(client.verifyWebhook("invalid-sig", '{"data":"test"}')).toBe(true);
+    });
+
+    it("resets default to true", () => {
+      client.setDefaultWebhookVerification(false);
+      client.reset();
+      expect(client.verifyWebhook("any-sig", '{"data":"test"}')).toBe(true);
+    });
+  });
+});
+
 describe("KapsoMockClient - Survey Operations", () => {
   let client: KapsoMockClient;
 

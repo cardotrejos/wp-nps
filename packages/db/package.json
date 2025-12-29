@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "db:push": "drizzle-kit push && bun run db:rls && bun run db:seed",
+    "db:push": "drizzle-kit push && bun run db:seed",
     "db:seed": "bun run src/seeds/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
