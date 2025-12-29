@@ -2,19 +2,186 @@ import { z } from "zod";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
 import { db } from "@wp-nps/db";
-import { survey, type SurveyQuestion } from "@wp-nps/db/schema/flowpulse";
+import {
+  survey,
+  surveyDelivery,
+  whatsappConnection,
+  type SurveyQuestion,
+} from "@wp-nps/db/schema/flowpulse";
 import { surveyTemplate } from "@wp-nps/db/schema/survey-template";
 
 import { protectedProcedure } from "../index";
+import { getKapsoClient } from "../lib/kapso";
 
 /**
- * Survey Router (Story 2.1, 2.2)
+ * Survey Router (Story 2.1, 2.2, 2.7)
  *
  * Manages surveys for organizations.
  * All procedures filter by orgId for multi-tenancy (AR8, AR11).
  */
 
 export const surveyRouter = {
+  /**
+   * Update survey trigger type (Story 2.7)
+   * Changes triggerType to 'api' or 'manual'
+   * CRITICAL: Validates org isolation
+   */
+  updateTriggerType: protectedProcedure
+    .input(
+      z.object({
+        surveyId: z.string(),
+        triggerType: z.enum(["api", "manual"]),
+      }),
+    )
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", {
+          message: "No active organization",
+        });
+      }
+
+      // Fetch survey with org filter (CRITICAL: multi-tenancy)
+      const existingSurvey = await db.query.survey.findFirst({
+        where: and(eq(survey.id, input.surveyId), eq(survey.orgId, orgId)),
+      });
+
+      if (!existingSurvey) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Survey not found",
+        });
+      }
+
+      // Update trigger type
+      const result = await db
+        .update(survey)
+        .set({
+          triggerType: input.triggerType,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(survey.id, input.surveyId), eq(survey.orgId, orgId)))
+        .returning();
+
+      const updatedSurvey = result[0];
+      if (!updatedSurvey) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Failed to update trigger type",
+        });
+      }
+
+      return updatedSurvey;
+    }),
+
+  /**
+   * Activate a survey (Story 2.6)
+   * Changes status to 'active' and isActive to true
+   * CRITICAL: Validates org isolation and question count
+   */
+  activate: protectedProcedure
+    .input(
+      z.object({
+        surveyId: z.string(),
+      }),
+    )
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", {
+          message: "No active organization",
+        });
+      }
+
+      // Fetch survey with org filter (CRITICAL: multi-tenancy)
+      const existingSurvey = await db.query.survey.findFirst({
+        where: and(eq(survey.id, input.surveyId), eq(survey.orgId, orgId)),
+      });
+
+      if (!existingSurvey) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Survey not found",
+        });
+      }
+
+      // Validate survey has at least one question (AC #3)
+      const questions = existingSurvey.questions ?? [];
+      if (questions.length === 0) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Add at least one question before activating",
+        });
+      }
+
+      // Update status to active (AC #1)
+      const result = await db
+        .update(survey)
+        .set({
+          status: "active",
+          isActive: true,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(survey.id, input.surveyId), eq(survey.orgId, orgId)))
+        .returning();
+
+      const updatedSurvey = result[0];
+      if (!updatedSurvey) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Failed to activate survey",
+        });
+      }
+
+      return updatedSurvey;
+    }),
+
+  /**
+   * Deactivate a survey (Story 2.6)
+   * Changes status to 'inactive' and isActive to false
+   * CRITICAL: Validates org isolation
+   */
+  deactivate: protectedProcedure
+    .input(
+      z.object({
+        surveyId: z.string(),
+      }),
+    )
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", {
+          message: "No active organization",
+        });
+      }
+
+      // Fetch survey with org filter (CRITICAL: multi-tenancy)
+      const existingSurvey = await db.query.survey.findFirst({
+        where: and(eq(survey.id, input.surveyId), eq(survey.orgId, orgId)),
+      });
+
+      if (!existingSurvey) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Survey not found",
+        });
+      }
+
+      // Update status to inactive (AC #2)
+      const result = await db
+        .update(survey)
+        .set({
+          status: "inactive",
+          isActive: false,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(survey.id, input.surveyId), eq(survey.orgId, orgId)))
+        .returning();
+
+      const updatedSurvey = result[0];
+      if (!updatedSurvey) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "Failed to deactivate survey",
+        });
+      }
+
+      return updatedSurvey;
+    }),
+
   /**
    * Create a new survey from a template (Story 2.2)
    * Copies template questions to new survey with org isolation
@@ -223,5 +390,97 @@ export const surveyRouter = {
       }
 
       return updatedSurvey;
+    }),
+
+  /**
+   * Send a test survey to the user's own WhatsApp (Story 2.5)
+   *
+   * CRITICAL: Multi-tenancy enforced via orgId filter
+   * - Validates survey belongs to org
+   * - Validates WhatsApp connection is active
+   * - Creates delivery record with isTest = true
+   */
+  sendTest: protectedProcedure
+    .input(
+      z.object({
+        surveyId: z.string(),
+      }),
+    )
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", {
+          message: "No active organization",
+        });
+      }
+
+      // Fetch survey with org filter (CRITICAL: multi-tenancy)
+      const existingSurvey = await db.query.survey.findFirst({
+        where: and(eq(survey.id, input.surveyId), eq(survey.orgId, orgId)),
+      });
+
+      if (!existingSurvey) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Survey not found",
+        });
+      }
+
+      // Fetch WhatsApp connection for this org
+      const connection = await db.query.whatsappConnection.findFirst({
+        where: eq(whatsappConnection.orgId, orgId),
+      });
+
+      // Validate connection exists and has valid status
+      if (!connection || (connection.status !== "active" && connection.status !== "verified")) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "Please connect WhatsApp first",
+        });
+      }
+
+      if (!connection.phoneNumber) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "WhatsApp connection missing phone number",
+        });
+      }
+
+      // Get Kapso client (uses mock in tests, real client in production)
+      const kapsoClient = getKapsoClient();
+
+      // Build survey message from questions
+      const questions = existingSurvey.questions ?? [];
+      const messageText = questions.map((q) => q.text).join("\n\n");
+
+      // Send via Kapso with error handling
+      let result: { deliveryId: string; status: string };
+      try {
+        result = await kapsoClient.sendSurvey({
+          phoneNumber: connection.phoneNumber,
+          surveyId: input.surveyId,
+          orgId,
+          message: messageText,
+          metadata: { isTest: true },
+        });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to send survey";
+        throw new ORPCError("BAD_REQUEST", {
+          message: `Kapso error: ${errorMessage}`,
+        });
+      }
+
+      // Create delivery record with isTest = true
+      await db.insert(surveyDelivery).values({
+        orgId,
+        surveyId: input.surveyId,
+        phoneNumber: connection.phoneNumber,
+        status: result.status,
+        isTest: true,
+        kapsoDeliveryId: result.deliveryId,
+      });
+
+      return {
+        success: true,
+        deliveryId: result.deliveryId,
+        status: result.status,
+      };
     }),
 };

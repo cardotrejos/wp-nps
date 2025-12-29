@@ -7,6 +7,9 @@
     },
     "./*": {
       "default": "./src/*.ts"
+    },
+    "./lib/*": {
+      "default": "./src/lib/*.ts"
     }
   },
   "scripts": {},
@@ -18,6 +21,7 @@
     "@wp-nps/auth": "workspace:*",
     "@wp-nps/db": "workspace:*",
     "@wp-nps/env": "workspace:*",
+    "@wp-nps/kapso": "workspace:*",
     "dotenv": "catalog:",
     "elysia": "catalog:",
     "zod": "catalog:"

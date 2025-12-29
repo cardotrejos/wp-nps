@@ -1,12 +1,25 @@
 import { defineConfig } from "vitest/config";
+import path from "node:path";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./apps/web/src"),
+      "@wp-nps/db/schema/flowpulse": path.resolve(__dirname, "./packages/db/src/schema/flowpulse.ts"),
+      "@wp-nps/db/schema/auth": path.resolve(__dirname, "./packages/db/src/schema/auth.ts"),
+      "@wp-nps/db/schema/survey-template": path.resolve(__dirname, "./packages/db/src/schema/survey-template.ts"),
+      "@wp-nps/db/schema": path.resolve(__dirname, "./packages/db/src/schema"),
+      "@wp-nps/db": path.resolve(__dirname, "./packages/db/src"),
+      "@wp-nps/kapso": path.resolve(__dirname, "./packages/kapso/src"),
+      "@wp-nps/api": path.resolve(__dirname, "./packages/api/src"),
+    },
+  },
   test: {
     globals: true,
-    environment: "node",
     root: "./",
     include: ["tests/**/*.test.ts", "packages/**/*.test.ts"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/.git/**", "tests/e2e/**"],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/.git/**", "tests/e2e/**", "apps/web/**"],
+    environment: "node",
     setupFiles: ["./tests/env-setup.ts", "./tests/setup.ts"],
     coverage: {
       provider: "v8",

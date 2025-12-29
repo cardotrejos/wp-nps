@@ -1,15 +1,21 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Eye, Send } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { SendTestButton } from "@/components/surveys/send-test-button";
+import { SurveyStatusBadge } from "@/components/surveys/survey-status-badge";
+import { SurveyStatusToggle } from "@/components/surveys/survey-status-toggle";
 import type { Survey } from "@wp-nps/db/schema/flowpulse";
 
 /**
  * SurveyHeader Component (Story 2.2 - Task 5.1, 5.2)
+ * Updated: Story 2.6 - Task 7 - Added SurveyStatusToggle
  *
  * Displays survey name, type badge, status badge, and action buttons.
- * Preview and Test buttons are disabled until Stories 2.4 and 2.5.
+ * Story 2.5: Added SendTestButton for sending test surveys via WhatsApp.
+ * Story 2.6: Added SurveyStatusToggle for activate/deactivate functionality.
+ *
+ * AC #1, #2, #3: Status toggle button in header actions
  */
 
 interface SurveyHeaderProps {
@@ -22,11 +28,15 @@ const typeColors: Record<string, string> = {
   ces: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
 };
 
-const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
-  active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  inactive: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-};
+/**
+ * Validate and normalize survey status for display
+ */
+function normalizeStatus(status: string): "draft" | "active" | "inactive" {
+  if (status === "active" || status === "inactive") {
+    return status;
+  }
+  return "draft"; // Default fallback for unknown statuses
+}
 
 export function SurveyHeader({ survey }: SurveyHeaderProps) {
   const navigate = useNavigate();
@@ -36,6 +46,9 @@ export function SurveyHeader({ survey }: SurveyHeaderProps) {
   };
 
   const questionCount = survey.questions?.length ?? 0;
+  const hasQuestions = questionCount > 0;
+  // Runtime-validated status for toggle and badge components
+  const status = normalizeStatus(survey.status);
 
   return (
     <div>
@@ -53,9 +66,7 @@ export function SurveyHeader({ survey }: SurveyHeaderProps) {
             <Badge variant="outline" className={typeColors[survey.type] ?? typeColors.nps}>
               {survey.type.toUpperCase()}
             </Badge>
-            <Badge variant="outline" className={statusColors[survey.status] ?? statusColors.draft}>
-              {survey.status}
-            </Badge>
+            <SurveyStatusBadge status={status} />
           </div>
           <h1 className="text-2xl font-bold">{survey.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -65,14 +76,12 @@ export function SurveyHeader({ survey }: SurveyHeaderProps) {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" disabled title="Coming in Story 2.4">
-            <Eye className="mr-2 h-4 w-4" />
-            Preview
-          </Button>
-          <Button variant="outline" size="sm" disabled title="Coming in Story 2.5">
-            <Send className="mr-2 h-4 w-4" />
-            Test
-          </Button>
+          <SurveyStatusToggle
+            surveyId={survey.id}
+            status={status}
+            hasQuestions={hasQuestions}
+          />
+          <SendTestButton surveyId={survey.id} />
         </div>
       </div>
     </div>

@@ -143,6 +143,7 @@ export const survey = pgTable(
     name: text("name").notNull(),
     type: text("type").notNull().default("nps"), // 'nps' | 'csat' | 'ces'
     status: text("status").notNull().default("draft"), // 'draft' | 'active' | 'inactive'
+    triggerType: text("trigger_type").notNull().default("api"), // 'api' | 'manual' (Story 2.7)
     templateId: text("template_id").references(() => surveyTemplate.id),
     questions: jsonb("questions").$type<SurveyQuestion[]>().notNull().default([]),
     settings: jsonb("settings"),
@@ -178,6 +179,7 @@ export const surveyResponse = pgTable(
     feedback: text("feedback"),
     category: text("category"),
     deliveryId: text("delivery_id"),
+    isTest: boolean("is_test").notNull().default(false), // Story 2.5: Test responses excluded from analytics
     respondedAt: timestamp("responded_at"),
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -278,5 +280,46 @@ export const alertRelations = relations(alert, ({ one }) => ({
   response: one(surveyResponse, {
     fields: [alert.responseId],
     references: [surveyResponse.id],
+  }),
+}));
+
+// Survey Delivery table - tracks survey sends (Story 2.5)
+export const surveyDelivery = pgTable(
+  "survey_delivery",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: text("org_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    surveyId: uuid("survey_id")
+      .notNull()
+      .references(() => survey.id, { onDelete: "cascade" }),
+    phoneNumber: text("phone_number").notNull(),
+    status: text("status").notNull().default("pending"), // pending, queued, sent, delivered, failed
+    isTest: boolean("is_test").notNull().default(false),
+    metadata: jsonb("metadata"),
+    kapsoDeliveryId: text("kapso_delivery_id"),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deliveredAt: timestamp("delivered_at"),
+  },
+  (table) => [
+    index("idx_survey_delivery_org_id").on(table.orgId),
+    index("idx_survey_delivery_survey_id").on(table.surveyId),
+  ],
+);
+
+export const surveyDeliveryRelations = relations(surveyDelivery, ({ one }) => ({
+  organization: one(organization, {
+    fields: [surveyDelivery.orgId],
+    references: [organization.id],
+  }),
+  survey: one(survey, {
+    fields: [surveyDelivery.surveyId],
+    references: [survey.id],
   }),
 }));

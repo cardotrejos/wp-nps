@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { client } from "@/utils/orpc";
 import type { Survey } from "@wp-nps/db/schema/flowpulse";
 
@@ -120,6 +121,125 @@ export function useUpdateQuestion() {
       queryClient.invalidateQueries({
         queryKey: surveyKeys.detail(variables.surveyId),
       });
+    },
+  });
+}
+
+/**
+ * Activate a survey (Story 2.6)
+ * AC #1: Changes status to 'active'
+ * AC #5: Shows toast confirmation on success/error
+ */
+export function useActivateSurvey() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ surveyId }: { surveyId: string }) =>
+      client.survey.activate({ surveyId }),
+    onSuccess: (data) => {
+      toast.success("Survey activated");
+      // Invalidate survey queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: surveyKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: surveyKeys.detail(data.id) });
+    },
+    onError: (error: Error) => {
+      const message = error.message ?? "Failed to activate survey";
+      toast.error(message);
+    },
+  });
+}
+
+/**
+ * Deactivate a survey (Story 2.6)
+ * AC #2: Changes status to 'inactive'
+ * AC #5: Shows toast confirmation on success/error
+ */
+export function useDeactivateSurvey() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ surveyId }: { surveyId: string }) =>
+      client.survey.deactivate({ surveyId }),
+    onSuccess: (data) => {
+      toast.success("Survey deactivated");
+      // Invalidate survey queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: surveyKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: surveyKeys.detail(data.id) });
+    },
+    onError: (error: Error) => {
+      const message = error.message ?? "Failed to deactivate survey";
+      toast.error(message);
+    },
+  });
+}
+
+/**
+ * Update survey trigger type (Story 2.7)
+ * AC #5: Shows toast confirmation "Trigger type updated" on success
+ */
+export function useUpdateTriggerType() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      surveyId,
+      triggerType,
+    }: {
+      surveyId: string;
+      triggerType: "api" | "manual";
+    }) => client.survey.updateTriggerType({ surveyId, triggerType }),
+    onSuccess: (data) => {
+      toast.success("Trigger type updated");
+      // Invalidate survey queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: surveyKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: surveyKeys.detail(data.id) });
+    },
+    onError: (error: Error) => {
+      const message = error.message ?? "Failed to update trigger type";
+      toast.error(message);
+    },
+  });
+}
+
+/**
+ * WhatsApp connection query keys (Story 2.5)
+ */
+export const whatsappKeys = {
+  all: ["whatsapp"] as const,
+  connection: () => [...whatsappKeys.all, "connection"] as const,
+};
+
+/**
+ * Fetch WhatsApp connection status for the current organization (Story 2.5)
+ * Used to determine if "Send Test to Me" button should be enabled
+ */
+export function useWhatsAppConnection() {
+  return useQuery({
+    queryKey: whatsappKeys.connection(),
+    queryFn: () => client.whatsapp.getConnection(),
+    staleTime: 1000 * 60, // 1 minute cache
+  });
+}
+
+/**
+ * Send a test survey to the user's own WhatsApp (Story 2.5)
+ * AC #1: Shows "Test sent! Check your WhatsApp" on success
+ * AC #4: Shows error message with failure reason on error
+ */
+export function useSendTestSurvey() {
+  return useMutation({
+    mutationFn: ({ surveyId }: { surveyId: string }) =>
+      client.survey.sendTest({ surveyId }),
+    onSuccess: () => {
+      toast.success("Test sent! Check your WhatsApp");
+    },
+    onError: (error: Error) => {
+      const message = error.message ?? "Failed to send test";
+      if (message.includes("connect WhatsApp")) {
+        toast.error("Please connect WhatsApp first");
+      } else {
+        toast.error(message);
+      }
     },
   });
 }
