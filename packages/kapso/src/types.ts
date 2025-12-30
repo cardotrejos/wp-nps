@@ -49,14 +49,23 @@ export const kapsoErrorCodeSchema = z.enum([
 
 export type KapsoErrorCode = z.infer<typeof kapsoErrorCodeSchema>;
 
-// Kapso error
+const TRANSIENT_ERROR_CODES: Set<KapsoErrorCode> = new Set([
+  "rate_limited",
+  "connection_lost",
+  "unknown_error",
+]);
+
 export class KapsoError extends Error {
+  public readonly isRetryable: boolean;
+
   constructor(
     public readonly code: KapsoErrorCode,
     message: string,
+    isRetryable?: boolean,
   ) {
     super(message);
     this.name = "KapsoError";
+    this.isRetryable = isRetryable ?? TRANSIENT_ERROR_CODES.has(code);
   }
 }
 

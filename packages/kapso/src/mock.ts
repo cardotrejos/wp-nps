@@ -48,13 +48,15 @@ export class KapsoMockClient implements IKapsoClient {
   private callHistory: SurveyCall[] = [];
   private deliveryCounter = 0;
 
-  // Setup Link state
   private setupLinks: Map<string, SetupLinkResult> = new Map();
   private connectionStatuses: Map<string, ConnectionStatus> = new Map();
   private setupLinkCounter = 0;
 
+  private failureSequence: number[] = [];
+  private sequenceCallCount = 0;
+  private permanentFailure: { enabled: boolean; message: string; code: KapsoErrorCode } | null = null;
+
   constructor() {
-    // Default response is success
     this.defaultResponse = {
       type: "success",
       result: {
@@ -131,24 +133,46 @@ export class KapsoMockClient implements IKapsoClient {
     }
   }
 
-  /**
-   * Send a survey (mock implementation)
-   */
+  mockFailureSequence(failAttempts: number[]): void {
+    this.failureSequence = failAttempts;
+    this.sequenceCallCount = 0;
+  }
+
+  mockPermanentFailure(errorCode: KapsoErrorCode = "invalid_phone", message = "Permanent failure"): void {
+    this.permanentFailure = { enabled: true, message, code: errorCode };
+  }
+
+  clearFailureSequence(): void {
+    this.failureSequence = [];
+    this.sequenceCallCount = 0;
+    this.permanentFailure = null;
+  }
+
   async sendSurvey(params: SendSurveyParams): Promise<SurveyDeliveryResult> {
     const deliveryId = `mock-delivery-${++this.deliveryCounter}`;
+    this.sequenceCallCount++;
 
-    // Record the call
     this.callHistory.push({
       params,
       timestamp: new Date(),
       deliveryId,
     });
 
-    // Check for specific mock response
-    const mockResponse = this.responses.get(deliveryId) ?? this.defaultResponse;
-
-    // Simulate async delay
     await new Promise((resolve) => setTimeout(resolve, 10));
+
+    if (this.permanentFailure?.enabled) {
+      throw new KapsoError(this.permanentFailure.code, this.permanentFailure.message, false);
+    }
+
+    if (this.failureSequence.includes(this.sequenceCallCount)) {
+      throw new KapsoError(
+        "connection_lost",
+        `Transient failure on attempt ${this.sequenceCallCount}`,
+        true,
+      );
+    }
+
+    const mockResponse = this.responses.get(deliveryId) ?? this.defaultResponse;
 
     if (mockResponse.type === "failure" && mockResponse.error) {
       throw mockResponse.error;
@@ -311,9 +335,6 @@ export class KapsoMockClient implements IKapsoClient {
     this.callHistory = [];
   }
 
-  /**
-   * Reset all mocks and history
-   */
   reset(): void {
     this.responses.clear();
     this.callHistory = [];
@@ -325,6 +346,9 @@ export class KapsoMockClient implements IKapsoClient {
     this.validSignatures.clear();
     this.invalidSignatures.clear();
     this.defaultWebhookVerification = true;
+    this.failureSequence = [];
+    this.sequenceCallCount = 0;
+    this.permanentFailure = null;
   }
 
   /**

@@ -68,7 +68,7 @@ development_status:
   3-2-api-key-generation: done
   3-3-survey-send-api-endpoint: done
   3-3b-api-rate-limiting-middleware: done
-  3-4-survey-delivery-via-kapso: ready-for-dev
+  3-4-survey-delivery-via-kapso: done
   3-5-delivery-status-tracking: ready-for-dev
   3-6-kapso-webhook-receiver: ready-for-dev
   3-7-response-storage-and-processing: ready-for-dev
