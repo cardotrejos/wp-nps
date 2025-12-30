@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { z } from "zod";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
@@ -467,11 +468,11 @@ export const surveyRouter = {
         });
       }
 
-      // Create delivery record with isTest = true
       await db.insert(surveyDelivery).values({
         orgId,
         surveyId: input.surveyId,
         phoneNumber: connection.phoneNumber,
+        phoneNumberHash: createHash("sha256").update(connection.phoneNumber).digest("hex"),
         status: result.status,
         isTest: true,
         kapsoDeliveryId: result.deliveryId,

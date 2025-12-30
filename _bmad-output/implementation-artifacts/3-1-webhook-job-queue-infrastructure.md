@@ -1,6 +1,6 @@
 # Story 3.1: Webhook Job Queue Infrastructure
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -533,4 +533,27 @@ None required - implementation completed without blockers.
 **DELETED Files:**
 - `packages/db/src/migrations/run-rls.ts` - Removed antipattern (RLS via native Drizzle)
 - `packages/db/package.json` - Removed docker commands and RLS auto-run from db:push
+
+### Senior Developer Review (AI)
+
+**Review Date:** 2025-12-30
+**Reviewer:** Claude (Anthropic) via BMAD Code Review Workflow
+**Outcome:** PASS (all issues resolved)
+
+#### Issues Found
+
+| ID | Severity | Issue | Status |
+|----|----------|-------|--------|
+| H1 | HIGH | `rls-isolation.test.ts` used wrong column name (`type` instead of `event_type`) | FIXED |
+| H2 | HIGH | `rls-isolation.test.ts` missing required columns (`idempotency_key`, `source`) in webhook_job INSERT | FIXED |
+
+#### Fixes Applied
+
+1. **H1/H2 Fix (Test):** Updated `tests/integration/rls-isolation.test.ts` webhook_job INSERT statement:
+   - Changed `type` column to `event_type`
+   - Added `idempotency_key` and `source` columns (required by schema)
+
+#### Test Results
+
+All 280 tests passing after fix (was 278/280 before).
 

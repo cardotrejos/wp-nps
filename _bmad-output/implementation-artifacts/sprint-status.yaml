@@ -64,17 +64,17 @@ development_status:
   # Epic 3: Survey Distribution, Response Collection & API (12 stories)
   epic-3: in-progress
   3-0-kapso-integration-package: done
-  3-1-webhook-job-queue-infrastructure: review
-  3-2-api-key-generation: backlog
-  3-3-survey-send-api-endpoint: backlog
-  3-3b-api-rate-limiting-middleware: backlog
-  3-4-survey-delivery-via-kapso: backlog
-  3-5-delivery-status-tracking: backlog
-  3-6-kapso-webhook-receiver: backlog
-  3-7-response-storage-and-processing: backlog
-  3-8-api-documentation: backlog
-  3-9-onboarding-reminder-emails: backlog
-  3-10-manual-survey-send-ui: backlog
+  3-1-webhook-job-queue-infrastructure: done
+  3-2-api-key-generation: done
+  3-3-survey-send-api-endpoint: done
+  3-3b-api-rate-limiting-middleware: done
+  3-4-survey-delivery-via-kapso: ready-for-dev
+  3-5-delivery-status-tracking: ready-for-dev
+  3-6-kapso-webhook-receiver: ready-for-dev
+  3-7-response-storage-and-processing: ready-for-dev
+  3-8-api-documentation: ready-for-dev
+  3-9-onboarding-reminder-emails: ready-for-dev
+  3-10-manual-survey-send-ui: ready-for-dev
   epic-3-retrospective: optional
 
   # Epic 4: Analytics Dashboard (10 stories)

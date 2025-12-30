@@ -1,9 +1,14 @@
+import { createHash } from "node:crypto";
 import { describe, it, expect, afterEach, beforeEach } from "vitest";
 import { eq, and } from "drizzle-orm";
 import { db } from "@wp-nps/db";
 import { survey, surveyDelivery, whatsappConnection } from "@wp-nps/db/schema/flowpulse";
 import { KapsoMockClient } from "@wp-nps/kapso";
 import { createTestOrg, cleanupTestOrg, clearOrgContext } from "../utils/test-org";
+
+function hashPhone(phone: string): string {
+  return createHash("sha256").update(phone).digest("hex");
+}
 
 /**
  * Survey Send Test Integration Tests (Story 2.5)
@@ -97,11 +102,11 @@ describe("Survey Send Test", () => {
       expect(result.status).toBe("queued");
       expect(result.deliveryId).toBeDefined();
 
-      // Create delivery record
       await db.insert(surveyDelivery).values({
         orgId: org.id,
         surveyId: testSurvey!.id,
         phoneNumber: connection!.phoneNumber!,
+        phoneNumberHash: hashPhone(connection!.phoneNumber!),
         status: result.status,
         isTest: true,
         kapsoDeliveryId: result.deliveryId,
@@ -187,11 +192,11 @@ describe("Survey Send Test", () => {
         metadata: { isTest: true },
       });
 
-      // Create delivery record (as the API does)
       await db.insert(surveyDelivery).values({
         orgId: org.id,
         surveyId: testSurvey!.id,
         phoneNumber: "+5511777777777",
+        phoneNumberHash: hashPhone("+5511777777777"),
         status: result.status,
         isTest: true,
         kapsoDeliveryId: result.deliveryId,

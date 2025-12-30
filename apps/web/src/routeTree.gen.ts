@@ -16,6 +16,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SurveysNewRouteImport } from './routes/surveys.new'
 import { Route as SurveysSurveyIdRouteImport } from './routes/surveys.$surveyId'
+import { Route as SettingsApiRouteImport } from './routes/settings.api'
 import { Route as OnboardingTemplateRouteImport } from './routes/onboarding.template'
 import { Route as OnboardingCompleteRouteImport } from './routes/onboarding.complete'
 import { Route as OnboardingWhatsappSuccessRouteImport } from './routes/onboarding.whatsapp.success'
@@ -56,6 +57,11 @@ const SurveysSurveyIdRoute = SurveysSurveyIdRouteImport.update({
   path: '/$surveyId',
   getParentRoute: () => SurveysRoute,
 } as any)
+const SettingsApiRoute = SettingsApiRouteImport.update({
+  id: '/settings/api',
+  path: '/settings/api',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingTemplateRoute = OnboardingTemplateRouteImport.update({
   id: '/template',
   path: '/template',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/surveys': typeof SurveysRouteWithChildren
   '/onboarding/complete': typeof OnboardingCompleteRoute
   '/onboarding/template': typeof OnboardingTemplateRoute
+  '/settings/api': typeof SettingsApiRoute
   '/surveys/$surveyId': typeof SurveysSurveyIdRoute
   '/surveys/new': typeof SurveysNewRoute
   '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/surveys': typeof SurveysRouteWithChildren
   '/onboarding/complete': typeof OnboardingCompleteRoute
   '/onboarding/template': typeof OnboardingTemplateRoute
+  '/settings/api': typeof SettingsApiRoute
   '/surveys/$surveyId': typeof SurveysSurveyIdRoute
   '/surveys/new': typeof SurveysNewRoute
   '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/surveys': typeof SurveysRouteWithChildren
   '/onboarding/complete': typeof OnboardingCompleteRoute
   '/onboarding/template': typeof OnboardingTemplateRoute
+  '/settings/api': typeof SettingsApiRoute
   '/surveys/$surveyId': typeof SurveysSurveyIdRoute
   '/surveys/new': typeof SurveysNewRoute
   '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/surveys'
     | '/onboarding/complete'
     | '/onboarding/template'
+    | '/settings/api'
     | '/surveys/$surveyId'
     | '/surveys/new'
     | '/onboarding/whatsapp/failed'
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/surveys'
     | '/onboarding/complete'
     | '/onboarding/template'
+    | '/settings/api'
     | '/surveys/$surveyId'
     | '/surveys/new'
     | '/onboarding/whatsapp/failed'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/surveys'
     | '/onboarding/complete'
     | '/onboarding/template'
+    | '/settings/api'
     | '/surveys/$surveyId'
     | '/surveys/new'
     | '/onboarding/whatsapp/failed'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRouteWithChildren
   SurveysRoute: typeof SurveysRouteWithChildren
+  SettingsApiRoute: typeof SettingsApiRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/surveys/$surveyId'
       preLoaderRoute: typeof SurveysSurveyIdRouteImport
       parentRoute: typeof SurveysRoute
+    }
+    '/settings/api': {
+      id: '/settings/api'
+      path: '/settings/api'
+      fullPath: '/settings/api'
+      preLoaderRoute: typeof SettingsApiRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/onboarding/template': {
       id: '/onboarding/template'
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRouteWithChildren,
   SurveysRoute: SurveysRouteWithChildren,
+  SettingsApiRoute: SettingsApiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

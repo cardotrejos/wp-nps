@@ -10,6 +10,7 @@ import { auth } from "@wp-nps/auth";
 import { env } from "@wp-nps/env/server";
 import { Elysia } from "elysia";
 import { startProcessor, isProcessorRunning } from "./jobs/processor";
+import { apiV1Router } from "./routes/api-v1";
 
 const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
@@ -40,6 +41,7 @@ const app = new Elysia()
       credentials: true,
     }),
   )
+  .use(apiV1Router)
   .all("/api/auth/*", async (context) => {
     const { request, status } = context;
     // Handle CORS preflight requests

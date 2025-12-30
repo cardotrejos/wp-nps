@@ -312,12 +312,12 @@ describe("Multi-Tenant Isolation", () => {
       const job2Id = crypto.randomUUID();
 
       await db.execute(sql`
-        INSERT INTO webhook_job (id, org_id, type, status, payload, created_at, updated_at)
-        VALUES (${job1Id}, ${org1.id}, 'survey.response', 'pending', '{}', NOW(), NOW())
+        INSERT INTO webhook_job (id, org_id, idempotency_key, source, event_type, status, payload, created_at, updated_at)
+        VALUES (${job1Id}, ${org1.id}, ${`key-${job1Id}`}, 'kapso', 'survey.response', 'pending', '{}', NOW(), NOW())
       `);
       await db.execute(sql`
-        INSERT INTO webhook_job (id, org_id, type, status, payload, created_at, updated_at)
-        VALUES (${job2Id}, ${org2.id}, 'survey.response', 'completed', '{}', NOW(), NOW())
+        INSERT INTO webhook_job (id, org_id, idempotency_key, source, event_type, status, payload, created_at, updated_at)
+        VALUES (${job2Id}, ${org2.id}, ${`key-${job2Id}`}, 'kapso', 'survey.response', 'completed', '{}', NOW(), NOW())
       `);
 
       // Verify isolation

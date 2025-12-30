@@ -99,6 +99,7 @@ export async function cleanupTestOrg(orgId: string): Promise<void> {
   await db.execute(sql`DELETE FROM whatsapp_connection WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM org_metrics WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM org_usage WHERE org_id = ${orgId}`);
+  await db.execute(sql`DELETE FROM api_key WHERE org_id = ${orgId}`);
 
   // Delete member and invitation records
   await db.execute(sql`DELETE FROM invitation WHERE organization_id = ${orgId}`);

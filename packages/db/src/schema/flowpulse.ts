@@ -300,9 +300,10 @@ export const surveyDelivery = pgTable(
       .notNull()
       .references(() => survey.id, { onDelete: "cascade" }),
     phoneNumber: text("phone_number").notNull(),
-    status: text("status").notNull().default("pending"), // pending, queued, sent, delivered, failed
+    phoneNumberHash: text("phone_number_hash").notNull(),
+    status: text("status").notNull().default("pending"),
     isTest: boolean("is_test").notNull().default(false),
-    metadata: jsonb("metadata"),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     kapsoDeliveryId: text("kapso_delivery_id"),
     errorMessage: text("error_message"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -311,10 +312,13 @@ export const surveyDelivery = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
     deliveredAt: timestamp("delivered_at"),
+    respondedAt: timestamp("responded_at"),
   },
   (table) => [
     index("idx_survey_delivery_org_id").on(table.orgId),
     index("idx_survey_delivery_survey_id").on(table.surveyId),
+    index("idx_survey_delivery_status").on(table.status),
+    index("idx_survey_delivery_phone_hash").on(table.phoneNumberHash),
   ],
 );
 
@@ -326,5 +330,39 @@ export const surveyDeliveryRelations = relations(surveyDelivery, ({ one }) => ({
   survey: one(survey, {
     fields: [surveyDelivery.surveyId],
     references: [survey.id],
+  }),
+}));
+
+// API Key table - tracks API keys per organization (Story 3.2)
+// NFR-S3: API keys hashed, never stored in plaintext
+export const apiKey = pgTable(
+  "api_key",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: text("org_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    keyHash: text("key_hash").notNull(), // SHA-256 hash - never store plaintext
+    keyPrefix: text("key_prefix").notNull(), // First 8 chars for display (fp_xxxxxxxx...)
+    name: text("name").default("Default API Key"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("idx_api_key_org_id").on(table.orgId),
+    index("idx_api_key_hash").on(table.keyHash),
+    // Task 1.3: Unique constraint - only one active (non-revoked) key per org
+    uniqueIndex("uq_api_key_active_org").on(table.orgId).where(sql`revoked_at IS NULL`),
+  ],
+);
+
+export type ApiKey = typeof apiKey.$inferSelect;
+export type NewApiKey = typeof apiKey.$inferInsert;
+
+export const apiKeyRelations = relations(apiKey, ({ one }) => ({
+  organization: one(organization, {
+    fields: [apiKey.orgId],
+    references: [organization.id],
   }),
 }));
