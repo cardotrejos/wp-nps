@@ -3,13 +3,9 @@ import { eq, and } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
 import { db } from "@wp-nps/db";
 import { whatsappConnection } from "@wp-nps/db/schema/flowpulse";
-import { KapsoMockClient } from "@wp-nps/kapso";
+import { getKapsoClient } from "../lib/kapso";
 
 import { protectedProcedure } from "../index";
-
-// TODO: Replace with real KapsoClient via DI when Kapso integration is complete
-// For MVP, using mock client - in production, this should be environment-driven
-const kapsoClient = new KapsoMockClient();
 
 // Check if we're in development/test mode (for relaxed validation)
 const isDevelopment = process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
@@ -46,7 +42,7 @@ export const whatsappRouter = {
       }
 
       // Call Kapso to create setup link
-      const setupLink = await kapsoClient.createSetupLink(orgId, {
+      const setupLink = await getKapsoClient().createSetupLink(orgId, {
         successRedirectUrl: input.successRedirectUrl,
         failureRedirectUrl: input.failureRedirectUrl,
       });
@@ -126,7 +122,7 @@ export const whatsappRouter = {
       }
 
       // Verify setup link status with Kapso
-      const setupLinkStatus = await kapsoClient.getSetupLinkStatus(input.setupLinkId);
+      const setupLinkStatus = await getKapsoClient().getSetupLinkStatus(input.setupLinkId);
 
       // In production: strictly require "completed" status
       // In development/test: also accept "pending" for testing flows
@@ -203,7 +199,7 @@ export const whatsappRouter = {
         throw new ORPCError("NOT_FOUND", { message: "Setup link not found for this organization" });
       }
 
-      const status = await kapsoClient.getSetupLinkStatus(input.setupLinkId);
+      const status = await getKapsoClient().getSetupLinkStatus(input.setupLinkId);
       return status;
     }),
 
@@ -274,7 +270,7 @@ export const whatsappRouter = {
     }
 
     // Call Kapso to send test message
-    const result = await kapsoClient.sendTestMessage({
+    const result = await getKapsoClient().sendTestMessage({
       phoneNumber: connection.phoneNumber,
       orgId,
     });
@@ -324,7 +320,7 @@ export const whatsappRouter = {
       }
 
       // Check Kapso for delivery status
-      const status = await kapsoClient.getDeliveryStatus(input.deliveryId);
+      const status = await getKapsoClient().getDeliveryStatus(input.deliveryId);
 
       return {
         deliveryId: input.deliveryId,
