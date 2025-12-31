@@ -1,6 +1,8 @@
 import type {
   ConnectionStatus,
+  CreateCustomerParams,
   IKapsoClient,
+  KapsoCustomer,
   KapsoErrorCode,
   SendSurveyParams,
   SendTestParams,
@@ -373,13 +375,39 @@ export class KapsoMockClient implements IKapsoClient {
   }
 
   // ==========================================
+  // Customer Methods
+  // ==========================================
+
+  private customers: Map<string, KapsoCustomer> = new Map();
+  private customerCounter = 0;
+
+  async createCustomer(params: CreateCustomerParams): Promise<KapsoCustomer> {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    const id = `mock-customer-${++this.customerCounter}`;
+    const customer: KapsoCustomer = {
+      id,
+      name: params.name,
+      externalCustomerId: params.externalCustomerId,
+    };
+    this.customers.set(params.externalCustomerId, customer);
+    return customer;
+  }
+
+  async getCustomerByExternalId(externalId: string): Promise<KapsoCustomer | null> {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    return this.customers.get(externalId) ?? null;
+  }
+
+  async getOrCreateCustomer(params: CreateCustomerParams): Promise<KapsoCustomer> {
+    const existing = await this.getCustomerByExternalId(params.externalCustomerId);
+    if (existing) return existing;
+    return this.createCustomer(params);
+  }
+
+  // ==========================================
   // Setup Link / WhatsApp Connection Methods
   // ==========================================
 
-  /**
-   * Create a setup link for WhatsApp onboarding (IKapsoClient method)
-   * Returns a URL that redirects user to Kapso's hosted onboarding page
-   */
   async createSetupLink(customerId: string, _config: SetupLinkConfig): Promise<SetupLinkResult> {
     const setupLinkId = `mock-setup-link-${customerId}-${++this.setupLinkCounter}`;
     const result: SetupLinkResult = {

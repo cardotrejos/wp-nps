@@ -41,8 +41,14 @@ export const whatsappRouter = {
         throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
       }
 
-      // Call Kapso to create setup link
-      const setupLink = await getKapsoClient().createSetupLink(orgId, {
+      const kapsoClient = getKapsoClient();
+
+      const customer = await kapsoClient.getOrCreateCustomer({
+        name: `Org ${orgId}`,
+        externalCustomerId: orgId,
+      });
+
+      const setupLink = await kapsoClient.createSetupLink(customer.id, {
         successRedirectUrl: input.successRedirectUrl,
         failureRedirectUrl: input.failureRedirectUrl,
       });

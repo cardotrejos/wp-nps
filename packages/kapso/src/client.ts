@@ -1,7 +1,9 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { WhatsAppClient } from "@kapso/whatsapp-cloud-api";
 import type {
+  CreateCustomerParams,
   IKapsoClient,
+  KapsoCustomer,
   SendSurveyParams,
   SendTestParams,
   SetupLinkConfig,
@@ -179,16 +181,69 @@ export class KapsoClient implements IKapsoClient {
     }
   }
 
-  /**
-   * Create a setup link for WhatsApp onboarding
-   *
-   * The setup link redirects users to Kapso's hosted onboarding page
-   * where they can connect their WhatsApp Business account.
-   *
-   * @param customerId - Customer/organization ID in Kapso
-   * @param config - Setup link configuration (redirect URLs, theme, etc.)
-   * @returns Setup link result with URL to redirect user to
-   */
+  async createCustomer(params: CreateCustomerParams): Promise<KapsoCustomer> {
+    const response = await fetch(`${this.platformBaseUrl}/customers`, {
+      method: "POST",
+      headers: {
+        "X-API-Key": this.apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        customer: {
+          name: params.name,
+          external_customer_id: params.externalCustomerId,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new KapsoError("unknown_error", `Failed to create customer: ${response.status} ${text}`, true);
+    }
+
+    const json = (await response.json()) as { data: { id: string; name: string; external_customer_id: string } };
+    return {
+      id: json.data.id,
+      name: json.data.name,
+      externalCustomerId: json.data.external_customer_id,
+    };
+  }
+
+  async getCustomerByExternalId(externalId: string): Promise<KapsoCustomer | null> {
+    const response = await fetch(
+      `${this.platformBaseUrl}/customers?external_customer_id=${encodeURIComponent(externalId)}`,
+      {
+        method: "GET",
+        headers: {
+          "X-API-Key": this.apiKey,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      const text = await response.text();
+      throw new KapsoError("unknown_error", `Failed to get customer: ${response.status} ${text}`, true);
+    }
+
+    type CustomerData = { id: string; name: string; external_customer_id: string };
+    const json = (await response.json()) as { data: CustomerData[] };
+    const customer = json.data?.[0];
+    if (!customer) return null;
+
+    return {
+      id: customer.id,
+      name: customer.name,
+      externalCustomerId: customer.external_customer_id,
+    };
+  }
+
+  async getOrCreateCustomer(params: CreateCustomerParams): Promise<KapsoCustomer> {
+    const existing = await this.getCustomerByExternalId(params.externalCustomerId);
+    if (existing) return existing;
+    return this.createCustomer(params);
+  }
+
   async createSetupLink(customerId: string, config: SetupLinkConfig): Promise<SetupLinkResult> {
     const response = await fetch(`${this.platformBaseUrl}/customers/${customerId}/setup_links`, {
       method: "POST",

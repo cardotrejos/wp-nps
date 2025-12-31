@@ -125,12 +125,27 @@ export const connectionStatusSchema = z.object({
 
 export type ConnectionStatus = z.infer<typeof connectionStatusSchema>;
 
-// Client interface for Kapso operations
+export interface CreateCustomerParams {
+  name: string;
+  externalCustomerId: string;
+}
+
+export interface KapsoCustomer {
+  id: string;
+  name: string;
+  externalCustomerId: string;
+}
+
 export interface IKapsoClient {
   // Survey operations
   sendSurvey(params: SendSurveyParams): Promise<SurveyDeliveryResult>;
   getDeliveryStatus(deliveryId: string): Promise<SurveyDeliveryResult>;
   verifyWebhook(signature: string, payload: string): boolean;
+
+  // Customer operations
+  createCustomer(params: CreateCustomerParams): Promise<KapsoCustomer>;
+  getCustomerByExternalId(externalId: string): Promise<KapsoCustomer | null>;
+  getOrCreateCustomer(params: CreateCustomerParams): Promise<KapsoCustomer>;
 
   // Setup Link / WhatsApp connection operations
   createSetupLink(customerId: string, config: SetupLinkConfig): Promise<SetupLinkResult>;
