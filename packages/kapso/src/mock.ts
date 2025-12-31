@@ -1,9 +1,12 @@
 import type {
   ConnectionStatus,
   CreateCustomerParams,
+  CreateFlowParams,
+  CreateFlowResult,
   IKapsoClient,
   KapsoCustomer,
   KapsoErrorCode,
+  PublishFlowParams,
   SendFlowParams,
   SendSurveyParams,
   SendTestParams,
@@ -540,12 +543,44 @@ export class KapsoMockClient implements IKapsoClient {
     return this.setupLinks.get(setupLinkId);
   }
 
-  /**
-   * Clear all setup link state
-   */
   clearSetupLinkState(): void {
     this.setupLinks.clear();
     this.connectionStatuses.clear();
     this.setupLinkCounter = 0;
+  }
+
+  private flows: Map<string, CreateFlowResult> = new Map();
+  private flowCounter = 0;
+
+  async createFlow(params: CreateFlowParams): Promise<CreateFlowResult> {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    const id = `mock-flow-${++this.flowCounter}`;
+    const result: CreateFlowResult = {
+      id,
+      name: params.name,
+      status: "DRAFT",
+    };
+
+    this.flows.set(id, result);
+    return result;
+  }
+
+  async publishFlow(params: PublishFlowParams): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    const flow = this.flows.get(params.flowId);
+    if (flow) {
+      this.flows.set(params.flowId, { ...flow, status: "PUBLISHED" });
+    }
+  }
+
+  getFlowById(flowId: string): CreateFlowResult | undefined {
+    return this.flows.get(flowId);
+  }
+
+  clearFlows(): void {
+    this.flows.clear();
+    this.flowCounter = 0;
   }
 }

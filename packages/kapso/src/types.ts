@@ -148,24 +148,76 @@ export interface KapsoCustomer {
   externalCustomerId: string;
 }
 
+export interface FlowJson {
+  version: string;
+  dataApiVersion?: string;
+  routingModel: Record<string, string[]>;
+  screens: FlowScreen[];
+}
+
+export interface FlowScreen {
+  id: string;
+  title?: string;
+  terminal?: boolean;
+  data?: Record<string, unknown>;
+  layout: {
+    type: string;
+    children: FlowComponent[];
+  };
+}
+
+export interface FlowComponent {
+  type: string;
+  text?: string;
+  label?: string;
+  name?: string;
+  required?: boolean;
+  minChars?: number;
+  maxChars?: number;
+  inputType?: string;
+  onClickAction?: {
+    name: string;
+    next?: { type: string; name: string };
+    payload?: Record<string, unknown>;
+  };
+  dataSource?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface CreateFlowParams {
+  wabaId: string;
+  name: string;
+  categories: string[];
+  flowJson: FlowJson;
+  endpointUri?: string;
+}
+
+export interface CreateFlowResult {
+  id: string;
+  name: string;
+  status: string;
+}
+
+export interface PublishFlowParams {
+  flowId: string;
+  phoneNumberId: string;
+}
+
 export interface IKapsoClient {
-  // Survey operations
   sendSurvey(params: SendSurveyParams): Promise<SurveyDeliveryResult>;
   getDeliveryStatus(deliveryId: string): Promise<SurveyDeliveryResult>;
   verifyWebhook(signature: string, payload: string): boolean;
 
-  // Customer operations
   createCustomer(params: CreateCustomerParams): Promise<KapsoCustomer>;
   getCustomerByExternalId(externalId: string): Promise<KapsoCustomer | null>;
   getOrCreateCustomer(params: CreateCustomerParams): Promise<KapsoCustomer>;
 
-  // Setup Link / WhatsApp connection operations
   createSetupLink(customerId: string, config: SetupLinkConfig): Promise<SetupLinkResult>;
   getSetupLinkStatus(setupLinkId: string): Promise<SetupLinkResult>;
 
-  // Test message for WhatsApp verification
   sendTestMessage(params: SendTestParams): Promise<SurveyDeliveryResult>;
-
-  // Send WhatsApp Flow (interactive survey)
   sendFlow(params: SendFlowParams): Promise<SurveyDeliveryResult>;
+
+  createFlow(params: CreateFlowParams): Promise<CreateFlowResult>;
+  publishFlow(params: PublishFlowParams): Promise<void>;
 }

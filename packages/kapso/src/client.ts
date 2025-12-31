@@ -2,8 +2,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { WhatsAppClient } from "@kapso/whatsapp-cloud-api";
 import type {
   CreateCustomerParams,
+  CreateFlowParams,
+  CreateFlowResult,
   IKapsoClient,
   KapsoCustomer,
+  PublishFlowParams,
   SendFlowParams,
   SendSurveyParams,
   SendTestParams,
@@ -374,6 +377,43 @@ export class KapsoClient implements IKapsoClient {
       throw new KapsoError(
         "message_failed",
         error instanceof Error ? error.message : "Unknown error sending flow",
+      );
+    }
+  }
+
+  async createFlow(params: CreateFlowParams): Promise<CreateFlowResult> {
+    try {
+      const result = await this.whatsappClient.flows.create({
+        wabaId: params.wabaId,
+        name: params.name,
+        categories: params.categories,
+        endpointUri: params.endpointUri,
+        flowJson: params.flowJson as unknown as Record<string, unknown>,
+      });
+
+      return {
+        id: result.id,
+        name: params.name,
+        status: "DRAFT",
+      };
+    } catch (error) {
+      throw new KapsoError(
+        "unknown_error",
+        error instanceof Error ? error.message : "Failed to create flow",
+      );
+    }
+  }
+
+  async publishFlow(params: PublishFlowParams): Promise<void> {
+    try {
+      await this.whatsappClient.flows.publish({
+        flowId: params.flowId,
+        phoneNumberId: params.phoneNumberId,
+      });
+    } catch (error) {
+      throw new KapsoError(
+        "unknown_error",
+        error instanceof Error ? error.message : "Failed to publish flow",
       );
     }
   }
