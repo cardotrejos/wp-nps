@@ -1,6 +1,6 @@
 # Story 3.7: Response Storage and Processing
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -22,44 +22,44 @@ So that **analytics are immediately updated**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create Survey Response Schema (AC: #1, #2)
-  - [ ] 1.1 Add `survey_response` table to `packages/db/src/schema/flowpulse.ts`
-  - [ ] 1.2 Define columns: id, org_id, survey_id, delivery_id, customer_id, score, category, feedback, metadata, created_at
-  - [ ] 1.3 Add indexes for org_id, survey_id, category
-  - [ ] 1.4 Run `bun db:push`
+- [x] Task 1: Create Survey Response Schema (AC: #1, #2)
+  - [x] 1.1 Add `survey_response` table to `packages/db/src/schema/flowpulse.ts`
+  - [x] 1.2 Define columns: id, org_id, survey_id, delivery_id, customer_id, score, category, feedback, metadata, created_at
+  - [x] 1.3 Add indexes for org_id, survey_id, category
+  - [x] 1.4 Run `bun db:push`
 
-- [ ] Task 2: Create Customer Schema (AC: #5)
-  - [ ] 2.1 Add `customer` table to schema
-  - [ ] 2.2 Define columns: id, org_id, phone_number_hash, metadata, first_seen_at, last_seen_at
-  - [ ] 2.3 Add unique constraint on (org_id, phone_number_hash)
+- [x] Task 2: Create Customer Schema (AC: #5)
+  - [x] 2.1 Add `customer` table to schema
+  - [x] 2.2 Define columns: id, org_id, phone_number_hash, metadata, first_seen_at, last_seen_at
+  - [x] 2.3 Add unique constraint on (org_id, phone_number_hash)
 
-- [ ] Task 3: Create Response Processing Service (AC: #1, #2, #4, #5)
-  - [ ] 3.1 Create `packages/api/src/services/response-processor.ts`
-  - [ ] 3.2 Implement `processResponse(params)` main function
-  - [ ] 3.3 Categorize NPS score (detractor/passive/promoter)
-  - [ ] 3.4 Find or create customer record
-  - [ ] 3.5 Link response to delivery
-  - [ ] 3.6 Update delivery status to "responded"
+- [x] Task 3: Create Response Processing Service (AC: #1, #2, #4, #5)
+  - [x] 3.1 Create `packages/api/src/services/response-processor.ts`
+  - [x] 3.2 Implement `processResponse(params)` main function
+  - [x] 3.3 Categorize NPS score (detractor/passive/promoter)
+  - [x] 3.4 Find or create customer record
+  - [x] 3.5 Link response to delivery
+  - [x] 3.6 Update delivery status to "responded"
 
-- [ ] Task 4: Create Metrics Update Service (AC: #3)
-  - [ ] 4.1 Create `packages/api/src/services/metrics-updater.ts`
-  - [ ] 4.2 Implement `updateOrgMetrics(orgId, response)` 
-  - [ ] 4.3 Update NPS calculation incrementally
-  - [ ] 4.4 Use SAME TRANSACTION as response insert
+- [x] Task 4: Create Metrics Update Service (AC: #3)
+  - [x] 4.1 Create `packages/api/src/services/metrics-updater.ts`
+  - [x] 4.2 Implement `updateOrgMetrics(orgId, response)` 
+  - [x] 4.3 Update NPS calculation incrementally
+  - [x] 4.4 Use SAME TRANSACTION as response insert
 
-- [ ] Task 5: Create Response Job Handler (AC: #1, #4)
-  - [ ] 5.1 Update `apps/server/_source/jobs/handlers/kapso-survey-response.ts`
-  - [ ] 5.2 Parse response content for score
-  - [ ] 5.3 Find matching delivery by customer phone
-  - [ ] 5.4 Call response processor service
+- [x] Task 5: Create Response Job Handler (AC: #1, #4)
+  - [x] 5.1 Update `apps/server/_source/jobs/handlers/kapso-survey-response.ts`
+  - [x] 5.2 Parse response content for score
+  - [x] 5.3 Find matching delivery by customer phone
+  - [x] 5.4 Call response processor service
 
-- [ ] Task 6: Write Tests (AC: #1, #2, #3, #4, #5)
-  - [ ] 6.1 Create `tests/integration/response-processing.test.ts`
-  - [ ] 6.2 Test NPS categorization
-  - [ ] 6.3 Test metadata preservation
-  - [ ] 6.4 Test metrics update in same transaction
-  - [ ] 6.5 Test customer record creation
-  - [ ] 6.6 Test delivery status update
+- [x] Task 6: Write Tests (AC: #1, #2, #3, #4, #5)
+  - [x] 6.1 Create `tests/integration/response-processing.test.ts`
+  - [x] 6.2 Test NPS categorization
+  - [x] 6.3 Test metadata preservation
+  - [x] 6.4 Test metrics update in same transaction
+  - [x] 6.5 Test customer record creation
+  - [x] 6.6 Test delivery status update
 
 ## Dev Notes
 
@@ -536,10 +536,35 @@ Files to create/modify:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude 3.5 Sonnet (Sisyphus Agent)
 
 ### Debug Log References
 
+- Schema push to dev and test databases completed successfully
+- All 11 response processing tests pass
+
 ### Completion Notes List
 
+- Created `customer` table with unique constraint on (org_id, phone_number_hash)
+- Added `customerId` column to surveyResponse schema
+- Created `response-processor.ts` with transactional response processing (categorize, find/create customer, link to delivery, update metrics)
+- Created `metrics-updater.ts` using existing orgMetrics schema (promoterCount, passiveCount, detractorCount, totalResponses)
+- Updated `kapso-survey-response.ts` job handler to process incoming WhatsApp responses
+- Test responses (isTest=true) are excluded from metrics calculations
+- Metrics update happens in SAME transaction as response insert (NFR-P5 compliance)
+
 ### File List
+
+- packages/db/src/schema/flowpulse.ts (MODIFIED - added customer table, customerId column, customerRelations)
+- packages/api/src/services/response-processor.ts (NEW)
+- packages/api/src/services/metrics-updater.ts (NEW)
+- apps/server/_source/jobs/handlers/kapso-survey-response.ts (MODIFIED)
+- tests/integration/response-processing.test.ts (NEW)
+- tests/utils/test-org.ts (MODIFIED - added customer cleanup)
+- _bmad-output/implementation-artifacts/sprint-status.yaml (MODIFIED)
+
+## Change Log
+
+| Date | Change | Reason |
+|------|--------|--------|
+| 2025-12-30 | Story implemented with all 6 tasks complete | FR26 real-time response processing, NFR-P5 same-transaction metrics, AR6 pre-aggregated metrics |

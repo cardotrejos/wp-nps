@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Settings, Send } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { useSurvey } from "@/hooks/use-surveys";
@@ -12,7 +12,9 @@ import { SurveyPreview } from "@/components/surveys/survey-preview";
 import { TriggerTypeSelector } from "@/components/surveys/trigger-type-selector";
 import { ApiEndpointDisplay } from "@/components/surveys/api-endpoint-display";
 import { ManualSendButton } from "@/components/surveys/manual-send-button";
+import { DeliveryList } from "@/components/surveys/delivery-list";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Loader from "@/components/loader";
 
 export const Route = createFileRoute("/surveys/$surveyId")({
@@ -29,26 +31,13 @@ export const Route = createFileRoute("/surveys/$surveyId")({
   },
 });
 
-/**
- * Survey Edit Page (Story 2.2, 2.3, 2.4, 2.7)
- *
- * Displays a survey with its questions for viewing/editing.
- * Story 2.4: Added WhatsApp preview panel with side-by-side layout.
- * Story 2.7: Added trigger type selection (API or Manual).
- *
- * AC #1: Preview shows WhatsApp chat bubble aesthetic
- * AC #2: Preview updates when questions change
- * AC #3: Phone mockup remains properly sized on resize
- * AC #4: All questions displayed in correct order
- */
 function SurveyEditPage() {
   const { surveyId } = Route.useParams();
   const { data: survey, isPending, error } = useSurvey(surveyId);
 
-  // Wrap in OnboardingGuard to ensure onboarding is complete
   return (
     <OnboardingGuard>
-      <SurveyEditContent survey={survey} isPending={isPending} error={error} />
+      <SurveyEditContent survey={survey} isPending={isPending} error={error} surveyId={surveyId} />
     </OnboardingGuard>
   );
 }
@@ -57,10 +46,10 @@ interface SurveyEditContentProps {
   survey: ReturnType<typeof useSurvey>["data"];
   isPending: boolean;
   error: Error | null;
+  surveyId: string;
 }
 
-function SurveyEditContent({ survey, isPending, error }: SurveyEditContentProps) {
-  // Story 2.4: Preview visibility toggle for mobile (default: visible on desktop)
+function SurveyEditContent({ survey, isPending, error, surveyId }: SurveyEditContentProps) {
   const [showPreview, setShowPreview] = useState(true);
 
   if (isPending) {
@@ -99,64 +88,77 @@ function SurveyEditContent({ survey, isPending, error }: SurveyEditContentProps)
     <div className="container mx-auto px-4 py-8">
       <SurveyHeader survey={survey} />
 
-      {/* Mobile: Preview Toggle Button (Story 2.4 - Task 4.3) */}
-      <div className="mb-4 lg:hidden">
-        <Button
-          variant="outline"
-          onClick={() => setShowPreview(!showPreview)}
-          className="w-full"
-        >
-          {showPreview ? (
-            <>
-              <EyeOff className="mr-2 h-4 w-4" />
-              Hide Preview
-            </>
-          ) : (
-            <>
-              <Eye className="mr-2 h-4 w-4" />
-              Show Preview
-            </>
-          )}
-        </Button>
-      </div>
+      <Tabs className="mt-6" defaultValue="setup">
+        <TabsList variant="line" className="mb-6">
+          <TabsTrigger value="setup">
+            <Settings className="h-4 w-4" />
+            Setup
+          </TabsTrigger>
+          <TabsTrigger value="deliveries">
+            <Send className="h-4 w-4" />
+            Deliveries
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Desktop: Side-by-side layout (Story 2.4 - Task 4.2) */}
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Edit Panel */}
-        <div className="space-y-8">
-          <QuestionList surveyId={survey.id} questions={survey.questions ?? []} />
-
-          {/* Trigger Type Settings (Story 2.7) */}
-          <div className="rounded-lg border p-4">
-            <TriggerTypeSelector
-              surveyId={survey.id}
-              currentType={(survey.triggerType as "api" | "manual") ?? "api"}
-            />
-
-            {/* Conditionally show API endpoint or Manual send button */}
-            <div className="mt-6">
-              {(survey.triggerType ?? "api") === "api" ? (
-                <ApiEndpointDisplay surveyId={survey.id} />
+        <TabsContent value="setup">
+          <div className="mb-4 lg:hidden">
+            <Button
+              variant="outline"
+              onClick={() => setShowPreview(!showPreview)}
+              className="w-full"
+            >
+              {showPreview ? (
+                <>
+                  <EyeOff className="mr-2 h-4 w-4" />
+                  Hide Preview
+                </>
               ) : (
-                <ManualSendButton surveyId={survey.id} isActive={survey.isActive} />
+                <>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Show Preview
+                </>
               )}
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="space-y-8">
+              <QuestionList surveyId={survey.id} questions={survey.questions ?? []} />
+
+              <div className="rounded-lg border p-4">
+                <TriggerTypeSelector
+                  surveyId={survey.id}
+                  currentType={(survey.triggerType as "api" | "manual") ?? "api"}
+                />
+
+                <div className="mt-6">
+                  {(survey.triggerType ?? "api") === "api" ? (
+                    <ApiEndpointDisplay surveyId={survey.id} />
+                  ) : (
+                    <ManualSendButton surveyId={survey.id} isActive={survey.isActive} />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={cn(
+                "lg:sticky lg:top-6 lg:self-start",
+                !showPreview && "hidden lg:block",
+              )}
+            >
+              <div className="lg:rounded-lg lg:border lg:bg-muted/50 lg:p-4">
+                <h3 className="mb-4 hidden text-sm font-medium lg:block">WhatsApp Preview</h3>
+                <SurveyPreview survey={survey} />
+              </div>
             </div>
           </div>
-        </div>
+        </TabsContent>
 
-        {/* Preview Panel (Story 2.4 - Tasks 4.4, 4.5) */}
-        <div
-          className={cn(
-            "lg:sticky lg:top-6 lg:self-start",
-            !showPreview && "hidden lg:block",
-          )}
-        >
-          <div className="lg:rounded-lg lg:border lg:bg-muted/50 lg:p-4">
-            <h3 className="mb-4 hidden text-sm font-medium lg:block">WhatsApp Preview</h3>
-            <SurveyPreview survey={survey} />
-          </div>
-        </div>
-      </div>
+        <TabsContent value="deliveries">
+          <DeliveryList surveyId={surveyId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

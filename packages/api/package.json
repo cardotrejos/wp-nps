@@ -13,6 +13,12 @@
     },
     "./services/*": {
       "default": "./src/services/*.ts"
+    },
+    "./utils/*": {
+      "default": "./src/utils/*.ts"
+    },
+    "./middleware/*": {
+      "default": "./src/middleware/*.ts"
     }
   },
   "scripts": {},

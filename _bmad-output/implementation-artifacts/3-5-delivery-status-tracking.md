@@ -1,6 +1,6 @@
 # Story 3.5: Delivery Status Tracking
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -22,47 +22,47 @@ So that **I know which customers received the survey**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create Delivery List Router (AC: #1, #2, #3)
-  - [ ] 1.1 Add `delivery` router to `packages/api/src/routers/delivery.ts`
-  - [ ] 1.2 Implement `list` procedure with surveyId filter and pagination
-  - [ ] 1.3 Implement `getById` procedure for delivery details
-  - [ ] 1.4 Add status filter parameter
-  - [ ] 1.5 Ensure org_id filtering (multi-tenancy)
+- [x] Task 1: Create Delivery List Router (AC: #1, #2, #3)
+  - [x] 1.1 Add `delivery` router to `packages/api/src/routers/delivery.ts`
+  - [x] 1.2 Implement `list` procedure with surveyId filter and pagination
+  - [x] 1.3 Implement `getById` procedure for delivery details
+  - [x] 1.4 Add status filter parameter
+  - [x] 1.5 Ensure org_id filtering (multi-tenancy)
 
-- [ ] Task 2: Create Phone Masking Utility (AC: #4)
-  - [ ] 2.1 Create `packages/api/src/utils/phone-mask.ts`
-  - [ ] 2.2 Implement `maskPhoneNumber(phone)` - shows country code + last 4
-  - [ ] 2.3 Use in delivery list response
+- [x] Task 2: Create Phone Masking Utility (AC: #4)
+  - [x] 2.1 Create `packages/api/src/utils/phone-mask.ts`
+  - [x] 2.2 Implement `maskPhoneNumber(phone)` - shows country code + last 4
+  - [x] 2.3 Use in delivery list response
 
-- [ ] Task 3: Create Delivery List UI Component (AC: #1, #2, #3, #4)
-  - [ ] 3.1 Create `apps/web/src/components/surveys/delivery-list.tsx`
-  - [ ] 3.2 Display deliveries in table/list format
-  - [ ] 3.3 Show status badges with colors
-  - [ ] 3.4 Show masked phone numbers
-  - [ ] 3.5 Add pagination controls
+- [x] Task 3: Create Delivery List UI Component (AC: #1, #2, #3, #4)
+  - [x] 3.1 Create `apps/web/src/components/surveys/delivery-list.tsx`
+  - [x] 3.2 Display deliveries in table/list format
+  - [x] 3.3 Show status badges with colors
+  - [x] 3.4 Show masked phone numbers
+  - [x] 3.5 Add pagination controls
 
-- [ ] Task 4: Create Delivery Status Badge Component (AC: #1, #2)
-  - [ ] 4.1 Create `apps/web/src/components/surveys/delivery-status-badge.tsx`
-  - [ ] 4.2 Map status to colors (pending=gray, sent=blue, delivered=green, failed=red)
-  - [ ] 4.3 Show retry count for failed deliveries
+- [x] Task 4: Create Delivery Status Badge Component (AC: #1, #2)
+  - [x] 4.1 Create `apps/web/src/components/surveys/delivery-status-badge.tsx`
+  - [x] 4.2 Map status to colors (pending=gray, sent=blue, delivered=green, failed=red)
+  - [x] 4.3 Show retry count for failed deliveries
 
-- [ ] Task 5: Create Delivery Detail Panel (AC: #5)
-  - [ ] 5.1 Create `apps/web/src/components/surveys/delivery-detail.tsx`
-  - [ ] 5.2 Show full metadata in JSON format
-  - [ ] 5.3 Show all timestamps (created, sent, delivered, responded)
-  - [ ] 5.4 Show error message if failed
+- [x] Task 5: Create Delivery Detail Panel (AC: #5)
+  - [x] 5.1 Create `apps/web/src/components/surveys/delivery-detail.tsx`
+  - [x] 5.2 Show full metadata in JSON format
+  - [x] 5.3 Show all timestamps (created, sent, delivered, responded)
+  - [x] 5.4 Show error message if failed
 
-- [ ] Task 6: Integrate with Survey Detail Page (AC: #1)
-  - [ ] 6.1 Add "Deliveries" tab to survey detail page
-  - [ ] 6.2 Load delivery list on tab selection
-  - [ ] 6.3 Add status filter dropdown
+- [x] Task 6: Integrate with Survey Detail Page (AC: #1)
+  - [x] 6.1 Add "Deliveries" tab to survey detail page
+  - [x] 6.2 Load delivery list on tab selection
+  - [x] 6.3 Add status filter dropdown
 
-- [ ] Task 7: Write Tests (AC: #1, #2, #3, #4)
-  - [ ] 7.1 Create `tests/integration/delivery-tracking.test.ts`
-  - [ ] 7.2 Test delivery list with pagination
-  - [ ] 7.3 Test status filtering
-  - [ ] 7.4 Test phone masking
-  - [ ] 7.5 Test multi-tenant isolation
+- [x] Task 7: Write Tests (AC: #1, #2, #3, #4)
+  - [x] 7.1 Create `tests/integration/delivery-tracking.test.ts`
+  - [x] 7.2 Test delivery list with pagination
+  - [x] 7.3 Test status filtering
+  - [x] 7.4 Test phone masking
+  - [x] 7.5 Test multi-tenant isolation
 
 ## Dev Notes
 
@@ -505,10 +505,67 @@ Files to create/modify:
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Sonnet 4 (Sisyphus)
 
 ### Debug Log References
 
+- All 10 integration tests pass
+- Type check passes with no errors
+
 ### Completion Notes List
 
+1. **Delivery Router**: Created full CRUD with pagination, status filtering, and org_id multi-tenancy enforcement using oRPC pattern consistent with existing routers
+2. **Phone Masking**: Utility correctly handles E.164 format, edge cases (short numbers, missing country codes), with 6 unit tests
+3. **UI Components**: DeliveryList with table, pagination, status filter; DeliveryStatusBadge with color-coded icons and error tooltips; DeliveryDetail panel with full metadata display
+4. **Survey Detail Integration**: Added Tabs component (shadcn) with "Setup" and "Deliveries" tabs; existing form moved to Setup tab
+5. **Hooks**: Created `use-deliveries.ts` with TanStack Query hooks following existing patterns
+6. **Tests**: 10 integration tests covering pagination, filtering, masking, and multi-tenant isolation
+
 ### File List
+
+**New Files:**
+- `packages/api/src/utils/phone-mask.ts` - Phone number masking utility
+- `packages/api/src/utils/phone-mask.test.ts` - Unit tests for phone masking
+- `packages/api/src/routers/delivery.ts` - Delivery list/detail router
+- `apps/web/src/hooks/use-deliveries.ts` - TanStack Query hooks for deliveries
+- `apps/web/src/components/surveys/delivery-list.tsx` - Delivery list table component
+- `apps/web/src/components/surveys/delivery-status-badge.tsx` - Status badge with icons
+- `apps/web/src/components/surveys/delivery-detail.tsx` - Delivery detail panel
+- `apps/web/src/components/ui/tabs.tsx` - shadcn tabs component (installed)
+- `tests/integration/delivery-tracking.test.ts` - Integration tests
+
+**Modified Files:**
+- `packages/api/src/routers/index.ts` - Added deliveryRouter export
+- `apps/web/src/routes/surveys.$surveyId.tsx` - Added Tabs with Setup/Deliveries
+- `packages/db/src/schema/flowpulse.ts` - Added retry_count/max_retries columns
+- `apps/web/src/components/ui/table.tsx` - shadcn table component (installed)
+- `apps/web/src/components/ui/tooltip.tsx` - Updated for status badge tooltips
+
+### Senior Developer Review (AI)
+
+**Reviewed by:** Sisyphus (Claude Sonnet 4)
+**Date:** 2025-12-30
+**Outcome:** APPROVED (after fixes applied)
+
+**Issues Found & Fixed:**
+
+| ID | Severity | Issue | Resolution |
+|----|----------|-------|------------|
+| H1 | HIGH | AC#2 retry count NOT IMPLEMENTED - missing DB column, router field, UI binding | Added `retry_count` and `max_retries` columns to schema, updated router to return fields, updated UI components to consume and display |
+| H2 | HIGH | 4 critical files UNTRACKED in git | All files now staged |
+| H3 | HIGH | `as any` type violation in delivery-list.tsx line 164 | Changed to `Record<string, unknown>` with proper type assertion |
+| M1 | MEDIUM | surveys.$surveyId.tsx not staged | Now staged |
+| M4 | MEDIUM | DeliveryDetail hardcoded retryCount={0} | Now uses `delivery.retryCount` from API |
+| L2 | LOW | Missing 'undeliverable' status in dropdown filter | Added to status filter dropdown |
+
+**Verification:**
+- ✅ Type check passes
+- ✅ 16/16 tests pass (10 integration + 6 unit)
+- ✅ All files properly staged
+- ✅ AC#2 now fully implemented with retry count display
+
+### Change Log
+
+| Date | Author | Change |
+|------|--------|--------|
+| 2025-12-30 | Sisyphus | Code review: Fixed AC#2 (retry count), type safety, git staging |

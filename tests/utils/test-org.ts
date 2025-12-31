@@ -90,11 +90,11 @@ export async function withOrgContext<T>(orgId: string, fn: () => Promise<T>): Pr
  * Call this in afterEach to ensure test isolation
  */
 export async function cleanupTestOrg(orgId: string): Promise<void> {
-  // Delete in order respecting foreign keys
   await db.execute(sql`DELETE FROM alert WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM survey_response WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM survey_delivery WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM survey WHERE org_id = ${orgId}`);
+  await db.execute(sql`DELETE FROM customer WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM webhook_job WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM whatsapp_connection WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM org_metrics WHERE org_id = ${orgId}`);

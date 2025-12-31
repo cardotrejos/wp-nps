@@ -11,6 +11,15 @@ export type KapsoEventType =
 
 export type WebhookEventType = KapsoEventType | `internal.${string}` | `shopify.${string}`;
 
+// Raw webhook payload - before processing by job handler
+export interface KapsoWebhookReceivedPayload {
+  phoneNumberId: string;
+  customerPhone: string;
+  messageId: string;
+  content: string;
+}
+
+// Processed response payload - after job handler parses the response
 export interface KapsoMessageReceivedPayload {
   deliveryId: string;
   phoneNumber: string;
@@ -36,6 +45,7 @@ export interface KapsoPhoneNumberCreatedPayload {
 }
 
 export type WebhookJobPayload =
+  | KapsoWebhookReceivedPayload
   | KapsoMessageReceivedPayload
   | KapsoMessageStatusPayload
   | KapsoPhoneNumberCreatedPayload

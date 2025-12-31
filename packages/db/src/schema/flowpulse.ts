@@ -46,7 +46,12 @@ export const whatsappConnection = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index("idx_whatsapp_connection_org_id").on(table.orgId)],
+  (table) => [
+    index("idx_whatsapp_connection_org_id").on(table.orgId),
+    index("idx_whatsapp_connection_phone_number_id").on(
+      sql`(${table.metadata}->>'phoneNumberId')`,
+    ),
+  ],
 );
 
 export const webhookJob = pgTable(
@@ -168,6 +173,28 @@ export const survey = pgTable(
 export type Survey = typeof survey.$inferSelect;
 export type NewSurvey = typeof survey.$inferInsert;
 
+// Customer table - tracks customers per organization (Story 3.7)
+export const customer = pgTable(
+  "customer",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: text("org_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    phoneNumberHash: text("phone_number_hash").notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    firstSeenAt: timestamp("first_seen_at", { withTimezone: true }).defaultNow().notNull(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("idx_customer_org_id").on(table.orgId),
+    uniqueIndex("uq_customer_org_phone").on(table.orgId, table.phoneNumberHash),
+  ],
+);
+
+export type Customer = typeof customer.$inferSelect;
+export type NewCustomer = typeof customer.$inferInsert;
+
 // Survey Response table - individual survey responses
 export const surveyResponse = pgTable(
   "survey_response",
@@ -179,20 +206,22 @@ export const surveyResponse = pgTable(
     surveyId: uuid("survey_id")
       .notNull()
       .references(() => survey.id, { onDelete: "cascade" }),
+    customerId: uuid("customer_id").references(() => customer.id), // Story 3.7: Link to customer record
     customerPhone: text("customer_phone").notNull(),
     score: integer("score"),
     feedback: text("feedback"),
-    category: text("category"),
-    deliveryId: text("delivery_id"),
+    category: text("category"), // 'promoter' | 'passive' | 'detractor'
+    deliveryId: text("delivery_id"), // Story 3.7: References surveyDelivery.id (kept as text for compatibility)
     isTest: boolean("is_test").notNull().default(false), // Story 2.5: Test responses excluded from analytics
     respondedAt: timestamp("responded_at"),
-    metadata: jsonb("metadata"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     index("idx_survey_response_org_id").on(table.orgId),
     index("idx_survey_response_survey_id").on(table.surveyId),
     index("idx_survey_response_category").on(table.category),
+    index("idx_survey_response_created").on(table.createdAt),
   ],
 );
 
@@ -265,6 +294,14 @@ export const surveyRelations = relations(survey, ({ one, many }) => ({
   responses: many(surveyResponse),
 }));
 
+export const customerRelations = relations(customer, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [customer.orgId],
+    references: [organization.id],
+  }),
+  responses: many(surveyResponse),
+}));
+
 export const surveyResponseRelations = relations(surveyResponse, ({ one, many }) => ({
   organization: one(organization, {
     fields: [surveyResponse.orgId],
@@ -273,6 +310,10 @@ export const surveyResponseRelations = relations(surveyResponse, ({ one, many })
   survey: one(survey, {
     fields: [surveyResponse.surveyId],
     references: [survey.id],
+  }),
+  customer: one(customer, {
+    fields: [surveyResponse.customerId],
+    references: [customer.id],
   }),
   alerts: many(alert),
 }));
@@ -303,6 +344,8 @@ export const surveyDelivery = pgTable(
     phoneNumberHash: text("phone_number_hash").notNull(),
     status: text("status").notNull().default("pending"),
     isTest: boolean("is_test").notNull().default(false),
+    retryCount: integer("retry_count").notNull().default(0),
+    maxRetries: integer("max_retries").notNull().default(2),
     metadata: jsonb("metadata").$type<Record<string, unknown>>(),
     kapsoDeliveryId: text("kapso_delivery_id"),
     errorMessage: text("error_message"),

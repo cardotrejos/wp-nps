@@ -11,6 +11,7 @@ import { env } from "@wp-nps/env/server";
 import { Elysia } from "elysia";
 import { startProcessor, isProcessorRunning } from "./jobs/processor";
 import { apiV1Router } from "./routes/api-v1";
+import { kapsoWebhookRouter } from "./webhooks/kapso";
 
 const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
@@ -42,6 +43,7 @@ const app = new Elysia()
     }),
   )
   .use(apiV1Router)
+  .use(kapsoWebhookRouter)
   .all("/api/auth/*", async (context) => {
     const { request, status } = context;
     // Handle CORS preflight requests
