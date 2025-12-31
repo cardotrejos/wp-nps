@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Outlet, useMatch } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
@@ -38,9 +38,15 @@ export const Route = createFileRoute("/onboarding")({
 function OnboardingComponent() {
   const { session } = Route.useRouteContext();
   const navigate = useNavigate();
+  const isExactMatch = useMatch({ from: "/onboarding", shouldThrow: false })?.id === "/onboarding";
+
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [initialized, setInitialized] = useState(false);
   const [isReturningUser, setIsReturningUser] = useState(false);
+
+  if (!isExactMatch) {
+    return <Outlet />;
+  }
 
   // Get onboarding state from server (Story 1.4)
   const {
