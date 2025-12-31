@@ -27,7 +27,7 @@ async function main() {
       .update(whatsappConnection)
       .set({
         status: "active",
-        phoneNumber: "+1 555 093 9822",
+        phoneNumber: "+56920403095",
         metadata: {
           phoneNumberId: "597907523413541",
           businessAccountId: "2102230076919824",

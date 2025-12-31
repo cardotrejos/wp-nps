@@ -254,42 +254,50 @@ export const whatsappRouter = {
 
   /**
    * Send test message to verify WhatsApp connection
-   * Sends a message to the connected phone number to verify it works
+   * Sends a message to verify the connection works
    *
    * Prerequisite: WhatsApp connection must be in "active" status
    */
-  sendTestMessage: protectedProcedure.handler(async ({ context }) => {
-    const orgId = context.session.session.activeOrganizationId;
-    if (!orgId) {
-      throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
-    }
+  sendTestMessage: protectedProcedure
+    .input(
+      z.object({
+        recipientPhone: z.string().optional(),
+      }).optional(),
+    )
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
+      }
 
-    // Get the connected WhatsApp - MUST filter by orgId
-    const connection = await db.query.whatsappConnection.findFirst({
-      where: and(eq(whatsappConnection.orgId, orgId), eq(whatsappConnection.status, "active")),
-    });
-
-    if (!connection?.phoneNumber) {
-      throw new ORPCError("PRECONDITION_FAILED", {
-        message: "WhatsApp not connected. Please connect WhatsApp first.",
+      // Get the connected WhatsApp - MUST filter by orgId
+      const connection = await db.query.whatsappConnection.findFirst({
+        where: and(eq(whatsappConnection.orgId, orgId), eq(whatsappConnection.status, "active")),
       });
-    }
 
-    // Extract phoneNumberId from connection metadata (set during confirmConnection)
-    // This is the WhatsApp/Meta phone number ID, NOT our internal org ID
-    const metadata = connection.metadata as { phoneNumberId?: string } | null;
-    const phoneNumberId = metadata?.phoneNumberId;
+      if (!connection?.phoneNumber) {
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: "WhatsApp not connected. Please connect WhatsApp first.",
+        });
+      }
 
-    if (!phoneNumberId) {
-      throw new ORPCError("PRECONDITION_FAILED", {
-        message: "WhatsApp configuration not found. Please reconnect WhatsApp.",
+      // Extract phoneNumberId from connection metadata (set during confirmConnection)
+      // This is the WhatsApp/Meta phone number ID, NOT our internal org ID
+      const metadata = connection.metadata as { phoneNumberId?: string } | null;
+      const phoneNumberId = metadata?.phoneNumberId;
+
+      if (!phoneNumberId) {
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: "WhatsApp configuration not found. Please reconnect WhatsApp.",
+        });
+      }
+
+      const recipientPhone = input?.recipientPhone ?? connection.phoneNumber;
+
+      const result = await getKapsoClient().sendTestMessage({
+        phoneNumber: recipientPhone,
+        orgId: phoneNumberId,
       });
-    }
-
-    const result = await getKapsoClient().sendTestMessage({
-      phoneNumber: connection.phoneNumber,
-      orgId: phoneNumberId,
-    });
 
     // Store delivery ID in metadata for tracking verification attempts
     const currentMetadata = (connection.metadata as Record<string, unknown>) ?? {};

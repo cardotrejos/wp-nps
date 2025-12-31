@@ -58,13 +58,13 @@ describe("Kapso Webhook Receiver", () => {
   });
 
   describe("Webhook Payload Parsing (AC #2)", () => {
-    const validPayload = {
+    const validSinglePayload = {
       phone_number_id: "test-phone-id-123",
       message: {
-        phone_number: "+5511999999999",
-        content: "9",
-        whatsapp_message_id: "msg-123",
+        id: "msg-123",
+        from: "+5511999999999",
         type: "text" as const,
+        text: { body: "9" },
         kapso: { direction: "inbound" as const, origin: "user" },
       },
       conversation: {
@@ -74,15 +74,21 @@ describe("Kapso Webhook Receiver", () => {
       },
     };
 
-    it("should parse valid webhook payload", () => {
-      const parsed = parseKapsoWebhook(validPayload);
+    const validBatchedPayload = {
+      type: "whatsapp.message.received",
+      batch: true as const,
+      data: [validSinglePayload],
+    };
 
-      expect(parsed.phoneNumberId).toBe("test-phone-id-123");
-      expect(parsed.customerPhone).toBe("+5511999999999");
-      expect(parsed.messageId).toBe("msg-123");
-      expect(parsed.content).toBe("9");
-      expect(parsed.direction).toBe("inbound");
-      expect(parsed.timestamp).toBeDefined();
+    it("should parse valid webhook payload", () => {
+      const parsed = parseKapsoWebhook(validSinglePayload);
+
+      expect(parsed[0]?.phoneNumberId).toBe("test-phone-id-123");
+      expect(parsed[0]?.customerPhone).toBe("+5511999999999");
+      expect(parsed[0]?.messageId).toBe("msg-123");
+      expect(parsed[0]?.content).toBe("9");
+      expect(parsed[0]?.direction).toBe("inbound");
+      expect(parsed[0]?.timestamp).toBeDefined();
     });
 
     it("should throw on missing required fields", () => {
@@ -91,13 +97,13 @@ describe("Kapso Webhook Receiver", () => {
       expect(() =>
         parseKapsoWebhook({
           phone_number_id: "x",
-          message: { phone_number: "+1" },
+          message: { from: "+1" },
         }),
       ).toThrow("missing message ID");
     });
 
     it("should validate payload structure", () => {
-      expect(isValidWebhookPayload(validPayload)).toBe(true);
+      expect(isValidWebhookPayload(validBatchedPayload)).toBe(true);
       expect(isValidWebhookPayload({})).toBe(false);
       expect(isValidWebhookPayload(null)).toBe(false);
       expect(isValidWebhookPayload({ phone_number_id: "x" })).toBe(false);

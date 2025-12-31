@@ -8,10 +8,10 @@ import { kapsoWebhookRouter } from "../../apps/server/_source/webhooks/kapso";
 const createTestPayload = (overrides: Record<string, unknown> = {}) => ({
   phone_number_id: "http-test-phone-id",
   message: {
-    phone_number: "+5511888888888",
-    content: "9 Great service!",
-    whatsapp_message_id: `msg-http-${Date.now()}`,
+    id: `msg-http-${Date.now()}`,
+    from: "+5511888888888",
     type: "text",
+    text: { body: "9 Great service!" },
     kapso: { direction: "inbound", origin: "user" },
   },
   conversation: {
@@ -65,19 +65,20 @@ describe("Kapso Webhook HTTP Endpoint", () => {
       );
 
       expect(response.status).toBe(202);
-      const data = await response.json();
-      expect(data.status).toBe("accepted");
-      expect(data.job_id).toBeDefined();
+      const data = (await response.json()) as { status: string; results: Array<{ status: string; jobId?: string }> };
+      expect(data.status).toBe("processed");
+      expect(data.results[0]?.status).toBe("accepted");
+      expect(data.results[0]?.jobId).toBeDefined();
     });
 
     it("should queue webhook job for async processing", async () => {
       const messageId = `msg-queue-test-${Date.now()}`;
       const payload = createTestPayload({
         message: {
-          phone_number: "+5511888888888",
-          content: "10",
-          whatsapp_message_id: messageId,
+          id: messageId,
+          from: "+5511888888888",
           type: "text",
+          text: { body: "10" },
           kapso: { direction: "inbound", origin: "user" },
         },
       });
@@ -124,10 +125,10 @@ describe("Kapso Webhook HTTP Endpoint", () => {
       const messageId = `msg-dup-http-${Date.now()}`;
       const payload = createTestPayload({
         message: {
-          phone_number: "+5511888888888",
-          content: "8",
-          whatsapp_message_id: messageId,
+          id: messageId,
+          from: "+5511888888888",
           type: "text",
+          text: { body: "8" },
           kapso: { direction: "inbound", origin: "user" },
         },
       });
@@ -155,19 +156,20 @@ describe("Kapso Webhook HTTP Endpoint", () => {
         }),
       );
 
-      expect(secondResponse.status).toBe(200);
-      const data = await secondResponse.json();
-      expect(data.status).toBe("duplicate");
+      expect(secondResponse.status).toBe(202);
+      const data = (await secondResponse.json()) as { status: string; results: Array<{ status: string }> };
+      expect(data.status).toBe("processed");
+      expect(data.results[0]?.status).toBe("duplicate");
     });
 
     it("should not create duplicate jobs", async () => {
       const messageId = `msg-no-dup-${Date.now()}`;
       const payload = createTestPayload({
         message: {
-          phone_number: "+5511888888888",
-          content: "7",
-          whatsapp_message_id: messageId,
+          id: messageId,
+          from: "+5511888888888",
           type: "text",
+          text: { body: "7" },
           kapso: { direction: "inbound", origin: "user" },
         },
       });
@@ -197,7 +199,7 @@ describe("Kapso Webhook HTTP Endpoint", () => {
   });
 
   describe("Edge Cases", () => {
-    it("should return 404 for unknown phone number ID", async () => {
+    it("should return 202 with unknown_phone status for unknown phone number ID", async () => {
       const payload = createTestPayload({
         phone_number_id: "unknown-phone-id",
       });
@@ -213,18 +215,19 @@ describe("Kapso Webhook HTTP Endpoint", () => {
         }),
       );
 
-      expect(response.status).toBe(404);
-      const data = await response.json();
-      expect(data.error).toBe("Unknown phone number");
+      expect(response.status).toBe(202);
+      const data = (await response.json()) as { status: string; results: Array<{ status: string }> };
+      expect(data.status).toBe("processed");
+      expect(data.results[0]?.status).toBe("unknown_phone");
     });
 
     it("should ignore outbound messages", async () => {
       const payload = createTestPayload({
         message: {
-          phone_number: "+5511888888888",
-          content: "Hello customer",
-          whatsapp_message_id: `msg-outbound-${Date.now()}`,
+          id: `msg-outbound-${Date.now()}`,
+          to: "+5511888888888",
           type: "text",
+          text: { body: "Hello customer" },
           kapso: { direction: "outbound", origin: "system" },
         },
       });
@@ -241,9 +244,9 @@ describe("Kapso Webhook HTTP Endpoint", () => {
       );
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = (await response.json()) as { status: string; reason: string };
       expect(data.status).toBe("ignored");
-      expect(data.reason).toBe("Not an inbound message");
+      expect(data.reason).toBe("No inbound messages");
     });
 
     it("should return 400 for invalid payload", async () => {
