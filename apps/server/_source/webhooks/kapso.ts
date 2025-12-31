@@ -26,17 +26,10 @@ export const kapsoWebhookRouter = new Elysia({ prefix: "/webhooks" }).post(
 
     let messages;
     try {
-      const payload = body as { data?: unknown };
-      secureLog.info("Webhook body debug", {
-        hasData: !!payload.data,
-        isArray: Array.isArray(payload.data),
-        dataLength: Array.isArray(payload.data) ? payload.data.length : "N/A",
-      });
       messages = parseKapsoWebhook(body);
     } catch (err) {
       secureLog.warn("Invalid webhook payload", {
         error: err instanceof Error ? err.message : "Unknown",
-        receivedPayload: JSON.stringify(body),
       });
       set.status = 400;
       return { error: "Invalid payload" };
