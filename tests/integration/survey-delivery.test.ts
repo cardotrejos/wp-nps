@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, webhookJob, survey, surveyDelivery, whatsappConnection } from "@wp-nps/db";
 import { KapsoMockClient } from "@wp-nps/kapso";
 import { setKapsoClient, resetKapsoClient } from "../../packages/api/src/lib/kapso";
-import { enqueueJob, acquireNextJob, completeJob, failJob } from "../../packages/api/src/services/job-queue";
+import { enqueueJob, acquireJobById, completeJob, failJob } from "../../packages/api/src/services/job-queue";
 import { surveySendHandler } from "../../apps/server/_source/jobs/handlers/survey-send";
 import { createTestOrg, cleanupTestOrg, clearOrgContext } from "../utils/test-org";
 import { formatSurveyMessage } from "../../packages/api/src/services/survey-message";
@@ -60,7 +60,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         })
         .returning();
 
-      await enqueueJob({
+      const jobId = await enqueueJob({
         orgId: testOrg.id,
         idempotencyKey: `survey-send:${delivery!.id}`,
         source: "internal",
@@ -72,7 +72,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         },
       });
 
-      const job = await acquireNextJob();
+      const job = await acquireJobById(jobId!);
       expect(job).toBeDefined();
 
       await surveySendHandler.handle(job!);
@@ -101,7 +101,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         })
         .returning();
 
-      await enqueueJob({
+      const jobId = await enqueueJob({
         orgId: testOrg.id,
         idempotencyKey: `survey-send:retry-${delivery!.id}`,
         source: "internal",
@@ -113,7 +113,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         },
       });
 
-      const job = await acquireNextJob();
+      const job = await acquireJobById(jobId!);
 
       try {
         await surveySendHandler.handle(job!);
@@ -151,7 +151,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         })
         .returning();
 
-      await enqueueJob({
+      const jobId = await enqueueJob({
         orgId: testOrg.id,
         idempotencyKey: `survey-send:undeliverable-${delivery!.id}`,
         source: "internal",
@@ -163,7 +163,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         },
       });
 
-      const job = await acquireNextJob();
+      const job = await acquireJobById(jobId!);
       await surveySendHandler.handle(job!);
       await completeJob(job!.id);
 
@@ -193,7 +193,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         })
         .returning();
 
-      await enqueueJob({
+      const jobId = await enqueueJob({
         orgId: testOrg.id,
         idempotencyKey: `survey-send:fallback-${delivery!.id}`,
         source: "internal",
@@ -205,10 +205,9 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         },
       });
 
-      const job = await acquireNextJob();
+      const job = await acquireJobById(jobId!);
       expect(job).toBeDefined();
 
-      // Process the job - handler should work without any fallback awareness
       await surveySendHandler.handle(job!);
       await completeJob(job!.id);
 
@@ -273,7 +272,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         })
         .returning();
 
-      await enqueueJob({
+      const jobId = await enqueueJob({
         orgId: testOrg.id,
         idempotencyKey: `survey-send:kapso-id-${delivery!.id}`,
         source: "internal",
@@ -285,7 +284,7 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         },
       });
 
-      const job = await acquireNextJob();
+      const job = await acquireJobById(jobId!);
       await surveySendHandler.handle(job!);
       await completeJob(job!.id);
 

@@ -16,6 +16,9 @@ async function applyRlsPolicies() {
     "survey",
     "survey_response",
     "alert",
+    "survey_delivery",
+    "customer",
+    "api_key",
   ];
 
   for (const table of tables) {

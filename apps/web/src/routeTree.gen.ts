@@ -16,6 +16,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SurveysNewRouteImport } from './routes/surveys.new'
 import { Route as SurveysSurveyIdRouteImport } from './routes/surveys.$surveyId'
+import { Route as SettingsApiDocsRouteImport } from './routes/settings.api-docs'
 import { Route as SettingsApiRouteImport } from './routes/settings.api'
 import { Route as OnboardingTemplateRouteImport } from './routes/onboarding.template'
 import { Route as OnboardingCompleteRouteImport } from './routes/onboarding.complete'
@@ -57,6 +58,11 @@ const SurveysSurveyIdRoute = SurveysSurveyIdRouteImport.update({
   path: '/$surveyId',
   getParentRoute: () => SurveysRoute,
 } as any)
+const SettingsApiDocsRoute = SettingsApiDocsRouteImport.update({
+  id: '/settings/api-docs',
+  path: '/settings/api-docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsApiRoute = SettingsApiRouteImport.update({
   id: '/settings/api',
   path: '/settings/api',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/complete': typeof OnboardingCompleteRoute
   '/onboarding/template': typeof OnboardingTemplateRoute
   '/settings/api': typeof SettingsApiRoute
+  '/settings/api-docs': typeof SettingsApiDocsRoute
   '/surveys/$surveyId': typeof SurveysSurveyIdRoute
   '/surveys/new': typeof SurveysNewRoute
   '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/onboarding/complete': typeof OnboardingCompleteRoute
   '/onboarding/template': typeof OnboardingTemplateRoute
   '/settings/api': typeof SettingsApiRoute
+  '/settings/api-docs': typeof SettingsApiDocsRoute
   '/surveys/$surveyId': typeof SurveysSurveyIdRoute
   '/surveys/new': typeof SurveysNewRoute
   '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/onboarding/complete': typeof OnboardingCompleteRoute
   '/onboarding/template': typeof OnboardingTemplateRoute
   '/settings/api': typeof SettingsApiRoute
+  '/settings/api-docs': typeof SettingsApiDocsRoute
   '/surveys/$surveyId': typeof SurveysSurveyIdRoute
   '/surveys/new': typeof SurveysNewRoute
   '/onboarding/whatsapp/failed': typeof OnboardingWhatsappFailedRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/onboarding/complete'
     | '/onboarding/template'
     | '/settings/api'
+    | '/settings/api-docs'
     | '/surveys/$surveyId'
     | '/surveys/new'
     | '/onboarding/whatsapp/failed'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/onboarding/complete'
     | '/onboarding/template'
     | '/settings/api'
+    | '/settings/api-docs'
     | '/surveys/$surveyId'
     | '/surveys/new'
     | '/onboarding/whatsapp/failed'
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/onboarding/complete'
     | '/onboarding/template'
     | '/settings/api'
+    | '/settings/api-docs'
     | '/surveys/$surveyId'
     | '/surveys/new'
     | '/onboarding/whatsapp/failed'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRouteWithChildren
   SurveysRoute: typeof SurveysRouteWithChildren
   SettingsApiRoute: typeof SettingsApiRoute
+  SettingsApiDocsRoute: typeof SettingsApiDocsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/surveys/$surveyId'
       preLoaderRoute: typeof SurveysSurveyIdRouteImport
       parentRoute: typeof SurveysRoute
+    }
+    '/settings/api-docs': {
+      id: '/settings/api-docs'
+      path: '/settings/api-docs'
+      fullPath: '/settings/api-docs'
+      preLoaderRoute: typeof SettingsApiDocsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/settings/api': {
       id: '/settings/api'
@@ -309,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRouteWithChildren,
   SurveysRoute: SurveysRouteWithChildren,
   SettingsApiRoute: SettingsApiRoute,
+  SettingsApiDocsRoute: SettingsApiDocsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

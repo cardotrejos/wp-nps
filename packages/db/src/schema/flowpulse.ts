@@ -11,7 +11,7 @@ import {
   uniqueIndex,
   decimal,
 } from "drizzle-orm/pg-core";
-import { organization } from "./auth";
+import { organization, user } from "./auth";
 import { surveyTemplate } from "./survey-template";
 
 /**
@@ -407,5 +407,40 @@ export const apiKeyRelations = relations(apiKey, ({ one }) => ({
   organization: one(organization, {
     fields: [apiKey.orgId],
     references: [organization.id],
+  }),
+}));
+
+// Onboarding Email Log table - tracks reminder emails sent (Story 3.9)
+// Used for deduplication to prevent spam
+export const onboardingEmailLog = pgTable(
+  "onboarding_email_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: text("org_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    emailType: text("email_type").notNull(), // 'reminder_24h' | 'reminder_48h' | 'reminder_72h'
+    sentAt: timestamp("sent_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("idx_onboarding_email_log_org").on(table.orgId),
+    index("idx_onboarding_email_log_lookup").on(table.orgId, table.emailType, table.sentAt),
+  ],
+);
+
+export type OnboardingEmailLog = typeof onboardingEmailLog.$inferSelect;
+export type NewOnboardingEmailLog = typeof onboardingEmailLog.$inferInsert;
+
+export const onboardingEmailLogRelations = relations(onboardingEmailLog, ({ one }) => ({
+  organization: one(organization, {
+    fields: [onboardingEmailLog.orgId],
+    references: [organization.id],
+  }),
+  user: one(user, {
+    fields: [onboardingEmailLog.userId],
+    references: [user.id],
   }),
 }));

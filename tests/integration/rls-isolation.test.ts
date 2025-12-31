@@ -25,8 +25,9 @@ describe("Multi-Tenant Isolation", () => {
 
   beforeEach(async () => {
     await clearOrgContext();
-    org1 = await createTestOrg("Org One");
-    org2 = await createTestOrg("Org Two");
+    const testId = crypto.randomUUID().slice(0, 8);
+    org1 = await createTestOrg(`RLS Test Org1 ${testId}`);
+    org2 = await createTestOrg(`RLS Test Org2 ${testId}`);
   });
 
   afterEach(async () => {
@@ -44,6 +45,9 @@ describe("Multi-Tenant Isolation", () => {
       "webhook_job",
       "org_metrics",
       "org_usage",
+      "survey_delivery",
+      "customer",
+      "api_key",
     ];
 
     it("should have RLS enabled on all FlowPulse tables", async () => {

@@ -13,6 +13,8 @@ export const env = createEnv({
     KAPSO_API_KEY: z.string().min(1).optional(),
     KAPSO_WEBHOOK_SECRET: z.string().min(1).optional(),
     KAPSO_BASE_URL: z.string().url().optional(),
+    RESEND_API_KEY: z.string().min(1).optional(),
+    APP_URL: z.string().url().default("http://localhost:3001"),
   },
   client: {},
   runtimeEnv: process.env,

@@ -17,8 +17,8 @@ export interface TestOrg {
  * Returns the org details for use in tests
  */
 export async function createTestOrg(name: string): Promise<TestOrg> {
-  const slug = name.toLowerCase().replace(/\s+/g, "-");
   const id = crypto.randomUUID();
+  const slug = name.toLowerCase().replace(/\s+/g, "-");
 
   await db.execute(sql`
     INSERT INTO organization (id, name, slug, created_at)
@@ -100,6 +100,7 @@ export async function cleanupTestOrg(orgId: string): Promise<void> {
   await db.execute(sql`DELETE FROM org_metrics WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM org_usage WHERE org_id = ${orgId}`);
   await db.execute(sql`DELETE FROM api_key WHERE org_id = ${orgId}`);
+  await db.execute(sql`DELETE FROM onboarding_email_log WHERE org_id = ${orgId}`);
 
   // Delete member and invitation records
   await db.execute(sql`DELETE FROM invitation WHERE organization_id = ${orgId}`);

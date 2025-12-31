@@ -135,7 +135,7 @@ function SurveyEditContent({ survey, isPending, error, surveyId }: SurveyEditCon
                   {(survey.triggerType ?? "api") === "api" ? (
                     <ApiEndpointDisplay surveyId={survey.id} />
                   ) : (
-                    <ManualSendButton surveyId={survey.id} isActive={survey.isActive} />
+                    <ManualSendButton surveyId={survey.id} surveyName={survey.name} isActive={survey.isActive} />
                   )}
                 </div>
               </div>

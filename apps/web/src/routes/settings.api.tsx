@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Copy, Eye, EyeOff, Key, RefreshCw, Trash2 } from "lucide-react";
+import { Book, Copy, Eye, EyeOff, Key, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
@@ -92,6 +92,29 @@ function RouteComponent() {
       <div className="container mx-auto max-w-2xl py-8 px-4">
         <h1 className="text-lg font-semibold mb-6">API Settings</h1>
 
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Book className="size-4" />
+              API Documentation
+            </CardTitle>
+            <CardDescription>
+              Learn how to integrate FlowPulse with your application
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              View endpoint details, request/response schemas, and try out API calls directly from your browser.
+            </p>
+            <Link to="/settings/api-docs" data-testid="view-docs-link">
+              <Button data-testid="view-docs-button">
+                <Book className="size-4 mr-2" />
+                View Documentation
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -104,7 +127,7 @@ function RouteComponent() {
           </CardHeader>
           <CardContent className="space-y-4">
             {newKey ? (
-              <div className="space-y-3">
+              <div className="space-y-3" data-testid="new-key-section">
                 <div className="p-3 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-sm">
                   <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
                     Copy this key now - it won&apos;t be shown again!
@@ -116,11 +139,13 @@ function RouteComponent() {
                     value={newKey}
                     readOnly
                     className="font-mono text-xs"
+                    data-testid="new-key-input"
                   />
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={() => setShowKey(!showKey)}
+                    data-testid="toggle-key-visibility"
                   >
                     {showKey ? (
                       <EyeOff className="size-4" />
@@ -128,15 +153,21 @@ function RouteComponent() {
                       <Eye className="size-4" />
                     )}
                   </Button>
-                  <Button variant="outline" size="icon" onClick={copyToClipboard}>
+                  <Button variant="outline" size="icon" onClick={copyToClipboard} data-testid="copy-key-button">
                     <Copy className="size-4" />
                   </Button>
                 </div>
+                <Link to="/settings/api-docs" search={{ token: newKey }} data-testid="try-in-docs-link">
+                  <Button variant="outline" size="sm" className="w-full" data-testid="try-in-docs-button">
+                    <Book className="size-4 mr-2" />
+                    Try in API Docs
+                  </Button>
+                </Link>
               </div>
             ) : currentKey ? (
-              <div className="space-y-2">
+              <div className="space-y-2" data-testid="current-key-section">
                 <p className="text-xs text-muted-foreground">Current key:</p>
-                <code className="text-xs bg-muted px-2 py-1 rounded-sm">
+                <code className="text-xs bg-muted px-2 py-1 rounded-sm" data-testid="current-key-prefix">
                   fp_{currentKey.prefix}...
                 </code>
                 <p className="text-xs text-muted-foreground">
@@ -149,14 +180,14 @@ function RouteComponent() {
                 )}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground" data-testid="no-key-message">
                 No API key generated yet
               </p>
             )}
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-2" data-testid="api-key-actions">
               <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
-                <DialogTrigger render={<Button />}>
+                <DialogTrigger render={<Button data-testid="generate-key-button" />}>
                   <RefreshCw className="size-4 mr-1.5" />
                   {currentKey ? "Regenerate Key" : "Generate Key"}
                 </DialogTrigger>

@@ -13,6 +13,8 @@ import { surveyTemplate } from "@wp-nps/db/schema/survey-template";
 
 import { protectedProcedure } from "../index";
 import { getKapsoClient } from "../lib/kapso";
+import { queueSurveySend, SurveySendError } from "../services/survey-send";
+import { maskPhoneNumber } from "../utils/phone-mask";
 
 /**
  * Survey Router (Story 2.1, 2.2, 2.7)
@@ -479,9 +481,68 @@ export const surveyRouter = {
       });
 
       return {
-        success: true,
-        deliveryId: result.deliveryId,
-        status: result.status,
-      };
+      success: true,
+      deliveryId: result.deliveryId,
+      status: result.status,
+    };
+  }),
+
+  /**
+   * Send a survey manually to a phone number (Story 3.10)
+   *
+   * CRITICAL: Multi-tenancy enforced via orgId filter
+   * - Validates survey belongs to org and is active
+   * - Validates phone format (E.164)
+   * - Creates delivery record and queues for sending
+   */
+  sendManual: protectedProcedure
+    .input(
+      z.object({
+        surveyId: z.string(),
+        phone: z.string(),
+        metadata: z
+          .object({
+            order_id: z.string().optional(),
+            customer_name: z.string().optional(),
+          })
+          .optional(),
+      }),
+    )
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", {
+          message: "No active organization",
+        });
+      }
+
+      try {
+        const deliveryId = await queueSurveySend({
+          orgId,
+          surveyId: input.surveyId,
+          phoneNumber: input.phone,
+          metadata: input.metadata as Record<string, unknown> | undefined,
+          isTest: false,
+        });
+
+        return {
+          deliveryId,
+          phone: maskPhoneNumber(input.phone),
+          status: "queued",
+        };
+      } catch (error) {
+        if (error instanceof SurveySendError) {
+          const errorCodeMap: Record<string, "NOT_FOUND" | "BAD_REQUEST"> = {
+            SURVEY_NOT_FOUND: "NOT_FOUND",
+            SURVEY_INACTIVE: "BAD_REQUEST",
+            INVALID_PHONE: "BAD_REQUEST",
+            QUEUE_FAILED: "BAD_REQUEST",
+          };
+          throw new ORPCError(errorCodeMap[error.code] ?? "BAD_REQUEST", {
+            message: error.message,
+          });
+        }
+        throw error;
+      }
     }),
 };

@@ -65,7 +65,33 @@ export async function acquireNextJob(): Promise<AcquiredJob | null> {
       updated_at as "updatedAt"
   `);
 
-  const row = result.rows[0] as AcquiredJob | undefined;
+  const row = result.rows[0] as unknown as AcquiredJob | undefined;
+  return row ?? null;
+}
+
+export async function acquireJobById(jobId: string): Promise<AcquiredJob | null> {
+  const result = await db.execute(sql`
+    UPDATE webhook_job
+    SET status = 'processing', updated_at = NOW()
+    WHERE id = ${jobId} AND status = 'pending'
+    RETURNING 
+      id,
+      org_id as "orgId",
+      idempotency_key as "idempotencyKey",
+      source,
+      event_type as "eventType",
+      payload,
+      status,
+      attempts,
+      max_attempts as "maxAttempts",
+      next_retry_at as "nextRetryAt",
+      processed_at as "processedAt",
+      error_message as "errorMessage",
+      created_at as "createdAt",
+      updated_at as "updatedAt"
+  `);
+
+  const row = result.rows[0] as unknown as AcquiredJob | undefined;
   return row ?? null;
 }
 
