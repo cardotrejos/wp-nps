@@ -24,10 +24,9 @@ export interface KapsoMessageData {
     direction: "inbound" | "outbound";
     origin?: string;
     content?: string;
-    // Flow response fields (added by Kapso for nfm_reply messages)
-    flow_response?: KapsoFlowResponse;
-    flow_token?: string;
-    flow_name?: string;
+    message_type_data?: {
+      type: string;
+    };
   };
 }
 
@@ -75,9 +74,26 @@ export interface ParsedSurveyResponse {
 function isFlowResponse(message: KapsoMessageData): boolean {
   return (
     message.type === "interactive" &&
-    message.interactive?.type === "nfm_reply" &&
-    message.kapso?.flow_response !== undefined
+    (message.interactive?.type === "nfm_reply" ||
+      message.kapso?.message_type_data?.type === "nfm_reply")
   );
+}
+
+function parseFlowResponseContent(message: KapsoMessageData): KapsoFlowResponse | null {
+  const jsonString =
+    message.interactive?.nfm_reply?.response_json ?? message.kapso?.content;
+
+  if (!jsonString) return null;
+
+  try {
+    const parsed = JSON.parse(jsonString);
+    if (typeof parsed === "object" && parsed !== null) {
+      return parsed as KapsoFlowResponse;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function parseWebhookItem(item: KapsoWebhookItem): ParsedWebhook {
@@ -87,10 +103,9 @@ function parseWebhookItem(item: KapsoWebhookItem): ParsedWebhook {
 
   const message = item.message;
   const isFlow = isFlowResponse(message);
+  const flowResponse = isFlow ? parseFlowResponseContent(message) : null;
 
-  const content = isFlow
-    ? JSON.stringify(message.kapso?.flow_response)
-    : (message.kapso?.content ?? message.text?.body ?? "");
+  const content = message.kapso?.content ?? message.text?.body ?? "";
 
   const baseResult = {
     phoneNumberId: item.phone_number_id,
@@ -101,11 +116,11 @@ function parseWebhookItem(item: KapsoWebhookItem): ParsedWebhook {
     timestamp: message.timestamp ?? new Date().toISOString(),
   };
 
-  if (isFlow && message.kapso?.flow_response) {
+  if (isFlow && flowResponse) {
     return {
       ...baseResult,
       messageType: "flow_response" as const,
-      flowResponse: message.kapso.flow_response,
+      flowResponse,
     };
   }
 
