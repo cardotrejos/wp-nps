@@ -261,8 +261,8 @@ export const whatsappRouter = {
   sendTestMessage: protectedProcedure
     .input(
       z.object({
-        recipientPhone: z.string().optional(),
-      }).optional(),
+        recipientPhone: z.string(),
+      }),
     )
     .handler(async ({ context, input }) => {
       const orgId = context.session.session.activeOrganizationId;
@@ -270,19 +270,16 @@ export const whatsappRouter = {
         throw new ORPCError("UNAUTHORIZED", { message: "No active organization" });
       }
 
-      // Get the connected WhatsApp - MUST filter by orgId
       const connection = await db.query.whatsappConnection.findFirst({
         where: and(eq(whatsappConnection.orgId, orgId), eq(whatsappConnection.status, "active")),
       });
 
-      if (!connection?.phoneNumber) {
+      if (!connection) {
         throw new ORPCError("PRECONDITION_FAILED", {
           message: "WhatsApp not connected. Please connect WhatsApp first.",
         });
       }
 
-      // Extract phoneNumberId from connection metadata (set during confirmConnection)
-      // This is the WhatsApp/Meta phone number ID, NOT our internal org ID
       const metadata = connection.metadata as { phoneNumberId?: string } | null;
       const phoneNumberId = metadata?.phoneNumberId;
 
@@ -292,10 +289,8 @@ export const whatsappRouter = {
         });
       }
 
-      const recipientPhone = input?.recipientPhone ?? connection.phoneNumber;
-
       const result = await getKapsoClient().sendTestMessage({
-        phoneNumber: recipientPhone,
+        phoneNumber: input.recipientPhone,
         orgId: phoneNumberId,
       });
 
