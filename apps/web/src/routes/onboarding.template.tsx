@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { useTemplates } from "@/hooks/use-templates";
+import { useCreateSurvey } from "@/hooks/use-surveys";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
 import { TemplateGallery } from "@/components/onboarding/template-gallery";
 import { Button } from "@/components/ui/button";
@@ -42,8 +43,8 @@ function TemplateSelectionPage() {
     completeStep,
   } = useOnboarding();
 
-  // Fetch templates using reusable hook
   const { data: templates, isPending: templatesLoading } = useTemplates();
+  const createSurvey = useCreateSurvey();
 
   // Auto-select default template (NPS)
   useEffect(() => {
@@ -83,9 +84,11 @@ function TemplateSelectionPage() {
     setIsSubmitting(true);
 
     try {
-      // Mark step 3 as complete with selected template
+      const newSurvey = await createSurvey.mutateAsync({ templateId: selectedTemplateId });
+
       await completeStep(ONBOARDING_STEPS.TEMPLATE_SELECTED, {
         selectedTemplateId,
+        surveyId: newSurvey.id,
       });
 
       toast.success("Template selected! Your setup is complete.");
