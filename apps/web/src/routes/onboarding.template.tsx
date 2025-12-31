@@ -13,17 +13,13 @@ import Loader from "@/components/loader";
 export const Route = createFileRoute("/onboarding/template")({
   component: TemplateSelectionPage,
   beforeLoad: async () => {
-    console.log("Template beforeLoad: fetching session...");
     const session = await authClient.getSession();
-    console.log("Template beforeLoad: session result", !!session.data);
     if (!session.data) {
-      console.log("Template beforeLoad: no session, redirecting to login");
       redirect({
         to: "/login",
         throw: true,
       });
     }
-    console.log("Template beforeLoad: success, returning session");
     return { session: session.data };
   },
 });
@@ -35,7 +31,6 @@ export const Route = createFileRoute("/onboarding/template")({
  * Guards against skipping previous steps.
  */
 function TemplateSelectionPage() {
-  console.log("TemplateSelectionPage: component rendering");
   const navigate = useNavigate();
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
@@ -67,18 +62,14 @@ function TemplateSelectionPage() {
     }
   }, [stateLoading, isComplete, navigate]);
 
-  // Guard: Redirect if step 2 (WhatsApp) is not complete
-  // TODO: Re-enable after debugging
   useEffect(() => {
-    console.log("Template guard check:", { stateLoading, completedSteps: onboardingState?.completedSteps });
-    // Temporarily disabled to debug navigation
-    // if (stateLoading) return;
-    // const completedSteps = onboardingState?.completedSteps ?? [];
-    // const hasCompletedWhatsApp = completedSteps.includes(ONBOARDING_STEPS.WHATSAPP_CONNECTED);
-    // if (!hasCompletedWhatsApp) {
-    //   toast.info("Please complete WhatsApp verification first");
-    //   navigate({ to: "/onboarding" });
-    // }
+    if (stateLoading) return;
+    const completedSteps = onboardingState?.completedSteps ?? [];
+    const hasCompletedWhatsApp = completedSteps.includes(ONBOARDING_STEPS.WHATSAPP_CONNECTED);
+    if (!hasCompletedWhatsApp) {
+      toast.info("Please complete WhatsApp verification first");
+      navigate({ to: "/onboarding" });
+    }
   }, [stateLoading, onboardingState, navigate]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);

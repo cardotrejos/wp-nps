@@ -132,7 +132,6 @@ function OnboardingComponent() {
   };
 
   const handleContinue = () => {
-    console.log("handleContinue called, navigating to /onboarding/template");
     navigate({ to: "/onboarding/template" });
   };
 
