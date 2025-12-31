@@ -553,8 +553,8 @@ export const surveyRouter = {
         phone: z.string(),
         flowId: z.string(),
         surveyId: z.string().uuid().optional(),
-        flowCta: z.string().default("Start Survey"),
-        bodyText: z.string().default("Please complete this quick survey"),
+        flowCta: z.string().optional().transform((v) => v || "Start Survey"),
+        bodyText: z.string().optional().transform((v) => v || "Please complete this quick survey"),
       }),
     )
     .handler(async ({ context, input }) => {
