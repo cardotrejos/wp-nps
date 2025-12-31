@@ -64,12 +64,16 @@ function TemplateSelectionPage() {
 
   // Guard: Redirect if step 2 (WhatsApp) is not complete
   useEffect(() => {
+    console.log("Template guard check:", { stateLoading, completedSteps: onboardingState?.completedSteps });
     if (stateLoading) return;
 
     const completedSteps = onboardingState?.completedSteps ?? [];
     const hasCompletedWhatsApp = completedSteps.includes(ONBOARDING_STEPS.WHATSAPP_CONNECTED);
 
+    console.log("hasCompletedWhatsApp:", hasCompletedWhatsApp, "step value:", ONBOARDING_STEPS.WHATSAPP_CONNECTED);
+
     if (!hasCompletedWhatsApp) {
+      console.log("Guard failed, redirecting back to /onboarding");
       toast.info("Please complete WhatsApp verification first");
       navigate({ to: "/onboarding" });
     }

@@ -126,7 +126,7 @@ function OnboardingComponent() {
   };
 
   const handleContinue = () => {
-    // Navigate to template selection step (Story 1.5)
+    console.log("handleContinue called, navigating to /onboarding/template");
     navigate({ to: "/onboarding/template" });
   };
 
