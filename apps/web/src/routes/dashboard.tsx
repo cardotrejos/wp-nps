@@ -33,13 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Dialog,
   DialogContent,
@@ -81,7 +75,7 @@ function RouteComponent() {
   const stats = [
     {
       title: "Total Surveys Sent",
-      value: statsLoading ? "..." : statsData?.totalSent.toLocaleString() ?? "0",
+      value: statsLoading ? "..." : (statsData?.totalSent ?? 0).toLocaleString(),
       change: null,
       trend: "up" as const,
       icon: Send,
@@ -95,7 +89,7 @@ function RouteComponent() {
     },
     {
       title: "NPS Score",
-      value: statsLoading ? "..." : statsData?.npsScore?.toString() ?? "—",
+      value: statsLoading ? "..." : (statsData?.npsScore?.toString() ?? "—"),
       change: null,
       trend: "up" as const,
       icon: TrendingUp,
@@ -103,7 +97,7 @@ function RouteComponent() {
     },
     {
       title: "Active Contacts",
-      value: statsLoading ? "..." : statsData?.activeContacts.toLocaleString() ?? "0",
+      value: statsLoading ? "..." : (statsData?.activeContacts ?? 0).toLocaleString(),
       change: null,
       trend: "up" as const,
       icon: Users,
@@ -236,22 +230,14 @@ function RouteComponent() {
                           {response.timeAgo}
                         </TableCell>
                         <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              className={cn(
-                                buttonVariants({ variant: "ghost", size: "icon" }),
-                                "opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8",
-                              )}
-                            >
-                              <span className="sr-only">Open menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>View details</DropdownMenuItem>
-                              <DropdownMenuItem>Archive response</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+                          >
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))

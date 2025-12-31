@@ -618,7 +618,7 @@ export const surveyRouter = {
           phoneNumber: input.phone,
           phoneNumberHash: hashPhoneNumber(input.phone),
           status: result.status,
-          isTest: true,
+          isTest: false,
           kapsoDeliveryId: result.deliveryId,
           metadata: { flowId: input.flowId, flowCta: input.flowCta },
         })
