@@ -6,13 +6,13 @@ auto_execution_mode: 2
 <task id="_bmad/core/tasks/advanced-elicitation.xml" name="Advanced Elicitation" standalone="true"
   methods="{project-root}/_bmad/core/tasks/advanced-elicitation-methods.csv"
   agent-party="{project-root}/_bmad/_config/agent-manifest.csv">
-<llm critical="true">
-<i>MANDATORY: Execute ALL steps in the flow section IN EXACT ORDER</i>
-<i>DO NOT skip steps or change the sequence</i>
-<i>HALT immediately when halt-conditions are met</i>
-<i>Each action xml tag within step xml tag is a REQUIRED action to complete that step</i>
-<i>Sections outside flow (validation, output, critical-context) provide essential context - review and apply throughout execution</i>
-</llm>
+  <llm critical="true">
+    <i>MANDATORY: Execute ALL steps in the flow section IN EXACT ORDER</i>
+    <i>DO NOT skip steps or change the sequence</i>
+    <i>HALT immediately when halt-conditions are met</i>
+    <i>Each action xml tag within step xml tag is a REQUIRED action to complete that step</i>
+    <i>Sections outside flow (validation, output, critical-context) provide essential context - review and apply throughout execution</i>
+  </llm>
 
   <integration description="When called from workflow">
     <desc>When called during template workflow processing:</desc>
@@ -117,6 +117,5 @@ auto_execution_mode: 2
       <i> 2. Show the improvements made</i>
       <i> 3. Return to the prompt for additional elicitations or completion</i>
     </step>
-
   </flow>
 </task>
