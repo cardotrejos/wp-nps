@@ -1,6 +1,7 @@
 export interface KapsoMessageData {
   id: string;
-  from: string;
+  from?: string;
+  to?: string;
   type: "text" | "interactive";
   text?: { body: string };
   kapso?: {
