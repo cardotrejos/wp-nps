@@ -59,6 +59,7 @@ So that **I can understand how to integrate with FlowPulse**.
 **This story implements FR65 (view API docs in dashboard), NFR-I5 (meaningful error codes), NFR-I6 (auto-generated docs).**
 
 From architecture.md:
+
 - oRPC with @orpc/openapi already configured
 - OpenAPIReferencePlugin with ZodToJsonSchemaConverter in use
 - RESTful conventions with JSON payloads (NFR-I4)
@@ -66,10 +67,12 @@ From architecture.md:
 ### Previous Story Context
 
 Story 3-2 established:
+
 - API key generation and authentication
 - Bearer token format: `Authorization: Bearer fp_xxx...`
 
 Story 3-3 established:
+
 - Survey send endpoint: POST `/api/v1/surveys/{id}/send`
 - Request/response schemas defined with Zod
 
@@ -195,7 +198,7 @@ function ApiDocsPage() {
             preferredSecurityScheme: 'bearerAuth',
           },
           customCss: `
-            .scalar-app { 
+            .scalar-app {
               --scalar-background-1: hsl(var(--background));
               --scalar-color-1: hsl(var(--foreground));
             }
@@ -228,28 +231,28 @@ export const API_ERROR_CODES = {
     httpStatus: 400,
     description: 'Request body failed validation. Check required fields.',
   },
-  
+
   // 401 Unauthorized
   UNAUTHORIZED: {
     code: 'UNAUTHORIZED',
     httpStatus: 401,
     description: 'API key is missing, invalid, or revoked.',
   },
-  
+
   // 403 Forbidden
   ORG_LIMIT_EXCEEDED: {
     code: 'ORG_LIMIT_EXCEEDED',
     httpStatus: 403,
     description: 'Monthly survey limit reached. Upgrade your plan.',
   },
-  
+
   // 404 Not Found
   SURVEY_NOT_FOUND: {
     code: 'SURVEY_NOT_FOUND',
     httpStatus: 404,
     description: 'Survey ID does not exist or belongs to another organization.',
   },
-  
+
   // 429 Too Many Requests
   RATE_LIMITED: {
     code: 'RATE_LIMITED',
@@ -261,7 +264,7 @@ export const API_ERROR_CODES = {
       'Retry-After': 'Seconds to wait before retrying',
     },
   },
-  
+
   // 500 Internal Server Error
   INTERNAL_ERROR: {
     code: 'INTERNAL_ERROR',
@@ -286,10 +289,10 @@ export const CURL_EXAMPLES = {
       "customer_name": "Carlos"
     }
   }'`,
-  
+
   listDeliveries: `curl 'https://api.flowpulse.io/api/v1/surveys/srv_abc123/deliveries?status=delivered&limit=20' \\
   -H 'Authorization: Bearer fp_your_api_key'`,
-  
+
   getDeliveryStatus: `curl 'https://api.flowpulse.io/api/v1/deliveries/del_xyz789' \\
   -H 'Authorization: Bearer fp_your_api_key'`,
 };
@@ -307,45 +310,45 @@ describe('API Documentation', () => {
     const response = await app.handle(
       new Request('http://localhost/api/openapi.json')
     );
-    
+
     expect(response.status).toBe(200);
     const spec = await response.json();
-    
+
     expect(spec.openapi).toBe('3.1.0');
     expect(spec.info.title).toBe('FlowPulse API');
     expect(spec.paths).toBeDefined();
   });
-  
+
   it('includes survey send endpoint in spec', async () => {
     const response = await app.handle(
       new Request('http://localhost/api/openapi.json')
     );
     const spec = await response.json();
-    
+
     const path = spec.paths['/v1/surveys/{surveyId}/send'];
     expect(path).toBeDefined();
     expect(path.post).toBeDefined();
     expect(path.post.summary).toContain('Send Survey');
   });
-  
+
   it('includes error schemas', async () => {
     const response = await app.handle(
       new Request('http://localhost/api/openapi.json')
     );
     const spec = await response.json();
-    
+
     const sendPath = spec.paths['/v1/surveys/{surveyId}/send'].post;
     expect(sendPath.responses['400']).toBeDefined();
     expect(sendPath.responses['401']).toBeDefined();
     expect(sendPath.responses['429']).toBeDefined();
   });
-  
+
   it('includes security scheme', async () => {
     const response = await app.handle(
       new Request('http://localhost/api/openapi.json')
     );
     const spec = await response.json();
-    
+
     expect(spec.components.securitySchemes.bearerAuth).toBeDefined();
     expect(spec.components.securitySchemes.bearerAuth.type).toBe('http');
     expect(spec.components.securitySchemes.bearerAuth.scheme).toBe('bearer');
@@ -355,11 +358,11 @@ describe('API Documentation', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| NFR-I4 | RESTful conventions with JSON | oRPC with OpenAPI spec |
-| NFR-I5 | Meaningful error codes | Error schemas with descriptions |
-| NFR-I6 | Auto-generated docs from code | @orpc/openapi with Scalar UI |
+| NFR    | Requirement                   | Implementation                  |
+| ------ | ----------------------------- | ------------------------------- |
+| NFR-I4 | RESTful conventions with JSON | oRPC with OpenAPI spec          |
+| NFR-I5 | Meaningful error codes        | Error schemas with descriptions |
+| NFR-I6 | Auto-generated docs from code | @orpc/openapi with Scalar UI    |
 
 ### Dependencies to Install
 
@@ -373,6 +376,7 @@ bun add swagger-ui-react  # Alternative - classic Swagger UI
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/api/src/routers/survey.ts` - ADD route metadata, descriptions, error schemas
 - `packages/api/src/docs/error-codes.ts` - NEW
 - `packages/api/src/docs/examples.ts` - NEW
@@ -409,21 +413,24 @@ N/A
 ### File List
 
 **Created:**
+
 - `apps/web/src/routes/settings.api-docs.tsx` - API Documentation page with Scalar UI
 - `tests/integration/api-docs.test.ts` - Integration tests for API documentation (12 tests)
 
 **Modified:**
+
 - `apps/server/_source/index.ts` - Added @elysiajs/swagger plugin with OpenAPI configuration
 - `apps/server/_source/routes/api-v1.ts` - Added OpenAPI metadata (summary, description, tags, security, examples) to all endpoints
 - `apps/web/src/routes/settings.api.tsx` - Added "API Documentation" card linking to docs page
 
 **Packages Installed:**
+
 - `@elysiajs/swagger@1.3.1` in `apps/server/`
 - `@scalar/api-reference-react@0.8.15` in `apps/web/`
 
 ## Change Log
 
-| Date | Change | Reason |
-|------|--------|--------|
-| 2025-12-30 | Initial implementation complete | Story 3-8 API Documentation |
-| 2025-12-30 | Code review fixes applied | H1: AC4 - Added API key input field with Scalar authentication integration; M1: Removed `any` type in test file using proper TypeScript typing; M2: Added data-testid attributes for E2E testing to both API settings pages |
+| Date       | Change                          | Reason                                                                                                                                                                                                                      |
+| ---------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2025-12-30 | Initial implementation complete | Story 3-8 API Documentation                                                                                                                                                                                                 |
+| 2025-12-30 | Code review fixes applied       | H1: AC4 - Added API key input field with Scalar authentication integration; M1: Removed `any` type in test file using proper TypeScript typing; M2: Added data-testid attributes for E2E testing to both API settings pages |

@@ -133,19 +133,16 @@ export function calculateNextRetry(attempts: number): Date {
   return new Date(Date.now() + delayMs);
 }
 
-export async function getJobsByOrgId(
-  orgId: string,
-  status?: string
-): Promise<AcquiredJob[]> {
+export async function getJobsByOrgId(orgId: string, status?: string): Promise<AcquiredJob[]> {
   const baseQuery = eq(webhookJob.orgId, orgId);
-  
+
   if (status) {
     const jobs = await db.query.webhookJob.findMany({
       where: (table, { and, eq: eqOp }) => and(baseQuery, eqOp(table.status, status)),
     });
     return jobs as AcquiredJob[];
   }
-  
+
   const jobs = await db.query.webhookJob.findMany({
     where: baseQuery,
   });

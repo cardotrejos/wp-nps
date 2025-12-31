@@ -34,9 +34,7 @@ function isValidE164Phone(phone: string): boolean {
   return E164_REGEX.test(phone);
 }
 
-export async function queueSurveySend(
-  params: QueueSurveySendParams,
-): Promise<string> {
+export async function queueSurveySend(params: QueueSurveySendParams): Promise<string> {
   const { orgId, surveyId, phoneNumber, metadata, isTest = false } = params;
 
   if (!isValidE164Phone(phoneNumber)) {

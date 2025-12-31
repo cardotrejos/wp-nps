@@ -4,6 +4,7 @@ import type {
   IKapsoClient,
   KapsoCustomer,
   KapsoErrorCode,
+  SendFlowParams,
   SendSurveyParams,
   SendTestParams,
   SetupLinkConfig,
@@ -56,7 +57,8 @@ export class KapsoMockClient implements IKapsoClient {
 
   private failureSequence: number[] = [];
   private sequenceCallCount = 0;
-  private permanentFailure: { enabled: boolean; message: string; code: KapsoErrorCode } | null = null;
+  private permanentFailure: { enabled: boolean; message: string; code: KapsoErrorCode } | null =
+    null;
 
   constructor() {
     this.defaultResponse = {
@@ -140,7 +142,10 @@ export class KapsoMockClient implements IKapsoClient {
     this.sequenceCallCount = 0;
   }
 
-  mockPermanentFailure(errorCode: KapsoErrorCode = "invalid_phone", message = "Permanent failure"): void {
+  mockPermanentFailure(
+    errorCode: KapsoErrorCode = "invalid_phone",
+    message = "Permanent failure",
+  ): void {
     this.permanentFailure = { enabled: true, message, code: errorCode };
   }
 
@@ -269,8 +274,6 @@ export class KapsoMockClient implements IKapsoClient {
       throw mockResponse.error;
     }
 
-    // Always use the generated deliveryId and "sent" status for test messages
-    // This differs from survey sends which use "queued"
     return {
       deliveryId,
       status: "sent",
@@ -278,9 +281,34 @@ export class KapsoMockClient implements IKapsoClient {
     };
   }
 
-  /**
-   * Configure test message success response
-   */
+  async sendFlow(params: SendFlowParams): Promise<SurveyDeliveryResult> {
+    const deliveryId = `mock-flow-${++this.deliveryCounter}`;
+
+    this.callHistory.push({
+      params: {
+        ...params,
+        surveyId: params.flowId,
+        message: `Flow: ${params.flowCta}`,
+      },
+      timestamp: new Date(),
+      deliveryId,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    const mockResponse = this.responses.get(deliveryId) ?? this.defaultResponse;
+
+    if (mockResponse.type === "failure" && mockResponse.error) {
+      throw mockResponse.error;
+    }
+
+    return {
+      deliveryId,
+      status: "queued",
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   mockTestMessageSuccess(deliveryId: string): void {
     this.testMessageResponses.set(deliveryId, {
       type: "success",

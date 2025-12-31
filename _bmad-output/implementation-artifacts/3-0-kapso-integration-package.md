@@ -75,6 +75,7 @@ So that **all Kapso API calls go through a consistent, testable interface**.
   - [x] 8.2 Run existing tests to ensure no regressions
 
 ### Review Follow-ups (AI)
+
 - [ ] [AI-Review][MEDIUM] Add MSW-based contract tests for KapsoClient Platform API calls (createSetupLink, getSetupLinkStatus) [packages/kapso/src/client.test.ts]
 
 ## Dev Notes
@@ -86,11 +87,13 @@ So that **all Kapso API calls go through a consistent, testable interface**.
 ### Current State
 
 The package `packages/kapso/` already has:
+
 - `IKapsoClient` interface with all methods defined
 - `KapsoMockClient` fully implemented
 - Types for all Kapso operations (surveys, setup links, webhooks)
 
 What's missing:
+
 - Real `KapsoClient` implementation
 - Kapso SDK integration
 - Webhook signature verification with real HMAC
@@ -98,6 +101,7 @@ What's missing:
 ### Kapso API Research (VERIFIED)
 
 **Authentication:**
+
 ```typescript
 // API Key header for all requests
 headers: { 'X-API-Key': process.env.KAPSO_API_KEY }
@@ -112,6 +116,7 @@ const client = new WhatsAppClient({
 ```
 
 **Webhook Signature Verification:**
+
 ```typescript
 import { verifySignature } from '@kapso/whatsapp-cloud-api/server';
 
@@ -124,6 +129,7 @@ const isValid = verifySignature({
 ```
 
 **Webhook Event Types:**
+
 - `whatsapp.message.received` - Customer response (NPS score)
 - `whatsapp.message.sent` - Message sent confirmation
 - `whatsapp.message.delivered` - Delivery confirmation
@@ -131,6 +137,7 @@ const isValid = verifySignature({
 - `whatsapp.phone_number.created` - Setup link completed
 
 **Webhook Payload v2 Structure:**
+
 ```typescript
 interface KapsoWebhookPayload {
   phone_number_id: string;
@@ -153,6 +160,7 @@ interface KapsoWebhookPayload {
 ```
 
 **Setup Links API:**
+
 ```typescript
 // POST https://api.kapso.ai/platform/v1/customers/{customerId}/setup_links
 const response = await fetch(
@@ -405,6 +413,7 @@ describe('createKapsoClient factory', () => {
 ### Multi-Tenancy Considerations
 
 The `phoneNumberId` from Kapso maps to each organization's connected WhatsApp:
+
 - Store `phoneNumberId` in `whatsapp_connection` table
 - Use org's `phoneNumberId` when sending messages
 - Webhook routing uses `phone_number_id` to identify which org
@@ -412,12 +421,14 @@ The `phoneNumberId` from Kapso maps to each organization's connected WhatsApp:
 ### Existing Code References
 
 Current package structure:
+
 - `packages/kapso/src/index.ts` - Package entry point
 - `packages/kapso/src/types.ts` - All type definitions
 - `packages/kapso/src/mock.ts` - Complete mock implementation
 - `packages/kapso/src/mock.test.ts` - Mock client tests
 
 Current usage in server:
+
 - `apps/server/src/lib/kapso.ts` - Kapso client instantiation
 
 ### Definition of Done
@@ -432,8 +443,8 @@ Current usage in server:
 
 ## Change Log
 
-| Date | Change | Author |
-|------|--------|--------|
-| 2025-12-29 | Story created with Kapso API research | SM Agent |
-| 2025-12-29 | Story completed - all tasks implemented and 49 tests passing | Dev |
+| Date       | Change                                                                                                                                     | Author    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| 2025-12-29 | Story created with Kapso API research                                                                                                      | SM Agent  |
+| 2025-12-29 | Story completed - all tasks implemented and 49 tests passing                                                                               | Dev       |
 | 2025-12-29 | Code review: Fixed H1 (env validation), H2 (zod parsing), M1 (KAPSO_BASE_URL), M5 (URL constants). Added 1 action item for contract tests. | AI Review |

@@ -15,6 +15,7 @@ import { protectedProcedure } from "../index";
 import { getKapsoClient } from "../lib/kapso";
 import { queueSurveySend, SurveySendError } from "../services/survey-send";
 import { maskPhoneNumber } from "../utils/phone-mask";
+import { hashPhoneNumber } from "../utils/hash";
 
 /**
  * Survey Router (Story 2.1, 2.2, 2.7)
@@ -481,11 +482,11 @@ export const surveyRouter = {
       });
 
       return {
-      success: true,
-      deliveryId: result.deliveryId,
-      status: result.status,
-    };
-  }),
+        success: true,
+        deliveryId: result.deliveryId,
+        status: result.status,
+      };
+    }),
 
   /**
    * Send a survey manually to a phone number (Story 3.10)
@@ -544,5 +545,91 @@ export const surveyRouter = {
         }
         throw error;
       }
+    }),
+
+  sendFlowDirect: protectedProcedure
+    .input(
+      z.object({
+        phone: z.string(),
+        flowId: z.string(),
+        surveyId: z.string().uuid().optional(),
+        flowCta: z.string().default("Start Survey"),
+        bodyText: z.string().default("Please complete this quick survey"),
+      }),
+    )
+    .handler(async ({ context, input }) => {
+      const orgId = context.session.session.activeOrganizationId;
+      if (!orgId) {
+        throw new ORPCError("UNAUTHORIZED", {
+          message: "No active organization",
+        });
+      }
+
+      const connection = await db.query.whatsappConnection.findFirst({
+        where: and(eq(whatsappConnection.orgId, orgId), eq(whatsappConnection.status, "active")),
+      });
+
+      if (!connection) {
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: "WhatsApp not connected. Please connect WhatsApp first.",
+        });
+      }
+
+      const metadata = connection.metadata as { phoneNumberId?: string } | null;
+      const phoneNumberId = metadata?.phoneNumberId;
+
+      if (!phoneNumberId) {
+        throw new ORPCError("PRECONDITION_FAILED", {
+          message: "WhatsApp configuration not found. Please reconnect WhatsApp.",
+        });
+      }
+
+      let surveyIdToUse = input.surveyId;
+      if (!surveyIdToUse) {
+        const existingSurvey = await db.query.survey.findFirst({
+          where: eq(survey.orgId, orgId),
+          orderBy: [desc(survey.createdAt)],
+        });
+        
+        if (!existingSurvey) {
+          throw new ORPCError("PRECONDITION_FAILED", {
+            message: "No survey found. Create a survey first or provide a surveyId.",
+          });
+        }
+        surveyIdToUse = existingSurvey.id;
+      }
+
+      const kapsoClient = getKapsoClient();
+
+      const result = await kapsoClient.sendFlow({
+        phoneNumber: input.phone,
+        orgId: phoneNumberId,
+        flowId: input.flowId,
+        flowCta: input.flowCta,
+        bodyText: input.bodyText,
+        flowAction: "navigate",
+      });
+
+      const [delivery] = await db
+        .insert(surveyDelivery)
+        .values({
+          orgId,
+          surveyId: surveyIdToUse,
+          phoneNumber: input.phone,
+          phoneNumberHash: hashPhoneNumber(input.phone),
+          status: result.status,
+          isTest: true,
+          kapsoDeliveryId: result.deliveryId,
+          metadata: { flowId: input.flowId, flowCta: input.flowCta },
+        })
+        .returning({ id: surveyDelivery.id });
+
+      return {
+        success: true,
+        deliveryId: result.deliveryId,
+        dbDeliveryId: delivery?.id,
+        status: result.status,
+        phone: maskPhoneNumber(input.phone),
+      };
     }),
 };

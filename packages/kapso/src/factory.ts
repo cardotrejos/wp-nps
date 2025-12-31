@@ -27,9 +27,7 @@ export function createKapsoClient(config: KapsoFactoryConfig = {}): IKapsoClient
   }
 
   if (!config.apiKey || !config.webhookSecret) {
-    throw new Error(
-      "KAPSO_API_KEY and KAPSO_WEBHOOK_SECRET are required in production mode",
-    );
+    throw new Error("KAPSO_API_KEY and KAPSO_WEBHOOK_SECRET are required in production mode");
   }
 
   return new KapsoClient({

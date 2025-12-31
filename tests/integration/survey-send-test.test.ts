@@ -71,7 +71,12 @@ describe("Survey Send Test", () => {
           type: "nps",
           status: "draft",
           questions: [
-            { id: "q1", text: "How likely are you to recommend us?", type: "rating", required: true },
+            {
+              id: "q1",
+              text: "How likely are you to recommend us?",
+              type: "rating",
+              required: true,
+            },
           ],
         })
         .returning();
@@ -81,10 +86,7 @@ describe("Survey Send Test", () => {
       // Simulate calling sendTest (test at DB level since we don't have full API context)
       // In production, this would be through the oRPC procedure
       const connection = await db.query.whatsappConnection.findFirst({
-        where: and(
-          eq(whatsappConnection.orgId, org.id),
-          eq(whatsappConnection.status, "active"),
-        ),
+        where: and(eq(whatsappConnection.orgId, org.id), eq(whatsappConnection.status, "active")),
       });
 
       expect(connection).toBeDefined();
@@ -204,10 +206,7 @@ describe("Survey Send Test", () => {
 
       // Verify delivery record
       const deliveries = await db.query.surveyDelivery.findMany({
-        where: and(
-          eq(surveyDelivery.surveyId, testSurvey!.id),
-          eq(surveyDelivery.isTest, true),
-        ),
+        where: and(eq(surveyDelivery.surveyId, testSurvey!.id), eq(surveyDelivery.isTest, true)),
       });
 
       expect(deliveries).toHaveLength(1);
@@ -238,9 +237,7 @@ describe("Survey Send Test", () => {
 
       // Check for connection (as the API does)
       const connection = await db.query.whatsappConnection.findFirst({
-        where: and(
-          eq(whatsappConnection.orgId, org.id),
-        ),
+        where: and(eq(whatsappConnection.orgId, org.id)),
       });
 
       // Should not find any connection
@@ -305,10 +302,7 @@ describe("Survey Send Test", () => {
       });
 
       const connection = await db.query.whatsappConnection.findFirst({
-        where: and(
-          eq(whatsappConnection.orgId, org.id),
-          eq(whatsappConnection.status, "active"),
-        ),
+        where: and(eq(whatsappConnection.orgId, org.id), eq(whatsappConnection.status, "active")),
       });
 
       expect(connection).toBeDefined();
@@ -366,10 +360,7 @@ describe("Survey Send Test", () => {
 
       // org2 tries to find a connection - should not find org1's
       const org2Connection = await db.query.whatsappConnection.findFirst({
-        where: and(
-          eq(whatsappConnection.orgId, org2.id),
-          eq(whatsappConnection.status, "active"),
-        ),
+        where: and(eq(whatsappConnection.orgId, org2.id), eq(whatsappConnection.status, "active")),
       });
 
       expect(org2Connection).toBeUndefined();

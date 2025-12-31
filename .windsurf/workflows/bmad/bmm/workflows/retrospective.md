@@ -32,21 +32,21 @@ required_inputs:
 
 # Strategy: SELECTIVE LOAD - only load the completed epic and relevant retrospectives
 
-input_file_patterns:
+input*file_patterns:
 epics:
 description: "The completed epic for retrospective"
-whole: "{output_folder}/_epic_.md"
-sharded_index: "{output_folder}/_epic_/index.md"
-sharded_single: "{output_folder}/_epic_/epic-{{epic_num}}.md"
-load_strategy: "SELECTIVE_LOAD"
+whole: "{output_folder}/\_epic*.md"
+sharded*index: "{output_folder}/\_epic*/index.md"
+sharded*single: "{output_folder}/\_epic*/epic-{{epic_num}}.md"
+load*strategy: "SELECTIVE_LOAD"
 previous_retrospective:
 description: "Previous epic's retrospective (optional)"
-pattern: "{implementation_artifacts}/\*_/epic-{{prev_epic_num}}-retro-_.md"
+pattern: "{implementation_artifacts}/\**/epic-{{prev_epic_num}}-retro-_.md"
 load_strategy: "SELECTIVE_LOAD"
 architecture:
 description: "System architecture for context"
-whole: "{output_folder}/_architecture_.md"
-sharded: "{output_folder}/_architecture_/*.md"
+whole: "{output_folder}/\_architecture_.md"
+sharded: "{output*folder}/\_architecture*/*.md"
 load_strategy: "FULL_LOAD"
 prd:
 description: "Product requirements for context"

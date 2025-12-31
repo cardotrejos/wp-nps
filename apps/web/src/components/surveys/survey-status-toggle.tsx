@@ -21,11 +21,7 @@ interface SurveyStatusToggleProps {
   hasQuestions: boolean;
 }
 
-export function SurveyStatusToggle({
-  surveyId,
-  status,
-  hasQuestions,
-}: SurveyStatusToggleProps) {
+export function SurveyStatusToggle({ surveyId, status, hasQuestions }: SurveyStatusToggleProps) {
   const activateMutation = useActivateSurvey();
   const deactivateMutation = useDeactivateSurvey();
 

@@ -35,7 +35,11 @@ function HomeComponent() {
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
-          <Button variant="ghost" size="lg" className="h-12 px-8 text-base font-medium rounded-full">
+          <Button
+            variant="ghost"
+            size="lg"
+            className="h-12 px-8 text-base font-medium rounded-full"
+          >
             View Live Demo
           </Button>
         </div>

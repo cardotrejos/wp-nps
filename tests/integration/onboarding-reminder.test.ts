@@ -20,8 +20,14 @@ describe("Onboarding Reminder Emails", () => {
   });
 
   afterEach(async () => {
-    await db.delete(webhookJob).where(eq(webhookJob.orgId, testOrg.id)).catch(() => {});
-    await db.delete(onboardingEmailLog).where(eq(onboardingEmailLog.orgId, testOrg.id)).catch(() => {});
+    await db
+      .delete(webhookJob)
+      .where(eq(webhookJob.orgId, testOrg.id))
+      .catch(() => {});
+    await db
+      .delete(onboardingEmailLog)
+      .where(eq(onboardingEmailLog.orgId, testOrg.id))
+      .catch(() => {});
     await cleanupTestOrg(testOrg.id).catch(() => {});
     await clearOrgContext();
   });

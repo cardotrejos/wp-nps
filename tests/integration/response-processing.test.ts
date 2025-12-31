@@ -212,7 +212,7 @@ describe("Response Processing", () => {
           score: 8,
           feedback: null,
           messageId: "msg-7",
-        })
+        }),
       ).rejects.toThrow("No matching delivery found for response");
     });
 

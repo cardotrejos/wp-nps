@@ -30,7 +30,7 @@ export const rateLimitMiddleware = new Elysia({ name: "rate-limit" })
 
     set.headers["X-RateLimit-Limit"] = String(rateLimitInfo.limit);
     set.headers["X-RateLimit-Remaining"] = String(
-      rateLimitInfo.allowed ? rateLimitInfo.remaining - 1 : 0
+      rateLimitInfo.allowed ? rateLimitInfo.remaining - 1 : 0,
     );
     set.headers["X-RateLimit-Reset"] = String(Math.ceil(rateLimitInfo.resetAt / 1000));
 

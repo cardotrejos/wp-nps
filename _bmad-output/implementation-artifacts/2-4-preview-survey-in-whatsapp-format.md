@@ -122,22 +122,22 @@ export function SurveyPreview({ survey, className }: SurveyPreviewProps) {
         </div>
 
         {/* Chat Area */}
-        <div 
+        <div
           className="h-[calc(100%-3.5rem)] overflow-y-auto p-3 space-y-3"
           style={{ backgroundColor: '#ece5dd' }} // WhatsApp beige (UX3)
         >
           {questions.map((question, index) => (
             <div key={question.id} className="space-y-2">
               <WhatsAppMessage text={question.text} />
-              
+
               {question.type === 'rating' && question.scale && (
-                <NPSRatingButtons 
+                <NPSRatingButtons
                   min={question.scale.min}
                   max={question.scale.max}
                   labels={question.scale.labels}
                 />
               )}
-              
+
               {question.type === 'text' && (
                 <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
                   <span className="text-gray-400 text-sm">Type your response...</span>
@@ -165,10 +165,10 @@ interface WhatsAppMessageProps {
 }
 
 export function WhatsAppMessage({ text, className }: WhatsAppMessageProps) {
-  const timestamp = new Date().toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
+  const timestamp = new Date().toLocaleTimeString('en-US', {
+    hour: 'numeric',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   });
 
   return (
@@ -176,10 +176,10 @@ export function WhatsAppMessage({ text, className }: WhatsAppMessageProps) {
       <div className="relative max-w-[85%] bg-white rounded-lg rounded-tl-none shadow-sm p-3 pb-5">
         {/* Message tail */}
         <div className="absolute -left-2 top-0 w-0 h-0 border-t-[8px] border-t-white border-l-[8px] border-l-transparent" />
-        
+
         {/* Message content */}
         <p className="text-sm text-gray-800 whitespace-pre-wrap">{text}</p>
-        
+
         {/* Timestamp and checkmarks */}
         <div className="absolute bottom-1 right-2 flex items-center gap-1">
           <span className="text-[10px] text-gray-500">{timestamp}</span>
@@ -235,7 +235,7 @@ export function NPSRatingButtons({ min, max, labels, className }: NPSRatingButto
           </button>
         ))}
       </div>
-      
+
       {/* Labels */}
       {labels && (
         <div className="flex justify-between text-xs text-gray-500 px-1">
@@ -264,7 +264,7 @@ const [showPreview, setShowPreview] = useState(true);
 return (
   <div className="container mx-auto py-6">
     <SurveyHeader survey={survey} />
-    
+
     {/* Mobile: Preview Toggle Button */}
     <div className="lg:hidden mb-4">
       <Button
@@ -285,7 +285,7 @@ return (
         )}
       </Button>
     </div>
-    
+
     {/* Desktop: Side-by-side layout */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Edit Panel */}
@@ -295,7 +295,7 @@ return (
           questions={survey.questions}
         />
       </div>
-      
+
       {/* Preview Panel */}
       <div className={cn(
         'lg:sticky lg:top-6 lg:self-start',
@@ -572,20 +572,22 @@ Claude Sonnet 4 (Anthropic)
 ### File List
 
 **New Files:**
+
 - apps/web/src/components/surveys/survey-preview.tsx (imports type from @wp-nps/db)
 - apps/web/src/components/surveys/whatsapp-message.tsx
 - apps/web/src/components/surveys/nps-rating-buttons.tsx
-- apps/web/src/components/surveys/__tests__/survey-preview.test.tsx
-- apps/web/src/components/surveys/__tests__/whatsapp-message.test.tsx
-- apps/web/src/components/surveys/__tests__/nps-rating-buttons.test.tsx
+- apps/web/src/components/surveys/**tests**/survey-preview.test.tsx
+- apps/web/src/components/surveys/**tests**/whatsapp-message.test.tsx
+- apps/web/src/components/surveys/**tests**/nps-rating-buttons.test.tsx
 - apps/web/src/test-setup.ts
 - apps/web/vitest.config.ts
 
 **Modified Files:**
+
 - apps/web/src/routes/surveys.$surveyId.tsx (added preview panel integration)
 - apps/web/package.json (added test dependencies and scripts)
 - vitest.config.ts (excluded web app from root tests, handled separately)
 
 **Cross-Package Dependencies:**
-- survey-preview.tsx imports `type { Survey, SurveyQuestion }` from `@wp-nps/db/schema/flowpulse` (type-only, tree-shaken)
 
+- survey-preview.tsx imports `type { Survey, SurveyQuestion }` from `@wp-nps/db/schema/flowpulse` (type-only, tree-shaken)

@@ -4,6 +4,7 @@ import type {
   CreateCustomerParams,
   IKapsoClient,
   KapsoCustomer,
+  SendFlowParams,
   SendSurveyParams,
   SendTestParams,
   SetupLinkConfig,
@@ -172,10 +173,7 @@ export class KapsoClient implements IKapsoClient {
         .digest("hex");
 
       // Use timing-safe comparison to prevent timing attacks
-      return timingSafeEqual(
-        Buffer.from(signature),
-        Buffer.from(expectedSignature),
-      );
+      return timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
     } catch {
       return false;
     }
@@ -198,10 +196,16 @@ export class KapsoClient implements IKapsoClient {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new KapsoError("unknown_error", `Failed to create customer: ${response.status} ${text}`, true);
+      throw new KapsoError(
+        "unknown_error",
+        `Failed to create customer: ${response.status} ${text}`,
+        true,
+      );
     }
 
-    const json = (await response.json()) as { data: { id: string; name: string; external_customer_id: string } };
+    const json = (await response.json()) as {
+      data: { id: string; name: string; external_customer_id: string };
+    };
     return {
       id: json.data.id,
       name: json.data.name,
@@ -223,7 +227,11 @@ export class KapsoClient implements IKapsoClient {
     if (!response.ok) {
       if (response.status === 404) return null;
       const text = await response.text();
-      throw new KapsoError("unknown_error", `Failed to get customer: ${response.status} ${text}`, true);
+      throw new KapsoError(
+        "unknown_error",
+        `Failed to get customer: ${response.status} ${text}`,
+        true,
+      );
     }
 
     type CustomerData = { id: string; name: string; external_customer_id: string };
@@ -328,5 +336,45 @@ export class KapsoClient implements IKapsoClient {
     }
 
     return parsed.data;
+  }
+
+  async sendFlow(params: SendFlowParams): Promise<SurveyDeliveryResult> {
+    try {
+      const response = await this.whatsappClient.messages.sendInteractiveFlow({
+        phoneNumberId: params.orgId,
+        to: params.phoneNumber,
+        bodyText: params.bodyText,
+        parameters: {
+          flowId: params.flowId,
+          flowCta: params.flowCta,
+          flowAction: params.flowAction,
+          flowActionPayload: params.initialScreen
+            ? {
+                screen: params.initialScreen,
+                data: params.initialData ?? {},
+              }
+            : undefined,
+        },
+      });
+
+      const messageId = response.messages[0]?.id;
+      if (!messageId) {
+        throw new KapsoError("message_failed", "No message ID returned from Kapso");
+      }
+
+      return {
+        deliveryId: messageId,
+        status: "queued",
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      if (error instanceof KapsoError) {
+        throw error;
+      }
+      throw new KapsoError(
+        "message_failed",
+        error instanceof Error ? error.message : "Unknown error sending flow",
+      );
+    }
   }
 }

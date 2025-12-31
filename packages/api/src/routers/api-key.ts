@@ -1,11 +1,7 @@
 import { ORPCError } from "@orpc/server";
 
 import { protectedProcedure } from "../index";
-import {
-  generateApiKey,
-  getCurrentApiKey,
-  revokeApiKey,
-} from "../services/api-key";
+import { generateApiKey, getCurrentApiKey, revokeApiKey } from "../services/api-key";
 
 export const apiKeyRouter = {
   generate: protectedProcedure.handler(async ({ context }) => {

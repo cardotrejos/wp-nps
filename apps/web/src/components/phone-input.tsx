@@ -53,13 +53,7 @@ function parseE164(value: string): { countryCode: string; localNumber: string } 
   return { countryCode: "+55", localNumber: value.replace(/^\+/, "") };
 }
 
-export function PhoneInput({
-  value,
-  onChange,
-  error,
-  disabled,
-  className,
-}: PhoneInputProps) {
+export function PhoneInput({ value, onChange, error, disabled, className }: PhoneInputProps) {
   const parsed = parseE164(value);
   const [countryCode, setCountryCode] = React.useState(parsed.countryCode);
   const [localNumber, setLocalNumber] = React.useState(parsed.localNumber);

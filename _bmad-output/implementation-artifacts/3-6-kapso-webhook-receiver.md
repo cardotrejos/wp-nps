@@ -69,6 +69,7 @@ So that **customer feedback is captured in real-time**.
 **This story implements FR25, FR26, NFR-I2, NFR-S9.**
 
 From architecture.md Decision 3 (Webhook Handling):
+
 - Webhooks queued in `webhook_jobs` table
 - Idempotency key from Kapso payload
 - Immediate 202 response, async processing
@@ -77,10 +78,12 @@ From architecture.md Decision 3 (Webhook Handling):
 ### Previous Story Context
 
 Story 3-0 established:
+
 - `kapsoClient.verifyWebhook()` method
 - `KapsoMockClient` with `mockValidSignature()` and `mockInvalidSignature()`
 
 Story 3-1 established:
+
 - `webhook_jobs` table with idempotency
 - `enqueueJob()` function
 - Job processor with handler registry
@@ -130,7 +133,7 @@ export interface ParsedSurveyResponse {
 
 export function parseKapsoWebhook(payload: unknown): ParsedWebhook {
   const p = payload as KapsoWebhookPayload;
-  
+
   return {
     phoneNumberId: p.phone_number_id,
     customerPhone: p.message.phone_number,
@@ -145,10 +148,10 @@ export function parseSurveyResponse(content: string, surveyType: 'nps' | 'csat' 
   // Extract numeric score from message
   const numberMatch = content.match(/\b(\d{1,2})\b/);
   let score: number | null = null;
-  
+
   if (numberMatch) {
     const num = parseInt(numberMatch[1], 10);
-    
+
     switch (surveyType) {
       case 'nps':
         if (num >= 0 && num <= 10) score = num;
@@ -161,12 +164,12 @@ export function parseSurveyResponse(content: string, surveyType: 'nps' | 'csat' 
         break;
     }
   }
-  
+
   // Extract feedback (text after the number)
   const feedback = score !== null
     ? content.replace(/\b\d{1,2}\b/, '').trim() || null
     : content.trim() || null;
-  
+
   return { score, feedback };
 }
 ```
@@ -187,14 +190,14 @@ import { secureLog } from '@wp-nps/api/utils/secure-logger';
 export const kapsoWebhookRouter = new Elysia({ prefix: '/webhooks' })
   .post('/kapso', async ({ request, body, set }) => {
     const kapso = createKapsoClient();
-    
+
     // Get signature from header
     const signature = request.headers.get('x-webhook-signature');
     if (!signature) {
       set.status = 401;
       return { error: 'Missing signature' };
     }
-    
+
     // Verify signature
     const rawBody = JSON.stringify(body);
     if (!kapso.verifyWebhook(signature, rawBody)) {
@@ -202,29 +205,29 @@ export const kapsoWebhookRouter = new Elysia({ prefix: '/webhooks' })
       set.status = 401;
       return { error: 'Invalid signature' };
     }
-    
+
     // Parse webhook
     const parsed = parseKapsoWebhook(body);
-    
+
     // Only process inbound messages (customer responses)
     if (parsed.direction !== 'inbound') {
       return { status: 'ignored', reason: 'Not an inbound message' };
     }
-    
+
     // Find org by phone_number_id
     const connection = await db.query.whatsappConnection.findFirst({
       where: eq(whatsappConnection.phoneNumberId, parsed.phoneNumberId),
     });
-    
+
     if (!connection) {
       secureLog.warn('Webhook received for unknown phone_number_id', { phoneNumberId: parsed.phoneNumberId });
       set.status = 404;
       return { error: 'Unknown phone number' };
     }
-    
+
     // Idempotency key
     const idempotencyKey = `kapso:${parsed.messageId}`;
-    
+
     // Queue for processing
     const jobId = await enqueueJob({
       orgId: connection.orgId,
@@ -238,15 +241,15 @@ export const kapsoWebhookRouter = new Elysia({ prefix: '/webhooks' })
         content: parsed.content,
       },
     });
-    
+
     if (jobId === null) {
       // Idempotent - duplicate webhook
       secureLog.info('Duplicate webhook ignored', { messageId: parsed.messageId });
       return { status: 'duplicate' };
     }
-    
+
     secureLog.info('Webhook queued for processing', { jobId, messageId: parsed.messageId });
-    
+
     set.status = 202;
     return { status: 'accepted', job_id: jobId };
   });
@@ -270,11 +273,11 @@ function redactPII(obj: unknown): unknown {
     }
     return result;
   }
-  
+
   if (Array.isArray(obj)) {
     return obj.map(redactPII);
   }
-  
+
   if (obj && typeof obj === 'object') {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
@@ -287,7 +290,7 @@ function redactPII(obj: unknown): unknown {
     }
     return result;
   }
-  
+
   return obj;
 }
 
@@ -322,7 +325,7 @@ describe('Kapso Webhook Receiver', () => {
     testOrg = await createTestOrg();
     kapsoMock = new KapsoMockClient();
     kapsoMock.reset();
-    
+
     // Create WhatsApp connection
     await db.insert(whatsappConnection).values({
       orgId: testOrg.id,
@@ -333,7 +336,7 @@ describe('Kapso Webhook Receiver', () => {
 
   it('accepts webhook with valid signature', async () => {
     kapsoMock.mockValidSignature('valid-sig');
-    
+
     const response = await fetch('http://localhost:3000/webhooks/kapso', {
       method: 'POST',
       headers: {
@@ -352,7 +355,7 @@ describe('Kapso Webhook Receiver', () => {
         conversation: { id: 'conv-1', phone_number: '+5511999999999', phone_number_id: 'test-phone-id' },
       }),
     });
-    
+
     expect(response.status).toBe(202);
     const data = await response.json();
     expect(data.status).toBe('accepted');
@@ -360,7 +363,7 @@ describe('Kapso Webhook Receiver', () => {
 
   it('rejects webhook with invalid signature', async () => {
     kapsoMock.mockInvalidSignature('bad-sig');
-    
+
     const response = await fetch('http://localhost:3000/webhooks/kapso', {
       method: 'POST',
       headers: {
@@ -369,13 +372,13 @@ describe('Kapso Webhook Receiver', () => {
       },
       body: JSON.stringify({}),
     });
-    
+
     expect(response.status).toBe(401);
   });
 
   it('handles duplicate webhooks idempotently', async () => {
     kapsoMock.setDefaultWebhookVerification(true);
-    
+
     const payload = {
       phone_number_id: 'test-phone-id',
       message: {
@@ -387,7 +390,7 @@ describe('Kapso Webhook Receiver', () => {
       },
       conversation: { id: 'conv-1', phone_number: '+5511999999999', phone_number_id: 'test-phone-id' },
     };
-    
+
     // First request
     const response1 = await fetch('http://localhost:3000/webhooks/kapso', {
       method: 'POST',
@@ -395,7 +398,7 @@ describe('Kapso Webhook Receiver', () => {
       body: JSON.stringify(payload),
     });
     expect(response1.status).toBe(202);
-    
+
     // Duplicate request
     const response2 = await fetch('http://localhost:3000/webhooks/kapso', {
       method: 'POST',
@@ -411,14 +414,15 @@ describe('Kapso Webhook Receiver', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
+| NFR    | Requirement             | Implementation                    |
+| ------ | ----------------------- | --------------------------------- |
 | NFR-I2 | Webhook processing < 5s | Immediate queue, async processing |
-| NFR-S9 | Exclude PII from logs | Secure logger with redaction |
+| NFR-S9 | Exclude PII from logs   | Secure logger with redaction      |
 
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/kapso/src/webhook-parser.ts` - NEW
 - `packages/kapso/src/index.ts` - EXPORT webhook parser
 - `packages/api/src/utils/secure-logger.ts` - NEW
@@ -459,22 +463,22 @@ N/A
 
 ### File List
 
-| File | Status |
-|------|--------|
-| `packages/kapso/src/webhook-parser.ts` | NEW |
-| `packages/kapso/src/index.ts` | MODIFIED - Added webhook parser exports |
-| `packages/api/src/utils/secure-logger.ts` | NEW |
-| `packages/api/package.json` | MODIFIED - Added utils/* and middleware/* exports |
-| `apps/server/_source/webhooks/kapso.ts` | NEW |
-| `apps/server/_source/index.ts` | MODIFIED - Mounted kapsoWebhookRouter |
-| `tests/integration/kapso-webhook.test.ts` | NEW |
-| `tests/integration/kapso-webhook-http.test.ts` | NEW (code-review) - HTTP endpoint integration tests |
-| `packages/db/src/types/job-queue.ts` | MODIFIED (code-review) - Added KapsoWebhookReceivedPayload type |
-| `packages/db/src/schema/flowpulse.ts` | MODIFIED (code-review) - Added index on metadata->>'phoneNumberId' |
-| `package.json` | MODIFIED (code-review) - Added elysia and @wp-nps/api to devDependencies for tests |
+| File                                           | Status                                                                             |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `packages/kapso/src/webhook-parser.ts`         | NEW                                                                                |
+| `packages/kapso/src/index.ts`                  | MODIFIED - Added webhook parser exports                                            |
+| `packages/api/src/utils/secure-logger.ts`      | NEW                                                                                |
+| `packages/api/package.json`                    | MODIFIED - Added utils/_ and middleware/_ exports                                  |
+| `apps/server/_source/webhooks/kapso.ts`        | NEW                                                                                |
+| `apps/server/_source/index.ts`                 | MODIFIED - Mounted kapsoWebhookRouter                                              |
+| `tests/integration/kapso-webhook.test.ts`      | NEW                                                                                |
+| `tests/integration/kapso-webhook-http.test.ts` | NEW (code-review) - HTTP endpoint integration tests                                |
+| `packages/db/src/types/job-queue.ts`           | MODIFIED (code-review) - Added KapsoWebhookReceivedPayload type                    |
+| `packages/db/src/schema/flowpulse.ts`          | MODIFIED (code-review) - Added index on metadata->>'phoneNumberId'                 |
+| `package.json`                                 | MODIFIED (code-review) - Added elysia and @wp-nps/api to devDependencies for tests |
 
 ### Change Log
 
-| Date | Author | Change |
-|------|--------|--------|
+| Date       | Author                 | Change                                                                                                                                                                                                                                      |
+| ---------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2025-12-30 | Code Review (Sisyphus) | Fixed payload type mismatch (added KapsoWebhookReceivedPayload); Added HTTP integration tests (8 tests); Added JSONB index for phoneNumberId; Added explicit 200 status for duplicates; Removed incorrect index.ts reference from Dev Notes |

@@ -24,6 +24,19 @@ export const sendTestParamsSchema = z.object({
 
 export type SendTestParams = z.infer<typeof sendTestParamsSchema>;
 
+export const sendFlowParamsSchema = z.object({
+  phoneNumber: z.string(),
+  orgId: z.string(),
+  flowId: z.string(),
+  flowCta: z.string().default("Start Survey"),
+  bodyText: z.string().default("Please complete this survey"),
+  flowAction: z.enum(["navigate", "data_exchange"]).default("navigate"),
+  initialScreen: z.string().optional(),
+  initialData: z.record(z.string(), z.unknown()).optional(),
+});
+
+export type SendFlowParams = z.infer<typeof sendFlowParamsSchema>;
+
 // Survey delivery result
 export const surveyDeliveryResultSchema = z.object({
   deliveryId: z.string(),
@@ -152,4 +165,7 @@ export interface IKapsoClient {
 
   // Test message for WhatsApp verification
   sendTestMessage(params: SendTestParams): Promise<SurveyDeliveryResult>;
+
+  // Send WhatsApp Flow (interactive survey)
+  sendFlow(params: SendFlowParams): Promise<SurveyDeliveryResult>;
 }

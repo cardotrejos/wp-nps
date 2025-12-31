@@ -63,14 +63,16 @@ export const surveySendHandler: JobHandler = {
     });
 
     const connection = await db.query.whatsappConnection.findFirst({
-      where: and(
-        eq(whatsappConnection.orgId, job.orgId),
-        eq(whatsappConnection.status, "active"),
-      ),
+      where: and(eq(whatsappConnection.orgId, job.orgId), eq(whatsappConnection.status, "active")),
     });
 
     if (!connection?.phoneNumber) {
-      await updateDeliveryStatus(deliveryId, "undeliverable", undefined, "No active WhatsApp connection");
+      await updateDeliveryStatus(
+        deliveryId,
+        "undeliverable",
+        undefined,
+        "No active WhatsApp connection",
+      );
       return;
     }
 

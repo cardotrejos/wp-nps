@@ -68,7 +68,9 @@ function parseWebhookItem(item: KapsoWebhookItem): ParsedWebhook {
 }
 
 function isBatchedPayload(p: unknown): p is KapsoBatchedPayload {
-  return typeof p === "object" && p !== null && "batch" in p && (p as KapsoBatchedPayload).batch === true;
+  return (
+    typeof p === "object" && p !== null && "batch" in p && (p as KapsoBatchedPayload).batch === true
+  );
 }
 
 export function parseKapsoWebhook(payload: unknown): ParsedWebhook[] {

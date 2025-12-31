@@ -55,7 +55,10 @@ export const onboardingAbandonmentCheckHandler: JobHandler = {
         } catch (enqueueError) {
           const message = enqueueError instanceof Error ? enqueueError.message : "Unknown error";
           if (!message.includes("duplicate key")) {
-            console.error(`[AbandonmentCheck] Failed to queue job for org ${org.orgId}:`, enqueueError);
+            console.error(
+              `[AbandonmentCheck] Failed to queue job for org ${org.orgId}:`,
+              enqueueError,
+            );
           }
         }
       }

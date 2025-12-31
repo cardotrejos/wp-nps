@@ -48,9 +48,7 @@ export const whatsappConnection = pgTable(
   },
   (table) => [
     index("idx_whatsapp_connection_org_id").on(table.orgId),
-    index("idx_whatsapp_connection_phone_number_id").on(
-      sql`(${table.metadata}->>'phoneNumberId')`,
-    ),
+    index("idx_whatsapp_connection_phone_number_id").on(sql`(${table.metadata}->>'phoneNumberId')`),
   ],
 );
 

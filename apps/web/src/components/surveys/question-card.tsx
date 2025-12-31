@@ -73,10 +73,10 @@ export function QuestionCard({ surveyId, question, index }: QuestionCardProps) {
           onError: () => {
             setSaveStatus("error");
           },
-        }
+        },
       );
     },
-    [surveyId, question.id, updateQuestion]
+    [surveyId, question.id, updateQuestion],
   );
 
   // Auto-save when debounced text changes

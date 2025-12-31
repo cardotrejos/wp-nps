@@ -84,7 +84,11 @@ API requests are rate-limited to **100 requests per minute** per organization. R
 `,
         },
         servers: [
-          { url: env.NODE_ENV === "production" ? "https://api.flowpulse.io" : "http://localhost:3000", description: env.NODE_ENV === "production" ? "Production" : "Development" },
+          {
+            url:
+              env.NODE_ENV === "production" ? "https://api.flowpulse.io" : "http://localhost:3000",
+            description: env.NODE_ENV === "production" ? "Production" : "Development",
+          },
         ],
         tags: [
           { name: "Surveys", description: "Survey delivery and management endpoints" },

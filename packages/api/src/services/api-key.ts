@@ -39,9 +39,7 @@ export async function generateApiKey(orgId: string): Promise<string> {
   return fullKey;
 }
 
-export async function validateApiKey(
-  rawKey: string
-): Promise<ApiKeyValidationResult | null> {
+export async function validateApiKey(rawKey: string): Promise<ApiKeyValidationResult | null> {
   if (!rawKey.startsWith(KEY_PREFIX)) {
     return null;
   }
@@ -56,10 +54,7 @@ export async function validateApiKey(
     return null;
   }
 
-  await db
-    .update(apiKey)
-    .set({ lastUsedAt: new Date() })
-    .where(eq(apiKey.id, result.id));
+  await db.update(apiKey).set({ lastUsedAt: new Date() }).where(eq(apiKey.id, result.id));
 
   return { orgId: result.orgId, keyId: result.id };
 }
@@ -74,9 +69,7 @@ export async function revokeApiKey(orgId: string): Promise<boolean> {
   return result.length > 0;
 }
 
-export async function getCurrentApiKey(
-  orgId: string
-): Promise<CurrentApiKeyInfo | null> {
+export async function getCurrentApiKey(orgId: string): Promise<CurrentApiKeyInfo | null> {
   const result = await db.query.apiKey.findFirst({
     where: and(eq(apiKey.orgId, orgId), isNull(apiKey.revokedAt)),
   });

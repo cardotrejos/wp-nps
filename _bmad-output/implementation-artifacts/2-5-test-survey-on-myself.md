@@ -673,15 +673,17 @@ Claude 3.5 Sonnet (claude-sonnet-4-20250514)
 ### File List
 
 **New Files:**
+
 - `packages/api/src/lib/kapso.ts` - Kapso client factory with DI for testing
 - `apps/web/src/components/surveys/send-test-button.tsx` - SendTestButton component
 - `apps/web/src/components/ui/tooltip.tsx` - shadcn tooltip component (added via CLI)
 - `tests/integration/survey-send-test.test.ts` - 11 integration tests for Story 2.5
 
 **Modified Files:**
+
 - `packages/db/src/schema/flowpulse.ts` - Added survey_delivery table and surveyDeliveryRelations; Added is_test column to survey_response
 - `packages/api/src/routers/survey.ts` - Added sendTest procedure with Kapso error handling
-- `packages/api/package.json` - Added @wp-nps/kapso dependency and lib/* export
+- `packages/api/package.json` - Added @wp-nps/kapso dependency and lib/\* export
 - `apps/web/src/hooks/use-surveys.ts` - Added useSendTestSurvey, useWhatsAppConnection hooks and whatsappKeys
 - `apps/web/src/components/surveys/survey-header.tsx` - Integrated SendTestButton
 - `apps/web/src/routes/surveys.$surveyId.tsx` - Survey edit page (SendTestButton integration point)
@@ -689,4 +691,3 @@ Claude 3.5 Sonnet (claude-sonnet-4-20250514)
 - `tests/utils/test-org.ts` - Added survey_delivery cleanup
 - `vitest.config.ts` - Added schema path aliases for test resolution
 - `bun.lock` - Updated lockfile
-

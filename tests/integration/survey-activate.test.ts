@@ -27,8 +27,10 @@ import { createTestOrg, cleanupTestOrg, clearOrgContext } from "../utils/test-or
  */
 async function simulateActivateProcedure(
   surveyId: string,
-  orgId: string
-): Promise<{ success: true; survey: typeof survey.$inferSelect } | { success: false; error: string }> {
+  orgId: string,
+): Promise<
+  { success: true; survey: typeof survey.$inferSelect } | { success: false; error: string }
+> {
   // Fetch survey with org filter (CRITICAL: multi-tenancy)
   const existingSurvey = await db.query.survey.findFirst({
     where: and(eq(survey.id, surveyId), eq(survey.orgId, orgId)),
@@ -69,8 +71,10 @@ async function simulateActivateProcedure(
  */
 async function simulateDeactivateProcedure(
   surveyId: string,
-  orgId: string
-): Promise<{ success: true; survey: typeof survey.$inferSelect } | { success: false; error: string }> {
+  orgId: string,
+): Promise<
+  { success: true; survey: typeof survey.$inferSelect } | { success: false; error: string }
+> {
   // Fetch survey with org filter (CRITICAL: multi-tenancy)
   const existingSurvey = await db.query.survey.findFirst({
     where: and(eq(survey.id, surveyId), eq(survey.orgId, orgId)),
@@ -131,7 +135,12 @@ describe("Survey Activate/Deactivate", () => {
           status: "draft",
           isActive: false,
           questions: [
-            { id: "q1", text: "How likely are you to recommend us?", type: "rating", required: true },
+            {
+              id: "q1",
+              text: "How likely are you to recommend us?",
+              type: "rating",
+              required: true,
+            },
           ],
         })
         .returning();
@@ -168,9 +177,7 @@ describe("Survey Activate/Deactivate", () => {
           type: "nps",
           status: "inactive",
           isActive: false,
-          questions: [
-            { id: "q1", text: "Rate our service", type: "rating", required: true },
-          ],
+          questions: [{ id: "q1", text: "Rate our service", type: "rating", required: true }],
         })
         .returning();
 
@@ -208,9 +215,7 @@ describe("Survey Activate/Deactivate", () => {
           type: "nps",
           status: "active",
           isActive: true,
-          questions: [
-            { id: "q1", text: "How satisfied are you?", type: "rating", required: true },
-          ],
+          questions: [{ id: "q1", text: "How satisfied are you?", type: "rating", required: true }],
         })
         .returning();
 

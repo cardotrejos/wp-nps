@@ -44,21 +44,21 @@ default_output_file: "{story_dir}/{{story_key}}.md"
 
 # The epics+stories file should contain everything needed with source hints
 
-input_file_patterns:
+input*file_patterns:
 prd:
 description: "PRD (fallback - epics file should have most content)"
-whole: "{output_folder}/_prd_.md"
-sharded: "{output_folder}/_prd_/*.md"
+whole: "{output_folder}/\_prd*.md"
+sharded: "{output*folder}/\_prd*/*.md"
 load_strategy: "SELECTIVE_LOAD" # Only load if needed
 architecture:
 description: "Architecture (fallback - epics file should have relevant sections)"
 whole: "{output_folder}/*architecture*.md"
 sharded: "{output_folder}/*architecture*/*.md"
-load_strategy: "SELECTIVE_LOAD" # Only load if needed
+load*strategy: "SELECTIVE_LOAD" # Only load if needed
 ux:
 description: "UX design (fallback - epics file should have relevant sections)"
-whole: "{output_folder}/_ux_.md"
-sharded: "{output_folder}/_ux_/*.md"
+whole: "{output_folder}/\_ux*.md"
+sharded: "{output*folder}/\_ux*/*.md"
 load_strategy: "SELECTIVE_LOAD" # Only load if needed
 epics:
 description: "Enhanced epics+stories file with BDD and source hints"

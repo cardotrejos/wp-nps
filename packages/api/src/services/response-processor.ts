@@ -27,7 +27,7 @@ export function categorizeNPS(score: number): NPSCategory {
 }
 
 export async function processResponse(
-  params: ProcessResponseParams
+  params: ProcessResponseParams,
 ): Promise<ProcessResponseResult> {
   const { orgId, customerPhone, score, feedback } = params;
   const phoneHash = hashPhoneNumber(customerPhone);
@@ -62,7 +62,7 @@ export async function processResponse(
       where: and(
         eq(surveyDelivery.orgId, orgId),
         eq(surveyDelivery.phoneNumberHash, phoneHash),
-        eq(surveyDelivery.status, "sent")
+        eq(surveyDelivery.status, "sent"),
       ),
       orderBy: [desc(surveyDelivery.createdAt)],
     });

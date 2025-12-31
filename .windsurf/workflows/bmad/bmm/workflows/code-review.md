@@ -41,22 +41,22 @@ story_dir: "{implementation_artifacts}"
 
 # Strategy: SELECTIVE LOAD - only load the specific epic needed for this story review
 
-input_file_patterns:
+input*file_patterns:
 architecture:
 description: "System architecture for review context"
-whole: "{output_folder}/_architecture_.md"
-sharded: "{output_folder}/_architecture_/*.md"
+whole: "{output_folder}/\_architecture*.md"
+sharded: "{output*folder}/\_architecture*/*.md"
 load_strategy: "FULL_LOAD"
 ux_design:
 description: "UX design specification (if UI review)"
 whole: "{output_folder}/*ux*.md"
 sharded: "{output_folder}/*ux*/*.md"
-load_strategy: "FULL_LOAD"
+load*strategy: "FULL_LOAD"
 epics:
 description: "Epic containing story being reviewed"
-whole: "{output_folder}/_epic_.md"
-sharded_index: "{output_folder}/_epic_/index.md"
-sharded_single: "{output_folder}/_epic_/epic-{{epic_num}}.md"
+whole: "{output_folder}/\_epic*.md"
+sharded*index: "{output_folder}/\_epic*/index.md"
+sharded*single: "{output_folder}/\_epic*/epic-{{epic_num}}.md"
 load_strategy: "SELECTIVE_LOAD"
 document_project:
 description: "Brownfield project documentation (optional)"

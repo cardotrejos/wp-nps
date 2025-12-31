@@ -1,8 +1,5 @@
 // NFR-S9: PII patterns to redact from logs (security-critical)
-const PII_PATTERNS = [
-  /\+\d{10,15}/g,
-  /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
-];
+const PII_PATTERNS = [/\+\d{10,15}/g, /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g];
 
 const PII_FIELD_NAMES = new Set([
   "phone",

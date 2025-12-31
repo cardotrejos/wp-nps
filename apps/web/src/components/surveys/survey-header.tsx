@@ -76,11 +76,7 @@ export function SurveyHeader({ survey }: SurveyHeaderProps) {
         </div>
 
         <div className="flex gap-2">
-          <SurveyStatusToggle
-            surveyId={survey.id}
-            status={status}
-            hasQuestions={hasQuestions}
-          />
+          <SurveyStatusToggle surveyId={survey.id} status={status} hasQuestions={hasQuestions} />
           <SendTestButton surveyId={survey.id} />
         </div>
       </div>

@@ -104,7 +104,8 @@ function RouteComponent() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              View endpoint details, request/response schemas, and try out API calls directly from your browser.
+              View endpoint details, request/response schemas, and try out API calls directly from
+              your browser.
             </p>
             <Link to="/settings/api-docs" data-testid="view-docs-link">
               <Button data-testid="view-docs-button">
@@ -121,9 +122,7 @@ function RouteComponent() {
               <Key className="size-4" />
               API Key
             </CardTitle>
-            <CardDescription>
-              Use this key to authenticate API requests
-            </CardDescription>
+            <CardDescription>Use this key to authenticate API requests</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {newKey ? (
@@ -147,18 +146,28 @@ function RouteComponent() {
                     onClick={() => setShowKey(!showKey)}
                     data-testid="toggle-key-visibility"
                   >
-                    {showKey ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
+                    {showKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </Button>
-                  <Button variant="outline" size="icon" onClick={copyToClipboard} data-testid="copy-key-button">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={copyToClipboard}
+                    data-testid="copy-key-button"
+                  >
                     <Copy className="size-4" />
                   </Button>
                 </div>
-                <Link to="/settings/api-docs" search={{ token: newKey }} data-testid="try-in-docs-link">
-                  <Button variant="outline" size="sm" className="w-full" data-testid="try-in-docs-button">
+                <Link
+                  to="/settings/api-docs"
+                  search={{ token: newKey }}
+                  data-testid="try-in-docs-link"
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    data-testid="try-in-docs-button"
+                  >
                     <Book className="size-4 mr-2" />
                     Try in API Docs
                   </Button>
@@ -167,7 +176,10 @@ function RouteComponent() {
             ) : currentKey ? (
               <div className="space-y-2" data-testid="current-key-section">
                 <p className="text-xs text-muted-foreground">Current key:</p>
-                <code className="text-xs bg-muted px-2 py-1 rounded-sm" data-testid="current-key-prefix">
+                <code
+                  className="text-xs bg-muted px-2 py-1 rounded-sm"
+                  data-testid="current-key-prefix"
+                >
                   fp_{currentKey.prefix}...
                 </code>
                 <p className="text-xs text-muted-foreground">
@@ -203,10 +215,7 @@ function RouteComponent() {
                     </DialogDescription>
                   </DialogHeader>
                   <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setGenerateDialogOpen(false)}
-                    >
+                    <Button variant="outline" onClick={() => setGenerateDialogOpen(false)}>
                       Cancel
                     </Button>
                     <Button
@@ -221,9 +230,7 @@ function RouteComponent() {
 
               {currentKey && (
                 <Dialog open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen}>
-                  <DialogTrigger
-                    render={<Button variant="destructive" />}
-                  >
+                  <DialogTrigger render={<Button variant="destructive" />}>
                     <Trash2 className="size-4 mr-1.5" />
                     Revoke Key
                   </DialogTrigger>
@@ -231,14 +238,12 @@ function RouteComponent() {
                     <DialogHeader>
                       <DialogTitle>Revoke API Key?</DialogTitle>
                       <DialogDescription>
-                        This will permanently invalidate your API key. Any applications using this key will stop working immediately.
+                        This will permanently invalidate your API key. Any applications using this
+                        key will stop working immediately.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                      <Button
-                        variant="outline"
-                        onClick={() => setRevokeDialogOpen(false)}
-                      >
+                      <Button variant="outline" onClick={() => setRevokeDialogOpen(false)}>
                         Cancel
                       </Button>
                       <Button

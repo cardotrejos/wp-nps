@@ -23,9 +23,7 @@ All API endpoints require authentication using a Bearer token.
 API requests are rate-limited to **100 requests per minute** per organization.
 `,
           },
-          servers: [
-            { url: "http://localhost:3000", description: "Development" },
-          ],
+          servers: [{ url: "http://localhost:3000", description: "Development" }],
           tags: [
             { name: "Surveys", description: "Survey delivery and management endpoints" },
             { name: "Health", description: "API health and status endpoints" },
@@ -45,10 +43,14 @@ API requests are rate-limited to **100 requests per minute** per organization.
       }),
     )
     .use(apiV1Router)
-    .get("/api/openapi.json", () => new Response(null, {
-      status: 302,
-      headers: { Location: "/api/docs/json" },
-    }));
+    .get(
+      "/api/openapi.json",
+      () =>
+        new Response(null, {
+          status: 302,
+          headers: { Location: "/api/docs/json" },
+        }),
+    );
 }
 
 describe("API Documentation", () => {
@@ -60,9 +62,7 @@ describe("API Documentation", () => {
 
   describe("OpenAPI Spec Endpoint", () => {
     it("returns valid JSON at /api/docs/json", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
 
       expect(response.status).toBe(200);
 
@@ -72,9 +72,7 @@ describe("API Documentation", () => {
     });
 
     it("serves OpenAPI spec at /api/openapi.json via redirect", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/openapi.json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/openapi.json"));
 
       const isRedirect = response.status === 302;
       const isFollowedRedirect = response.status === 200;
@@ -89,9 +87,7 @@ describe("API Documentation", () => {
     });
 
     it("includes API title and version in spec", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       expect(spec.info).toBeDefined();
@@ -100,9 +96,7 @@ describe("API Documentation", () => {
     });
 
     it("includes API description with authentication info", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       expect(spec.info.description).toContain("Authentication");
@@ -111,9 +105,7 @@ describe("API Documentation", () => {
     });
 
     it("includes survey send endpoint", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       expect(spec.paths).toBeDefined();
@@ -125,9 +117,7 @@ describe("API Documentation", () => {
     });
 
     it("includes health check endpoint", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       const healthPath = spec.paths["/api/v1/health"];
@@ -137,9 +127,7 @@ describe("API Documentation", () => {
     });
 
     it("includes Bearer auth security scheme", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       expect(spec.components).toBeDefined();
@@ -150,9 +138,7 @@ describe("API Documentation", () => {
     });
 
     it("includes error response schemas for survey send", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       const surveySendPath = spec.paths["/api/v1/surveys/{surveyId}/send"];
@@ -167,9 +153,7 @@ describe("API Documentation", () => {
     });
 
     it("includes request body schema for survey send", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       const surveySendPath = spec.paths["/api/v1/surveys/{surveyId}/send"];
@@ -181,9 +165,7 @@ describe("API Documentation", () => {
     });
 
     it("includes OpenAPI tags for grouping", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       expect(spec.tags).toBeDefined();
@@ -195,9 +177,7 @@ describe("API Documentation", () => {
     });
 
     it("survey send endpoint has Surveys tag", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs/json"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs/json"));
       const spec = await response.json();
 
       const surveySendPath = spec.paths["/api/v1/surveys/{surveyId}/send"];
@@ -207,9 +187,7 @@ describe("API Documentation", () => {
 
   describe("Swagger UI", () => {
     it("serves Swagger UI at /api/docs", async () => {
-      const response = await app.handle(
-        new Request("http://localhost/api/docs"),
-      );
+      const response = await app.handle(new Request("http://localhost/api/docs"));
 
       expect(response.status).toBe(200);
       const html = await response.text();

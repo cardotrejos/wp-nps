@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDelivery } from "@/hooks/use-deliveries";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
@@ -63,46 +58,40 @@ export function DeliveryDetail({ deliveryId, onClose, className }: DeliveryDetai
           <span className="sr-only">Close</span>
         </Button>
       </div>
-      
+
       <CardHeader>
         <div className="flex items-center gap-3">
-          <CardTitle className="text-xl font-mono">
-            {delivery.phoneNumberMasked}
-          </CardTitle>
-          <DeliveryStatusBadge 
-            status={delivery.status} 
+          <CardTitle className="text-xl font-mono">{delivery.phoneNumberMasked}</CardTitle>
+          <DeliveryStatusBadge
+            status={delivery.status}
             retryCount={delivery.retryCount}
             maxRetries={delivery.maxRetries}
             errorMessage={delivery.errorMessage}
           />
         </div>
-        <p className="text-xs text-muted-foreground font-mono mt-1">
-          ID: {delivery.id}
-        </p>
+        <p className="text-xs text-muted-foreground font-mono mt-1">ID: {delivery.id}</p>
       </CardHeader>
 
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="space-y-1">
             <span className="text-muted-foreground text-xs uppercase tracking-wider">Created</span>
+            <p className="font-medium">{formatDate(delivery.createdAt)}</p>
+          </div>
+          <div className="space-y-1">
+            <span className="text-muted-foreground text-xs uppercase tracking-wider">
+              Delivered
+            </span>
             <p className="font-medium">
-              {formatDate(delivery.createdAt)}
+              {delivery.deliveredAt ? formatDate(delivery.deliveredAt) : "-"}
             </p>
           </div>
           <div className="space-y-1">
-            <span className="text-muted-foreground text-xs uppercase tracking-wider">Delivered</span>
+            <span className="text-muted-foreground text-xs uppercase tracking-wider">
+              Responded
+            </span>
             <p className="font-medium">
-              {delivery.deliveredAt 
-                ? formatDate(delivery.deliveredAt)
-                : "-"}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <span className="text-muted-foreground text-xs uppercase tracking-wider">Responded</span>
-            <p className="font-medium">
-              {delivery.respondedAt 
-                ? formatDate(delivery.respondedAt)
-                : "-"}
+              {delivery.respondedAt ? formatDate(delivery.respondedAt) : "-"}
             </p>
           </div>
         </div>

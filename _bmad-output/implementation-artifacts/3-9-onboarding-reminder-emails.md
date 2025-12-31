@@ -72,6 +72,7 @@ So that **we can recover users who got interrupted**.
 **This story implements FR6 (send onboarding reminder emails after 24h abandonment), FR76 (track onboarding funnel events).**
 
 From architecture.md:
+
 - Use existing `webhook_jobs` queue from Story 3-1 (AR4)
 - Multi-tenant isolation via `org_id` filtering (AR8, AR11)
 - No third-party background job services for MVP
@@ -79,11 +80,13 @@ From architecture.md:
 ### Previous Story Context
 
 Story 3-1 established:
+
 - `webhook_jobs` table with queue semantics
 - Job processor polling every 5s
 - Event type routing to handlers
 
 Story 1-4 established:
+
 - `onboardingState` JSON column on `organization` table
 - `lastActivityAt` timestamp updated on each step
 - `onboardingCompletedAt` set when complete
@@ -119,8 +122,8 @@ export const onboardingEmailLog = pgTable('onboarding_email_log', {
   index('idx_onboarding_email_log_org').on(table.orgId),
   // Prevent duplicate emails on same day
   uniqueIndex('uq_onboarding_email_org_type_date').on(
-    table.orgId, 
-    table.emailType, 
+    table.orgId,
+    table.emailType,
     sql`DATE(sent_at)`
   ),
 ]);
@@ -144,11 +147,11 @@ export interface IEmailClient {
 
 class ResendEmailClient implements IEmailClient {
   private client: Resend;
-  
+
   constructor() {
     this.client = new Resend(env.RESEND_API_KEY);
   }
-  
+
   async send(params: { to: string; subject: string; html: string; from?: string }) {
     const result = await this.client.emails.send({
       from: params.from ?? 'FlowPulse <noreply@flowpulse.io>',
@@ -156,27 +159,27 @@ class ResendEmailClient implements IEmailClient {
       subject: params.subject,
       html: params.html,
     });
-    
+
     if (result.error) {
       throw new Error(`Email send failed: ${result.error.message}`);
     }
-    
+
     return { id: result.data!.id };
   }
 }
 
 class MockEmailClient implements IEmailClient {
   public sentEmails: Array<{ to: string; subject: string; html: string }> = [];
-  
+
   async send(params: { to: string; subject: string; html: string }) {
     this.sentEmails.push(params);
     return { id: `mock-${Date.now()}` };
   }
 }
 
-export const emailClient: IEmailClient = 
-  env.NODE_ENV === 'test' 
-    ? new MockEmailClient() 
+export const emailClient: IEmailClient =
+  env.NODE_ENV === 'test'
+    ? new MockEmailClient()
     : new ResendEmailClient();
 
 export { MockEmailClient };
@@ -196,10 +199,10 @@ const ABANDONMENT_THRESHOLD_HOURS = 24;
 
 export const onboardingAbandonmentCheckHandler: JobHandler = {
   eventType: 'internal.onboarding.abandonment_check',
-  
+
   async handle(job: WebhookJob) {
     const thresholdTime = new Date(Date.now() - ABANDONMENT_THRESHOLD_HOURS * 60 * 60 * 1000);
-    
+
     // Find orgs with incomplete onboarding and stale lastActivityAt
     // This is a system-wide check, not per-org, so we query across all orgs
     const abandonedOrgs = await db
@@ -223,9 +226,9 @@ export const onboardingAbandonmentCheckHandler: JobHandler = {
         sql`${organization.onboardingState}->>'lastActivityAt' IS NOT NULL`
       ))
       .limit(100); // Process in batches
-    
+
     console.log(`Found ${abandonedOrgs.length} abandoned onboarding sessions`);
-    
+
     // Queue individual reminder jobs for each abandoned user
     for (const org of abandonedOrgs) {
       await enqueueJob({
@@ -265,10 +268,10 @@ interface OnboardingReminderPayload {
 
 export const sendOnboardingReminderHandler: JobHandler = {
   eventType: 'internal.email.onboarding_reminder',
-  
+
   async handle(job: WebhookJob) {
     const payload = job.payload as OnboardingReminderPayload;
-    
+
     // Check if reminder already sent today
     const today = new Date().toISOString().split('T')[0];
     const existingReminder = await db.query.onboardingEmailLog.findFirst({
@@ -278,58 +281,58 @@ export const sendOnboardingReminderHandler: JobHandler = {
         sql`DATE(${onboardingEmailLog.sentAt}) = ${today}`
       ),
     });
-    
+
     if (existingReminder) {
       console.log(`Skipping duplicate reminder for org ${payload.orgId}`);
       return;
     }
-    
+
     // Check if onboarding was completed since job was queued
     const org = await db.query.organization.findFirst({
       where: eq(organization.id, payload.orgId),
     });
-    
+
     if (!org) {
       console.log(`Org ${payload.orgId} not found, skipping`);
       return;
     }
-    
+
     const onboardingState = org.onboardingState as { onboardingCompletedAt: string | null };
     if (onboardingState?.onboardingCompletedAt) {
       console.log(`Org ${payload.orgId} completed onboarding, skipping`);
       return;
     }
-    
+
     // Get user email
     const userData = await db.query.user.findFirst({
       where: eq(user.id, payload.userId),
     });
-    
+
     if (!userData?.email) {
       console.log(`User ${payload.userId} has no email, skipping`);
       return;
     }
-    
+
     // Render and send email
     const html = renderOnboardingReminderEmail({
       userName: userData.name ?? 'there',
       currentStep: payload.currentStep,
       resumeUrl: `${process.env.APP_URL}/onboarding?resume=true`,
     });
-    
+
     await emailClient.send({
       to: userData.email,
       subject: "Let's finish setting up FlowPulse - it only takes 5 minutes!",
       html,
     });
-    
+
     // Log the sent email
     await db.insert(onboardingEmailLog).values({
       orgId: payload.orgId,
       userId: payload.userId,
       emailType: 'reminder_24h',
     });
-    
+
     console.log(`Sent onboarding reminder to ${userData.email}`);
   },
 };
@@ -359,7 +362,7 @@ function OnboardingReminderEmail({ userName, currentStep, resumeUrl }: Onboardin
   const nextStepName = STEP_NAMES[currentStep] ?? 'Complete Setup';
   const stepsCompleted = currentStep - 1;
   const totalSteps = 4;
-  
+
   return (
     <html>
       <head>
@@ -375,28 +378,28 @@ function OnboardingReminderEmail({ userName, currentStep, resumeUrl }: Onboardin
       <body>
         <div className="container">
           <h1>Hey {userName}!</h1>
-          
+
           <p>You're so close to getting your first customer feedback via WhatsApp!</p>
-          
+
           <div className="progress">
             <div className="progress-bar" />
           </div>
           <p style={{ fontSize: '14px', color: '#666' }}>
             {stepsCompleted} of {totalSteps} steps completed
           </p>
-          
+
           <p>Your next step: <strong>{nextStepName}</strong></p>
-          
+
           <p>It takes most users under 5 minutes to complete setup and start collecting NPS scores.</p>
-          
+
           <p style={{ marginTop: '20px' }}>
             <a href={resumeUrl} className="button">Continue Setup</a>
           </p>
-          
+
           <p style={{ marginTop: '20px' }}>
             Questions? Just reply to this email - we're here to help!
           </p>
-          
+
           <div className="footer">
             <p>
               FlowPulse - WhatsApp NPS Made Simple<br />
@@ -430,15 +433,15 @@ export function startScheduler() {
     console.log('Scheduler already running');
     return;
   }
-  
+
   // Run immediately on startup
   scheduleAbandonmentCheck();
-  
+
   // Then run every hour
   schedulerInterval = setInterval(() => {
     scheduleAbandonmentCheck();
   }, HOUR_MS);
-  
+
   console.log('Job scheduler started (hourly abandonment checks)');
 }
 
@@ -486,20 +489,20 @@ import { MockEmailClient, emailClient } from '@wp-nps/api/lib/email';
 describe('Onboarding Reminder Emails', () => {
   let testOrg: { id: string };
   let testUser: { id: string; email: string };
-  
+
   beforeEach(async () => {
     const created = await createTestOrg();
     testOrg = { id: created.orgId };
     testUser = { id: created.userId, email: created.email };
-    
+
     // Reset mock email client
     (emailClient as MockEmailClient).sentEmails = [];
   });
-  
+
   describe('Abandonment Detection', () => {
     it('detects users with stale lastActivityAt', async () => {
       const staleTime = new Date(Date.now() - 25 * 60 * 60 * 1000); // 25h ago
-      
+
       await db.update(organization)
         .set({
           onboardingState: sql`jsonb_set(
@@ -509,7 +512,7 @@ describe('Onboarding Reminder Emails', () => {
           )`,
         })
         .where(eq(organization.id, testOrg.id));
-      
+
       // Run abandonment check
       await onboardingAbandonmentCheckHandler.handle({
         id: 'test-job',
@@ -517,16 +520,16 @@ describe('Onboarding Reminder Emails', () => {
         payload: {},
         eventType: 'internal.onboarding.abandonment_check',
       } as any);
-      
+
       // Check that a reminder job was queued
       const reminderJob = await db.query.webhookJob.findFirst({
         where: eq(webhookJob.eventType, 'internal.email.onboarding_reminder'),
       });
-      
+
       expect(reminderJob).toBeDefined();
       expect(reminderJob?.payload.orgId).toBe(testOrg.id);
     });
-    
+
     it('excludes users who completed onboarding', async () => {
       await db.update(organization)
         .set({
@@ -537,25 +540,25 @@ describe('Onboarding Reminder Emails', () => {
           )`,
         })
         .where(eq(organization.id, testOrg.id));
-      
+
       await onboardingAbandonmentCheckHandler.handle({
         id: 'test-job',
         orgId: 'system',
         payload: {},
         eventType: 'internal.onboarding.abandonment_check',
       } as any);
-      
+
       const reminderJob = await db.query.webhookJob.findFirst({
         where: and(
           eq(webhookJob.eventType, 'internal.email.onboarding_reminder'),
           sql`${webhookJob.payload}->>'orgId' = ${testOrg.id}`
         ),
       });
-      
+
       expect(reminderJob).toBeUndefined();
     });
   });
-  
+
   describe('Email Sending', () => {
     it('sends reminder email to abandoned user', async () => {
       await sendOnboardingReminderHandler.handle({
@@ -569,12 +572,12 @@ describe('Onboarding Reminder Emails', () => {
         },
         eventType: 'internal.email.onboarding_reminder',
       } as any);
-      
+
       expect((emailClient as MockEmailClient).sentEmails).toHaveLength(1);
       expect((emailClient as MockEmailClient).sentEmails[0].to).toBe(testUser.email);
       expect((emailClient as MockEmailClient).sentEmails[0].subject).toContain('FlowPulse');
     });
-    
+
     it('prevents duplicate emails on same day', async () => {
       // Insert existing log entry
       await db.insert(onboardingEmailLog).values({
@@ -582,7 +585,7 @@ describe('Onboarding Reminder Emails', () => {
         userId: testUser.id,
         emailType: 'reminder_24h',
       });
-      
+
       await sendOnboardingReminderHandler.handle({
         id: 'test-job',
         orgId: testOrg.id,
@@ -594,11 +597,11 @@ describe('Onboarding Reminder Emails', () => {
         },
         eventType: 'internal.email.onboarding_reminder',
       } as any);
-      
+
       // Should not have sent any email
       expect((emailClient as MockEmailClient).sentEmails).toHaveLength(0);
     });
-    
+
     it('skips if onboarding completed since job queued', async () => {
       // Mark onboarding as completed
       await db.update(organization)
@@ -610,7 +613,7 @@ describe('Onboarding Reminder Emails', () => {
           )`,
         })
         .where(eq(organization.id, testOrg.id));
-      
+
       await sendOnboardingReminderHandler.handle({
         id: 'test-job',
         orgId: testOrg.id,
@@ -622,7 +625,7 @@ describe('Onboarding Reminder Emails', () => {
         },
         eventType: 'internal.email.onboarding_reminder',
       } as any);
-      
+
       expect((emailClient as MockEmailClient).sentEmails).toHaveLength(0);
     });
   });
@@ -632,6 +635,7 @@ describe('Onboarding Reminder Emails', () => {
 ### Environment Variables
 
 Add to `.env` files:
+
 ```
 # apps/server/.env
 RESEND_API_KEY=re_xxxxx
@@ -642,11 +646,11 @@ RESEND_API_KEY: z.string().optional(),
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| FR6 | Send onboarding reminder after 24h abandonment | Abandonment check + email job |
-| FR76 | Track onboarding funnel events | `onboarding_email_log` table |
-| AR4 | DB-backed job queue | Uses existing webhook_jobs |
+| NFR  | Requirement                                    | Implementation                |
+| ---- | ---------------------------------------------- | ----------------------------- |
+| FR6  | Send onboarding reminder after 24h abandonment | Abandonment check + email job |
+| FR76 | Track onboarding funnel events                 | `onboarding_email_log` table  |
+| AR4  | DB-backed job queue                            | Uses existing webhook_jobs    |
 
 ### Dependencies to Install
 
@@ -657,6 +661,7 @@ bun add resend @react-email/render
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/db/src/schema/flowpulse.ts` - ADD onboarding_email_log table
 - `packages/api/src/lib/email.ts` - NEW email client abstraction
 - `packages/api/src/emails/onboarding-reminder.tsx` - NEW email template
@@ -697,6 +702,7 @@ N/A - Implementation completed successfully without debugging issues.
 ### File List
 
 **New Files Created:**
+
 - `packages/api/src/lib/email.ts` - Email client abstraction (IEmailClient interface, ResendEmailClient, MockEmailClient)
 - `packages/api/src/emails/onboarding-reminder.tsx` - React Email template with progress indicator
 - `apps/server/_source/jobs/handlers/onboarding-abandonment-check.ts` - Queries stale onboarding sessions, queues reminder jobs
@@ -705,9 +711,10 @@ N/A - Implementation completed successfully without debugging issues.
 - `tests/integration/onboarding-reminder.test.ts` - 8 integration tests
 
 **Modified Files:**
+
 - `packages/env/src/server.ts` - Added RESEND_API_KEY and APP_URL environment variables
 - `packages/db/src/schema/flowpulse.ts` - Added onboarding_email_log table with composite index
-- `packages/api/package.json` - Added emails/* export, @react-email/components, react dependencies
+- `packages/api/package.json` - Added emails/\* export, @react-email/components, react dependencies
 - `packages/api/tsconfig.json` - Added JSX support (jsx: react-jsx, jsxImportSource: react)
 - `apps/server/.env.example` - Added RESEND_API_KEY and APP_URL placeholders
 - `apps/server/_source/index.ts` - Added scheduler startup on server init
@@ -716,6 +723,6 @@ N/A - Implementation completed successfully without debugging issues.
 
 ## Change Log
 
-| Date | Change | Author |
-|------|--------|--------|
+| Date       | Change                                                      | Author         |
+| ---------- | ----------------------------------------------------------- | -------------- |
 | 2025-12-30 | Implementation complete - all 7 tasks done, 8 tests passing | Sisyphus Agent |

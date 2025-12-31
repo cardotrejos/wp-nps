@@ -2,11 +2,7 @@ import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { eq, sql } from "drizzle-orm";
 import { db, webhookJob, whatsappConnection } from "@wp-nps/db";
 import { KapsoMockClient } from "@wp-nps/kapso";
-import {
-  parseKapsoWebhook,
-  parseSurveyResponse,
-  isValidWebhookPayload,
-} from "@wp-nps/kapso";
+import { parseKapsoWebhook, parseSurveyResponse, isValidWebhookPayload } from "@wp-nps/kapso";
 import { redactPII } from "@wp-nps/api/utils/secure-logger";
 import { createTestOrg, cleanupTestOrg, clearOrgContext } from "../utils/test-org";
 
@@ -29,8 +25,14 @@ describe("Kapso Webhook Receiver", () => {
   });
 
   afterEach(async () => {
-    await db.delete(webhookJob).where(eq(webhookJob.orgId, testOrg.id)).catch(() => {});
-    await db.delete(whatsappConnection).where(eq(whatsappConnection.orgId, testOrg.id)).catch(() => {});
+    await db
+      .delete(webhookJob)
+      .where(eq(webhookJob.orgId, testOrg.id))
+      .catch(() => {});
+    await db
+      .delete(whatsappConnection)
+      .where(eq(whatsappConnection.orgId, testOrg.id))
+      .catch(() => {});
     await cleanupTestOrg(testOrg.id).catch(() => {});
     await clearOrgContext();
   });

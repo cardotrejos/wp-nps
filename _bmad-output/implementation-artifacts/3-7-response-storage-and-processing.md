@@ -43,7 +43,7 @@ So that **analytics are immediately updated**.
 
 - [x] Task 4: Create Metrics Update Service (AC: #3)
   - [x] 4.1 Create `packages/api/src/services/metrics-updater.ts`
-  - [x] 4.2 Implement `updateOrgMetrics(orgId, response)` 
+  - [x] 4.2 Implement `updateOrgMetrics(orgId, response)`
   - [x] 4.3 Update NPS calculation incrementally
   - [x] 4.4 Use SAME TRANSACTION as response insert
 
@@ -76,6 +76,7 @@ So that **analytics are immediately updated**.
 **This story implements FR26, NFR-P5 (real-time analytics), AR6 (pre-aggregated metrics).**
 
 From architecture.md Decision 5 (Caching Strategy):
+
 - `org_metrics` table for pre-aggregated dashboard metrics
 - Application code updates metrics (not DB triggers)
 - Same transaction for atomicity
@@ -83,10 +84,12 @@ From architecture.md Decision 5 (Caching Strategy):
 ### Previous Story Context
 
 Story 3-6 established:
+
 - Webhook receiver queues jobs for `kapso.message.received`
 - Payload includes customerPhone, content, messageId
 
 Story 3-3 established:
+
 - `survey_delivery` table with customer phone and metadata
 
 ### NPS Categorization
@@ -166,7 +169,7 @@ export async function processResponse(params: ProcessResponseParams): Promise<{ 
   const { orgId, customerPhone, score, feedback, messageId } = params;
   const phoneHash = createHash('sha256').update(customerPhone).digest('hex');
   const category = categorizeNPS(score);
-  
+
   // Use transaction to ensure atomicity
   return await db.transaction(async (tx) => {
     // 1. Find or create customer
@@ -176,7 +179,7 @@ export async function processResponse(params: ProcessResponseParams): Promise<{ 
         eq(customer.phoneNumberHash, phoneHash)
       ),
     });
-    
+
     if (!customerRecord) {
       const [newCustomer] = await tx.insert(customer)
         .values({
@@ -191,7 +194,7 @@ export async function processResponse(params: ProcessResponseParams): Promise<{ 
         .set({ lastSeenAt: new Date() })
         .where(eq(customer.id, customerRecord.id));
     }
-    
+
     // 2. Find matching delivery
     const delivery = await tx.query.surveyDelivery.findFirst({
       where: and(
@@ -201,11 +204,11 @@ export async function processResponse(params: ProcessResponseParams): Promise<{ 
       ),
       orderBy: (d, { desc }) => desc(d.createdAt),
     });
-    
+
     if (!delivery) {
       throw new Error('No matching delivery found for response');
     }
-    
+
     // 3. Create response record
     const [response] = await tx.insert(surveyResponse)
       .values({
@@ -220,7 +223,7 @@ export async function processResponse(params: ProcessResponseParams): Promise<{ 
         isTest: false,
       })
       .returning({ id: surveyResponse.id });
-    
+
     // 4. Update delivery status
     await tx.update(surveyDelivery)
       .set({
@@ -229,10 +232,10 @@ export async function processResponse(params: ProcessResponseParams): Promise<{ 
         updatedAt: new Date(),
       })
       .where(eq(surveyDelivery.id, delivery.id));
-    
+
     // 5. Update org metrics (SAME TRANSACTION!)
     await updateOrgMetrics(tx, orgId, { score, category });
-    
+
     return { responseId: response.id };
   });
 }
@@ -258,7 +261,7 @@ export async function updateOrgMetrics(
   response: ResponseData
 ): Promise<void> {
   const today = new Date().toISOString().split('T')[0];
-  
+
   // Update all-time NPS metrics using incremental calculation
   await tx.insert(orgMetrics)
     .values({
@@ -278,7 +281,7 @@ export async function updateOrgMetrics(
         updatedAt: new Date(),
       },
     });
-  
+
   // Update category counts
   await tx.insert(orgMetrics)
     .values({
@@ -296,7 +299,7 @@ export async function updateOrgMetrics(
         updatedAt: new Date(),
       },
     });
-  
+
   // Update daily metrics
   await tx.insert(orgMetrics)
     .values({
@@ -338,11 +341,11 @@ interface KapsoMessagePayload {
 
 export const kapsoSurveyResponseHandler: JobHandler = {
   eventType: 'kapso.message.received',
-  
+
   async handle(job: WebhookJob) {
     const payload = job.payload as KapsoMessagePayload;
     const phoneHash = createHash('sha256').update(payload.customerPhone).digest('hex');
-    
+
     // Find the most recent delivery to this customer
     const delivery = await db.query.surveyDelivery.findFirst({
       where: and(
@@ -355,21 +358,21 @@ export const kapsoSurveyResponseHandler: JobHandler = {
       },
       orderBy: (d, { desc }) => desc(d.createdAt),
     });
-    
+
     if (!delivery) {
       console.log('No matching delivery found for response, ignoring message');
       return; // Not a survey response, ignore
     }
-    
+
     // Parse the response content
     const surveyType = delivery.survey?.type as 'nps' | 'csat' | 'ces' ?? 'nps';
     const parsed = parseSurveyResponse(payload.content, surveyType);
-    
+
     if (parsed.score === null) {
       console.log('Could not parse score from message, ignoring');
       return; // Couldn't parse a valid score
     }
-    
+
     // Process the response
     await processResponse({
       orgId: job.orgId,
@@ -400,7 +403,7 @@ describe('Response Processing', () => {
 
   beforeEach(async () => {
     testOrg = await createTestOrg();
-    
+
     const [s] = await db.insert(survey).values({
       orgId: testOrg.id,
       name: 'Test NPS',
@@ -408,7 +411,7 @@ describe('Response Processing', () => {
       status: 'active',
     }).returning();
     testSurvey = s;
-    
+
     const [d] = await db.insert(surveyDelivery).values({
       orgId: testOrg.id,
       surveyId: testSurvey.id,
@@ -428,11 +431,11 @@ describe('Response Processing', () => {
       feedback: 'Great service!',
       messageId: 'msg-1',
     });
-    
+
     const response = await db.query.surveyResponse.findFirst({
       where: eq(surveyResponse.id, result.responseId),
     });
-    
+
     expect(response?.category).toBe('promoter');
     expect(response?.score).toBe(9);
   });
@@ -445,11 +448,11 @@ describe('Response Processing', () => {
       feedback: null,
       messageId: 'msg-2',
     });
-    
+
     const response = await db.query.surveyResponse.findFirst({
       where: eq(surveyResponse.id, result.responseId),
     });
-    
+
     expect(response?.metadata).toEqual({ order_id: 'ORD-123' });
   });
 
@@ -462,7 +465,7 @@ describe('Response Processing', () => {
         eq(orgMetrics.periodType, 'all_time')
       ),
     });
-    
+
     await processResponse({
       orgId: testOrg.id,
       customerPhone: '+5511999999999',
@@ -470,7 +473,7 @@ describe('Response Processing', () => {
       feedback: null,
       messageId: 'msg-3',
     });
-    
+
     const updatedMetrics = await db.query.orgMetrics.findFirst({
       where: and(
         eq(orgMetrics.orgId, testOrg.id),
@@ -478,7 +481,7 @@ describe('Response Processing', () => {
         eq(orgMetrics.periodType, 'all_time')
       ),
     });
-    
+
     expect(updatedMetrics?.sampleSize).toBe((initialMetrics?.sampleSize ?? 0) + 1);
   });
 
@@ -490,11 +493,11 @@ describe('Response Processing', () => {
       feedback: null,
       messageId: 'msg-4',
     });
-    
+
     const delivery = await db.query.surveyDelivery.findFirst({
       where: eq(surveyDelivery.id, testDelivery.id),
     });
-    
+
     expect(delivery?.status).toBe('responded');
     expect(delivery?.respondedAt).toBeDefined();
   });
@@ -507,11 +510,11 @@ describe('Response Processing', () => {
       feedback: 'Could be better',
       messageId: 'msg-5',
     });
-    
+
     const customers = await db.query.customer.findMany({
       where: eq(customer.orgId, testOrg.id),
     });
-    
+
     expect(customers.length).toBeGreaterThanOrEqual(1);
   });
 });
@@ -519,14 +522,15 @@ describe('Response Processing', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| NFR-P5 | NPS updates within 5s | Same-transaction update |
-| AR6 | Pre-aggregated metrics | `org_metrics` table with incremental updates |
+| NFR    | Requirement            | Implementation                               |
+| ------ | ---------------------- | -------------------------------------------- |
+| NFR-P5 | NPS updates within 5s  | Same-transaction update                      |
+| AR6    | Pre-aggregated metrics | `org_metrics` table with incremental updates |
 
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/db/src/schema/flowpulse.ts` - ADD survey_response and customer tables
 - `packages/api/src/services/response-processor.ts` - NEW
 - `packages/api/src/services/metrics-updater.ts` - NEW
@@ -567,15 +571,15 @@ Claude 3.5 Sonnet (Sisyphus Agent)
 - packages/api/src/services/response-processor.ts (NEW)
 - packages/api/src/services/metrics-updater.ts (NEW)
 - packages/api/src/utils/hash.ts (NEW - shared phone hashing utility)
-- apps/server/_source/jobs/handlers/kapso-survey-response.ts (MODIFIED)
-- apps/server/_source/jobs/handlers/index.ts (MODIFIED - registered kapsoSurveyResponseHandler)
+- apps/server/\_source/jobs/handlers/kapso-survey-response.ts (MODIFIED)
+- apps/server/\_source/jobs/handlers/index.ts (MODIFIED - registered kapsoSurveyResponseHandler)
 - tests/integration/response-processing.test.ts (NEW)
 - tests/utils/test-org.ts (MODIFIED - added customer cleanup)
-- _bmad-output/implementation-artifacts/sprint-status.yaml (MODIFIED)
+- \_bmad-output/implementation-artifacts/sprint-status.yaml (MODIFIED)
 
 ## Change Log
 
-| Date | Change | Reason |
-|------|--------|--------|
-| 2025-12-30 | Story implemented with all 6 tasks complete | FR26 real-time response processing, NFR-P5 same-transaction metrics, AR6 pre-aggregated metrics |
-| 2025-12-30 | Code review: Fixed 1 HIGH, 5 MEDIUM issues | Extracted hashPhoneNumber to shared utility, added error handling to job handler, updated File List, added review follow-up items |
+| Date       | Change                                      | Reason                                                                                                                            |
+| ---------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 2025-12-30 | Story implemented with all 6 tasks complete | FR26 real-time response processing, NFR-P5 same-transaction metrics, AR6 pre-aggregated metrics                                   |
+| 2025-12-30 | Code review: Fixed 1 HIGH, 5 MEDIUM issues  | Extracted hashPhoneNumber to shared utility, added error handling to job handler, updated File List, added review follow-up items |

@@ -68,6 +68,7 @@ So that **customers receive surveys in their WhatsApp**.
 **This story implements FR17, FR19, FR20, FR21, NFR-R3.**
 
 From architecture.md Decision 2 (Kapso Integration):
+
 - All Kapso calls through `IKapsoClient` interface
 - `KapsoMockClient` for testing (no real API calls in CI)
 - Error handling with retries via job queue
@@ -75,16 +76,19 @@ From architecture.md Decision 2 (Kapso Integration):
 ### Previous Story Context
 
 Story 3-0 established:
+
 - `IKapsoClient` interface with `sendSurvey()` method
 - `KapsoMockClient` for testing
 - `createKapsoClient()` factory
 
 Story 3-1 established:
+
 - `webhook_job` table with retry logic
 - `enqueueJob()` and job processor
 - Exponential backoff: 30s, 2min, 8min
 
 Story 3-3 established:
+
 - `survey_delivery` table with statuses
 - `queueSurveySend()` creates delivery record
 
@@ -112,19 +116,19 @@ interface SurveyMessageParams {
 
 export function formatSurveyMessage(params: SurveyMessageParams): string {
   const { surveyType, questionText, customerName, orgName } = params;
-  
+
   const greeting = customerName ? `Hi ${customerName}! ` : 'Hi! ';
-  
+
   switch (surveyType) {
     case 'nps':
       return `${greeting}${orgName} would love your feedback.\n\n${questionText}\n\nReply with a number from 0 (not likely) to 10 (very likely).`;
-    
+
     case 'csat':
       return `${greeting}${orgName} wants to know about your experience.\n\n${questionText}\n\nReply with a number from 1 (very unsatisfied) to 5 (very satisfied).`;
-    
+
     case 'ces':
       return `${greeting}${orgName} wants to improve.\n\n${questionText}\n\nReply with a number from 1 (very difficult) to 7 (very easy).`;
-    
+
     default:
       return `${greeting}${questionText}`;
   }
@@ -152,11 +156,11 @@ interface SurveySendPayload {
 
 export const surveySendHandler: JobHandler = {
   eventType: 'survey.send',
-  
+
   async handle(job: WebhookJob) {
     const payload = job.payload as SurveySendPayload;
     const kapso = createKapsoClient();
-    
+
     // Get survey and org details
     const surveyRecord = await db.query.survey.findFirst({
       where: eq(survey.id, payload.surveyId),
@@ -164,13 +168,13 @@ export const surveySendHandler: JobHandler = {
         organization: true,
       },
     });
-    
+
     if (!surveyRecord) {
       // Permanent failure - don't retry
       await updateDeliveryStatus(payload.deliveryId, 'undeliverable', 'Survey not found');
       return;
     }
-    
+
     // Format message
     const message = formatSurveyMessage({
       surveyType: surveyRecord.type as 'nps' | 'csat' | 'ces',
@@ -178,7 +182,7 @@ export const surveySendHandler: JobHandler = {
       customerName: payload.metadata?.customer_name as string | undefined,
       orgName: surveyRecord.organization?.name ?? 'Our company',
     });
-    
+
     try {
       // Send via Kapso
       const result = await kapso.sendSurvey({
@@ -187,7 +191,7 @@ export const surveySendHandler: JobHandler = {
         surveyId: payload.surveyId,
         message,
       });
-      
+
       // Success - update delivery
       await db.update(surveyDelivery)
         .set({
@@ -196,7 +200,7 @@ export const surveySendHandler: JobHandler = {
           updatedAt: new Date(),
         })
         .where(eq(surveyDelivery.id, payload.deliveryId));
-        
+
     } catch (error) {
       // Determine if error is retryable
       if (error instanceof KapsoError) {
@@ -210,7 +214,7 @@ export const surveySendHandler: JobHandler = {
           return; // Don't re-throw - job is "complete" (with failure)
         }
       }
-      
+
       // Unknown error - treat as retryable
       await updateDeliveryStatus(payload.deliveryId, 'failed', (error as Error).message);
       throw error;
@@ -219,8 +223,8 @@ export const surveySendHandler: JobHandler = {
 };
 
 async function updateDeliveryStatus(
-  deliveryId: string, 
-  status: 'failed' | 'undeliverable', 
+  deliveryId: string,
+  status: 'failed' | 'undeliverable',
   errorMessage: string
 ) {
   await db.update(surveyDelivery)
@@ -240,9 +244,9 @@ async function updateDeliveryStatus(
 export class KapsoMockClient implements IKapsoClient {
   private failureSequence: number[] = [];
   private callCount = 0;
-  
+
   // Existing methods...
-  
+
   /**
    * Configure failures for testing retry scenarios.
    * @param failures Array of attempt numbers that should fail (1-indexed)
@@ -252,23 +256,23 @@ export class KapsoMockClient implements IKapsoClient {
     this.failureSequence = failures;
     this.callCount = 0;
   }
-  
+
   /**
    * Configure permanent failure (all attempts fail)
    */
   mockPermanentFailure(errorMessage = 'Permanent failure'): void {
     this.permanentFailure = { enabled: true, message: errorMessage };
   }
-  
+
   async sendSurvey(params: SendSurveyParams): Promise<SurveyDeliveryResult> {
     this.callCount++;
     this.calls.push({ method: 'sendSurvey', params, timestamp: new Date() });
-    
+
     // Check permanent failure
     if (this.permanentFailure?.enabled) {
       throw new KapsoError(this.permanentFailure.message, 'PERMANENT_FAILURE', false);
     }
-    
+
     // Check failure sequence
     if (this.failureSequence.includes(this.callCount)) {
       throw new KapsoError(
@@ -277,7 +281,7 @@ export class KapsoMockClient implements IKapsoClient {
         true // isRetryable
       );
     }
-    
+
     // Success
     return {
       deliveryId: `mock-delivery-${Date.now()}`,
@@ -310,7 +314,7 @@ describe('Survey Delivery via Kapso', () => {
     testOrg = await createTestOrg();
     kapsoMock = new KapsoMockClient();
     kapsoMock.reset();
-    
+
     // Create active survey
     const [s] = await db.insert(survey).values({
       orgId: testOrg.id,
@@ -328,38 +332,38 @@ describe('Survey Delivery via Kapso', () => {
       surveyId: testSurvey.id,
       phoneNumber: '+5511999999999',
     });
-    
+
     // Process the job
     await processNextJob();
-    
+
     const delivery = await db.query.surveyDelivery.findFirst({
       where: eq(surveyDelivery.id, deliveryId),
     });
-    
+
     expect(delivery?.status).toBe('sent');
     expect(delivery?.kapsoMessageId).toBeDefined();
   });
 
   it('retries on transient failure', async () => {
     kapsoMock.mockFailureSequence([1]); // First attempt fails
-    
+
     const deliveryId = await queueSurveySend({
       orgId: testOrg.id,
       surveyId: testSurvey.id,
       phoneNumber: '+5511999999999',
     });
-    
+
     // First attempt - should fail
     await processNextJob();
-    
+
     let delivery = await db.query.surveyDelivery.findFirst({
       where: eq(surveyDelivery.id, deliveryId),
     });
     expect(delivery?.status).toBe('failed');
-    
+
     // Second attempt - should succeed
     await processNextJob();
-    
+
     delivery = await db.query.surveyDelivery.findFirst({
       where: eq(surveyDelivery.id, deliveryId),
     });
@@ -368,23 +372,23 @@ describe('Survey Delivery via Kapso', () => {
 
   it('marks as undeliverable after max retries', async () => {
     kapsoMock.mockFailureSequence([1, 2, 3]); // All attempts fail
-    
+
     const deliveryId = await queueSurveySend({
       orgId: testOrg.id,
       surveyId: testSurvey.id,
       phoneNumber: '+5511999999999',
       maxAttempts: 3,
     });
-    
+
     // Process all retry attempts
     await processNextJob(); // Attempt 1
     await processNextJob(); // Attempt 2
     await processNextJob(); // Attempt 3
-    
+
     const delivery = await db.query.surveyDelivery.findFirst({
       where: eq(surveyDelivery.id, deliveryId),
     });
-    
+
     expect(delivery?.status).toBe('undeliverable');
     expect(delivery?.errorMessage).toBeDefined();
   });
@@ -395,13 +399,13 @@ describe('Survey Delivery via Kapso', () => {
       surveyId: testSurvey.id,
       phoneNumber: '+5511999999999',
     });
-    
+
     await processNextJob();
-    
+
     const delivery = await db.query.surveyDelivery.findFirst({
       where: eq(surveyDelivery.id, deliveryId),
     });
-    
+
     expect(delivery?.kapsoMessageId).toMatch(/^mock-delivery-/);
   });
 });
@@ -409,15 +413,16 @@ describe('Survey Delivery via Kapso', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| NFR-R1 | 99.5% delivery success rate | Retry logic with exponential backoff |
-| NFR-R3 | Failed sends retry up to 2 times | max_attempts=3 (initial + 2 retries) |
-| NFR-I1 | Kapso abstracted behind interface | IKapsoClient interface pattern |
+| NFR    | Requirement                       | Implementation                       |
+| ------ | --------------------------------- | ------------------------------------ |
+| NFR-R1 | 99.5% delivery success rate       | Retry logic with exponential backoff |
+| NFR-R3 | Failed sends retry up to 2 times  | max_attempts=3 (initial + 2 retries) |
+| NFR-I1 | Kapso abstracted behind interface | IKapsoClient interface pattern       |
 
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `apps/server/_source/jobs/handlers/survey-send.ts` - EXTEND with full implementation
 - `packages/api/src/services/survey-message.ts` - NEW
 - `packages/kapso/src/mock.ts` - EXTEND with failure mocking

@@ -18,7 +18,7 @@ function getStartOfToday(): Date {
 export async function updateOrgMetrics(
   tx: DbClient,
   orgId: string,
-  response: ResponseData
+  response: ResponseData,
 ): Promise<void> {
   if (response.isTest) {
     return;
@@ -78,7 +78,7 @@ export async function updateOrgMetrics(
 function calculateNPSScore(
   promoterCount: number,
   detractorCount: number,
-  totalResponses: number
+  totalResponses: number,
 ): number {
   if (totalResponses === 0) return 0;
   const promoterPct = (promoterCount / totalResponses) * 100;
@@ -89,7 +89,9 @@ function calculateNPSScore(
 export async function incrementSentCount(orgId: string): Promise<void> {
   const today = getStartOfToday();
 
-  const existingMetrics = await (await import("@wp-nps/db")).db.query.orgMetrics.findFirst({
+  const existingMetrics = await (
+    await import("@wp-nps/db")
+  ).db.query.orgMetrics.findFirst({
     where: (table, { and, eq: eqOp }) =>
       and(eqOp(table.orgId, orgId), eqOp(table.metricDate, today)),
   });

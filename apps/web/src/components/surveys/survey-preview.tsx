@@ -29,15 +29,24 @@ export function SurveyPreview({ survey, className }: SurveyPreviewProps) {
   const questions = (survey.questions ?? []) as SurveyQuestion[];
 
   return (
-    <div className={cn("flex justify-center", className)} role="region" aria-label="WhatsApp survey preview">
+    <div
+      className={cn("flex justify-center", className)}
+      role="region"
+      aria-label="WhatsApp survey preview"
+    >
       {/* Phone Frame */}
-      <div 
+      <div
         className="relative aspect-[9/16] w-full max-w-[320px] overflow-hidden rounded-[2rem] border-[8px] border-gray-800 bg-white shadow-xl"
         aria-label="Mobile phone mockup"
       >
         {/* WhatsApp Header */}
         <header className="flex h-14 items-center gap-3 bg-[#075e54] px-4">
-          <svg className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <svg
+            className="h-6 w-6 text-white"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
           </svg>
           <div className="flex items-center gap-2">
@@ -70,9 +79,7 @@ export function SurveyPreview({ survey, className }: SurveyPreviewProps) {
                 </div>
               )}
 
-              {question.required && (
-                <span className="ml-2 text-xs text-gray-500">* Required</span>
-              )}
+              {question.required && <span className="ml-2 text-xs text-gray-500">* Required</span>}
             </div>
           ))}
 

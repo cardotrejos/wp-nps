@@ -14,16 +14,16 @@ export function NPSRatingButtons({ min, max, labels, className }: NPSRatingButto
   /**
    * Color coding based on relative position in scale (works for any scale):
    * - Bottom ~60%: Detractors (red) - negative sentiment
-   * - Middle ~20%: Passives (yellow) - neutral sentiment  
+   * - Middle ~20%: Passives (yellow) - neutral sentiment
    * - Top ~20%: Promoters (green) - positive sentiment
-   * 
+   *
    * For NPS 0-10: 0-6 red, 7-8 yellow, 9-10 green
    * For CSAT 1-5: 1-3 red, 4 yellow, 5 green
    * For CES 1-7: 1-4 red, 5 yellow, 6-7 green
    */
   const getButtonColor = (rating: number) => {
     const normalizedPosition = (rating - min) / range;
-    
+
     if (normalizedPosition <= 0.6) {
       return "border-red-300 bg-red-100 text-red-700";
     }

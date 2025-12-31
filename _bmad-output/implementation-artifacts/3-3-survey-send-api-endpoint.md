@@ -74,6 +74,7 @@ So that **I can automate survey delivery from my application**.
 **This story implements FR14-FR15 (API survey send with metadata) and NFR-P3 (< 500ms response).**
 
 From architecture.md:
+
 - External API uses `/api/v1/*` routes (separate from internal oRPC)
 - API key authentication via `Authorization: Bearer {key}` header
 - Async processing via `webhook_jobs` queue for < 500ms response
@@ -81,6 +82,7 @@ From architecture.md:
 ### Previous Story Context
 
 Story 3-2 (API Key Generation) provides:
+
 - `api_key` table with hashed keys
 - `validateApiKey(rawKey)` service function
 - `apiKeyAuth` middleware for Elysia
@@ -175,7 +177,7 @@ export class SurveySendError extends Error {
 
 export async function queueSurveySend(params: QueueSurveySendParams): Promise<string> {
   const { orgId, surveyId, phoneNumber, metadata } = params;
-  
+
   // Validate survey exists and belongs to org
   const surveyRecord = await db.query.survey.findFirst({
     where: and(
@@ -183,18 +185,18 @@ export async function queueSurveySend(params: QueueSurveySendParams): Promise<st
       eq(survey.orgId, orgId)
     ),
   });
-  
+
   if (!surveyRecord) {
     throw new SurveySendError('Survey not found', 'SURVEY_NOT_FOUND');
   }
-  
+
   if (surveyRecord.status !== 'active') {
     throw new SurveySendError('Survey is not active', 'SURVEY_INACTIVE');
   }
-  
+
   // Hash phone number for storage (PII protection)
   const phoneNumberHash = createHash('sha256').update(phoneNumber).digest('hex');
-  
+
   // Create delivery record
   const [delivery] = await db.insert(surveyDelivery)
     .values({
@@ -206,7 +208,7 @@ export async function queueSurveySend(params: QueueSurveySendParams): Promise<st
       status: 'pending',
     })
     .returning({ id: surveyDelivery.id });
-  
+
   // Queue for async processing
   await enqueueJob({
     orgId,
@@ -220,12 +222,12 @@ export async function queueSurveySend(params: QueueSurveySendParams): Promise<st
       metadata,
     },
   });
-  
+
   // Update status to queued
   await db.update(surveyDelivery)
     .set({ status: 'queued', updatedAt: new Date() })
     .where(eq(surveyDelivery.id, delivery.id));
-  
+
   return delivery.id;
 }
 ```
@@ -246,7 +248,7 @@ export const apiV1Router = new Elysia({ prefix: '/api/v1' })
       if (!apiKeyOrg) {
         return error(401, { error: 'Invalid or missing API key' });
       }
-      
+
       try {
         const deliveryId = await queueSurveySend({
           orgId: apiKeyOrg.orgId,
@@ -254,7 +256,7 @@ export const apiV1Router = new Elysia({ prefix: '/api/v1' })
           phoneNumber: body.phone,
           metadata: body.metadata,
         });
-        
+
         return {
           delivery_id: deliveryId,
           status: 'queued',
@@ -318,20 +320,20 @@ interface SurveySendPayload {
 
 export const surveySendHandler: JobHandler = {
   eventType: 'survey.send',
-  
+
   async handle(job) {
     const payload = job.payload as SurveySendPayload;
     const kapso = createKapsoClient();
-    
+
     // Get survey details for message
     const surveyRecord = await db.query.survey.findFirst({
       where: eq(survey.id, payload.surveyId),
     });
-    
+
     if (!surveyRecord) {
       throw new Error(`Survey ${payload.surveyId} not found`);
     }
-    
+
     // Send via Kapso
     const result = await kapso.sendSurvey({
       orgId: job.orgId,
@@ -339,7 +341,7 @@ export const surveySendHandler: JobHandler = {
       surveyId: payload.surveyId,
       message: surveyRecord.questionText ?? 'How likely are you to recommend us? Reply 0-10',
     });
-    
+
     // Update delivery record
     await db.update(surveyDelivery)
       .set({
@@ -370,7 +372,7 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
   beforeEach(async () => {
     testOrg = await createTestOrg();
     apiKey = await generateApiKey(testOrg.id);
-    
+
     // Create active survey
     const [s] = await db.insert(survey).values({
       orgId: testOrg.id,
@@ -394,7 +396,7 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
         metadata: { order_id: '123' },
       }),
     });
-    
+
     expect(response.status).toBe(202);
     const data = await response.json();
     expect(data.delivery_id).toBeDefined();
@@ -406,7 +408,7 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
     await db.update(survey)
       .set({ status: 'inactive' })
       .where(eq(survey.id, activeSurvey.id));
-    
+
     const response = await fetch(`http://localhost:3000/api/v1/surveys/${activeSurvey.id}/send`, {
       method: 'POST',
       headers: {
@@ -415,7 +417,7 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
       },
       body: JSON.stringify({ phone: '+5511999999999' }),
     });
-    
+
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toContain('not active');
@@ -427,7 +429,7 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: '+5511999999999' }),
     });
-    
+
     expect(response.status).toBe(401);
   });
 
@@ -440,14 +442,14 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
       },
       body: JSON.stringify({ phone: '11999999999' }), // Missing +
     });
-    
+
     expect(response.status).toBe(400);
   });
 
   it('prevents cross-org survey access', async () => {
     const org2 = await createTestOrg('Org 2');
     const key2 = await generateApiKey(org2.id);
-    
+
     // Try to send org1's survey with org2's key
     const response = await fetch(`http://localhost:3000/api/v1/surveys/${activeSurvey.id}/send`, {
       method: 'POST',
@@ -457,7 +459,7 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
       },
       body: JSON.stringify({ phone: '+5511999999999' }),
     });
-    
+
     expect(response.status).toBe(404);
   });
 });
@@ -465,16 +467,17 @@ describe('POST /api/v1/surveys/:surveyId/send', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| NFR-P3 | API responds < 500ms | Async queue, immediate 202 response |
-| NFR-I4 | RESTful with JSON | Standard REST patterns |
-| NFR-I5 | Meaningful error codes | 400, 401, 404 with messages |
+| NFR    | Requirement                     | Implementation                           |
+| ------ | ------------------------------- | ---------------------------------------- |
+| NFR-P3 | API responds < 500ms            | Async queue, immediate 202 response      |
+| NFR-I4 | RESTful with JSON               | Standard REST patterns                   |
+| NFR-I5 | Meaningful error codes          | 400, 401, 404 with messages              |
 | NFR-S2 | Phone numbers encrypted at rest | PostgreSQL encryption + hash for queries |
 
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/db/src/schema/flowpulse.ts` - ADD survey_delivery table
 - `packages/api/src/schemas/survey-send.ts` - NEW
 - `packages/api/src/services/survey-send.ts` - NEW
@@ -516,10 +519,10 @@ Claude 3.5 Sonnet (Anthropic)
 - packages/api/src/schemas/survey-send.ts (new)
 - packages/api/src/schemas/index.ts (new - barrel export)
 - packages/api/src/services/survey-send.ts (modified - added E.164 phone validation)
-- apps/server/_source/routes/api-v1.ts (new - with response schema definitions)
-- apps/server/_source/jobs/handlers/survey-send.ts (new)
-- apps/server/_source/jobs/handlers/index.ts (modified - registered survey-send handler)
-- apps/server/_source/index.ts (modified - wired apiV1Router)
+- apps/server/\_source/routes/api-v1.ts (new - with response schema definitions)
+- apps/server/\_source/jobs/handlers/survey-send.ts (new)
+- apps/server/\_source/jobs/handlers/index.ts (modified - registered survey-send handler)
+- apps/server/\_source/index.ts (modified - wired apiV1Router)
 - packages/api/src/routers/survey.ts (modified - added phoneNumberHash to insert)
 - packages/api/src/routers/index.ts (modified - added apiKeyRouter import)
 - tests/integration/survey-send-test.test.ts (modified - added phoneNumberHash to inserts)
@@ -534,15 +537,15 @@ Claude 3.5 Sonnet (Anthropic)
 
 ### Issues Found & Fixed
 
-| Severity | Issue | Resolution |
-|----------|-------|------------|
-| CRITICAL | Task 6.5 (AC #4 test) marked complete but missing | Added 2 tests for invalid phone validation with INVALID_PHONE error code |
-| CRITICAL | Response schema not defined in api-v1.ts | Added explicit response schema for 202, 400, 401, 404 |
-| MEDIUM | Type assertion using `as unknown as` anti-pattern | Refactored to cleaner `typeof ctx & ApiKeyDerived` pattern |
-| MEDIUM | Service lacked phone validation (defense in depth) | Added E.164 regex validation in queueSurveySend() |
-| MEDIUM | File List missing 4 changed files | Updated File List with all modified files |
-| MEDIUM | Dev Notes had stale field name (kapsoMessageId) | Updated to kapsoDeliveryId to match actual schema |
-| LOW | Missing barrel export for schemas directory | Created packages/api/src/schemas/index.ts |
+| Severity | Issue                                              | Resolution                                                               |
+| -------- | -------------------------------------------------- | ------------------------------------------------------------------------ |
+| CRITICAL | Task 6.5 (AC #4 test) marked complete but missing  | Added 2 tests for invalid phone validation with INVALID_PHONE error code |
+| CRITICAL | Response schema not defined in api-v1.ts           | Added explicit response schema for 202, 400, 401, 404                    |
+| MEDIUM   | Type assertion using `as unknown as` anti-pattern  | Refactored to cleaner `typeof ctx & ApiKeyDerived` pattern               |
+| MEDIUM   | Service lacked phone validation (defense in depth) | Added E.164 regex validation in queueSurveySend()                        |
+| MEDIUM   | File List missing 4 changed files                  | Updated File List with all modified files                                |
+| MEDIUM   | Dev Notes had stale field name (kapsoMessageId)    | Updated to kapsoDeliveryId to match actual schema                        |
+| LOW      | Missing barrel export for schemas directory        | Created packages/api/src/schemas/index.ts                                |
 
 ### Verification
 

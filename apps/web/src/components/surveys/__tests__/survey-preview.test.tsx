@@ -268,7 +268,7 @@ describe("SurveyPreview", () => {
 
     it("applies custom className for layout flexibility", () => {
       const { container } = render(
-        <SurveyPreview survey={createMockSurvey()} className="mt-4 lg:mt-0" />
+        <SurveyPreview survey={createMockSurvey()} className="mt-4 lg:mt-0" />,
       );
       const wrapper = container.firstChild as HTMLElement;
       expect(wrapper.className).toContain("mt-4");

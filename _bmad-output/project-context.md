@@ -274,6 +274,7 @@ const client = new KapsoMockClient();
 Tremor Raw is a copy-paste component library for dashboards. Components are copied into `apps/web/src/components/charts/`.
 
 **Installation (already done):**
+
 ```bash
 bun add tailwind-variants recharts --filter web
 ```
@@ -282,13 +283,13 @@ bun add tailwind-variants recharts --filter web
 
 **Key Components for NPS Dashboard:**
 
-| Use Case | Tremor Component | Location |
-|----------|------------------|----------|
-| NPS Score Ring | `ProgressCircle` | Story 4-2 |
+| Use Case        | Tremor Component | Location  |
+| --------------- | ---------------- | --------- |
+| NPS Score Ring  | `ProgressCircle` | Story 4-2 |
 | Trend Sparkline | `SparkLineChart` | Story 4-3 |
-| Category Bar | `CategoryBar` | Story 4-4 |
-| Timeline Chart | `AreaChart` | Story 4-6 |
-| Delta Badge | `BadgeDelta` | Story 4-7 |
+| Category Bar    | `CategoryBar`    | Story 4-4 |
+| Timeline Chart  | `AreaChart`      | Story 4-6 |
+| Delta Badge     | `BadgeDelta`     | Story 4-7 |
 
 **Usage Pattern:**
 
@@ -298,8 +299,8 @@ import { ProgressCircle } from '@/components/charts/ProgressCircle';
 function NPSScoreRing({ score }: { score: number }) {
   const normalizedScore = (score + 100) / 2;
   return (
-    <ProgressCircle 
-      value={normalizedScore} 
+    <ProgressCircle
+      value={normalizedScore}
       size="lg"
       color={score >= 70 ? 'emerald' : score >= 50 ? 'amber' : 'rose'}
     >

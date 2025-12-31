@@ -102,10 +102,7 @@ export const deliveryRouter = {
       }
 
       const delivery = await db.query.surveyDelivery.findFirst({
-        where: and(
-          eq(surveyDelivery.id, input.id),
-          eq(surveyDelivery.orgId, orgId),
-        ),
+        where: and(eq(surveyDelivery.id, input.id), eq(surveyDelivery.orgId, orgId)),
       });
 
       if (!delivery) {

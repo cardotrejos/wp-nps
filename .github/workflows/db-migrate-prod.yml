@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       command:
-        description: 'Database command to run'
+        description: "Database command to run"
         required: true
         type: choice
         options:

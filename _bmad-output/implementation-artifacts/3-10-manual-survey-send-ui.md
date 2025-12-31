@@ -66,6 +66,7 @@ So that **I can send surveys to individual customers without API integration**.
 **This story implements FR13 (set trigger type), FR14 (trigger survey send via API/manual).**
 
 From architecture.md:
+
 - Uses existing `webhook_jobs` queue from Story 3-1 (AR4)
 - oRPC procedure returns data directly (AR12)
 - E.164 phone format validation
@@ -73,10 +74,12 @@ From architecture.md:
 ### Previous Story Context
 
 Story 2-7 established:
+
 - `survey.trigger_type` column (api, manual)
 - Trigger type UI on survey settings page
 
 Story 3-3 established:
+
 - Survey send queueing logic
 - `survey_delivery` table creation
 - Phone validation regex
@@ -109,7 +112,7 @@ const COUNTRY_CODES = [
 export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps) {
   const [countryCode, setCountryCode] = React.useState('+55');
   const [localNumber, setLocalNumber] = React.useState('');
-  
+
   // Parse initial value
   React.useEffect(() => {
     if (value) {
@@ -120,25 +123,25 @@ export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps
       }
     }
   }, []);
-  
+
   const handleLocalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const cleaned = e.target.value.replace(/\D/g, '');
     setLocalNumber(cleaned);
     onChange(`${countryCode}${cleaned}`);
   };
-  
+
   const handleCountryChange = (code: string) => {
     setCountryCode(code);
     onChange(`${code}${localNumber}`);
   };
-  
+
   const formatDisplay = (num: string) => {
     // Format for display: 11 9999-9999 (Brazil mobile)
     if (num.length <= 2) return num;
     if (num.length <= 7) return `${num.slice(0, 2)} ${num.slice(2)}`;
     return `${num.slice(0, 2)} ${num.slice(2, 7)}-${num.slice(7, 11)}`;
   };
-  
+
   return (
     <div className="space-y-1">
       <div className="flex gap-2">
@@ -154,7 +157,7 @@ export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps
             ))}
           </SelectContent>
         </Select>
-        
+
         <Input
           type="tel"
           value={formatDisplay(localNumber)}
@@ -165,7 +168,7 @@ export function PhoneInput({ value, onChange, error, disabled }: PhoneInputProps
           maxLength={14}
         />
       </div>
-      
+
       {error && (
         <p className="text-sm text-red-500">{error}</p>
       )}
@@ -188,15 +191,15 @@ export function validatePhone(phone: string): { valid: boolean; error?: string }
   if (!phone) {
     return { valid: false, error: 'Phone number is required' };
   }
-  
+
   if (!phone.startsWith('+')) {
     return { valid: false, error: 'Phone must start with country code (e.g., +55)' };
   }
-  
+
   if (!E164_REGEX.test(phone)) {
     return { valid: false, error: 'Invalid phone format. Use E.164 format (e.g., +5511999999999)' };
   }
-  
+
   // Brazil-specific validation (most common)
   if (phone.startsWith('+55')) {
     const localNumber = phone.slice(3);
@@ -204,7 +207,7 @@ export function validatePhone(phone: string): { valid: boolean; error?: string }
       return { valid: false, error: 'Brazilian numbers must have 11 digits (DDD + 9 digits)' };
     }
   }
-  
+
   return { valid: true };
 }
 
@@ -251,7 +254,7 @@ const formSchema = z.object({
 export function SendSurveyModal({ surveyId, surveyName, open, onOpenChange }: SendSurveyModalProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  
+
   const sendMutation = orpc.survey.sendManual.useMutation({
     onSuccess: (data) => {
       toast({
@@ -268,7 +271,7 @@ export function SendSurveyModal({ surveyId, surveyName, open, onOpenChange }: Se
       });
     },
   });
-  
+
   const form = useForm({
     defaultValues: {
       phone: '',
@@ -291,9 +294,9 @@ export function SendSurveyModal({ surveyId, surveyName, open, onOpenChange }: Se
       }
     },
   });
-  
+
   const [phoneError, setPhoneError] = React.useState<string>();
-  
+
   const validatePhone = (phone: string) => {
     if (!phone) {
       setPhoneError('Phone number is required');
@@ -306,14 +309,14 @@ export function SendSurveyModal({ surveyId, surveyName, open, onOpenChange }: Se
     setPhoneError(undefined);
     return true;
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Send "{surveyName}"</DialogTitle>
         </DialogHeader>
-        
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -340,7 +343,7 @@ export function SendSurveyModal({ surveyId, surveyName, open, onOpenChange }: Se
               )}
             </form.Field>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="customerName">Customer Name (optional)</Label>
             <form.Field name="customerName">
@@ -355,7 +358,7 @@ export function SendSurveyModal({ surveyId, surveyName, open, onOpenChange }: Se
               )}
             </form.Field>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="orderId">Order ID (optional)</Label>
             <form.Field name="orderId">
@@ -370,11 +373,11 @@ export function SendSurveyModal({ surveyId, surveyName, open, onOpenChange }: Se
               )}
             </form.Field>
           </div>
-          
+
           <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
@@ -417,13 +420,13 @@ export const sendManualProcedure = protectedProcedure
   .handler(async ({ input, context }) => {
     const { surveyId, phone, metadata } = input;
     const orgId = context.orgId!;
-    
+
     // Validate phone
     const phoneValidation = validatePhone(phone);
     if (!phoneValidation.valid) {
       throw new ORPCError('BAD_REQUEST', { message: phoneValidation.error });
     }
-    
+
     // Check survey exists and is active
     const surveyRecord = await db.query.survey.findFirst({
       where: and(
@@ -431,18 +434,18 @@ export const sendManualProcedure = protectedProcedure
         eq(survey.orgId, orgId)
       ),
     });
-    
+
     if (!surveyRecord) {
       throw new ORPCError('NOT_FOUND', { message: 'Survey not found' });
     }
-    
+
     if (surveyRecord.status !== 'active') {
       throw new ORPCError('BAD_REQUEST', { message: 'Survey must be active to send' });
     }
-    
+
     // Create delivery record
     const phoneHash = createHash('sha256').update(phone).digest('hex');
-    
+
     const [delivery] = await db.insert(surveyDelivery)
       .values({
         orgId,
@@ -453,7 +456,7 @@ export const sendManualProcedure = protectedProcedure
         metadata: metadata ?? {},
       })
       .returning({ id: surveyDelivery.id });
-    
+
     // Queue for delivery
     await enqueueJob({
       orgId,
@@ -467,7 +470,7 @@ export const sendManualProcedure = protectedProcedure
         metadata,
       },
     });
-    
+
     return {
       deliveryId: delivery.id,
       phone: maskPhone(phone),
@@ -494,9 +497,9 @@ import { Send } from 'lucide-react';
 // Inside the SurveyDetail component:
 function SurveyDetailActions({ survey }: { survey: Survey }) {
   const [sendModalOpen, setSendModalOpen] = React.useState(false);
-  
+
   const canSend = survey.status === 'active';
-  
+
   return (
     <div className="flex gap-2">
       {survey.triggerType === 'manual' && (
@@ -519,7 +522,7 @@ function SurveyDetailActions({ survey }: { survey: Survey }) {
               </TooltipContent>
             )}
           </Tooltip>
-          
+
           <SendSurveyModal
             surveyId={survey.id}
             surveyName={survey.name}
@@ -548,10 +551,10 @@ import { createContext } from '@wp-nps/api/context';
 describe('Manual Survey Send', () => {
   let testOrg: { id: string };
   let testSurvey: { id: string };
-  
+
   beforeEach(async () => {
     testOrg = await createTestOrg();
-    
+
     const [s] = await db.insert(survey).values({
       orgId: testOrg.id,
       name: 'Test Survey',
@@ -561,14 +564,14 @@ describe('Manual Survey Send', () => {
     }).returning();
     testSurvey = s;
   });
-  
+
   it('creates delivery and queues job for valid phone', async () => {
     const context = await createContext({
       context: { request: new Request('http://test') },
       user: { id: 'user-1' },
       orgId: testOrg.id,
     });
-    
+
     const result = await appRouter.survey.sendManual.handler({
       input: {
         surveyId: testSurvey.id,
@@ -577,32 +580,32 @@ describe('Manual Survey Send', () => {
       },
       context,
     });
-    
+
     expect(result.status).toBe('queued');
     expect(result.deliveryId).toBeDefined();
     expect(result.phone).toContain('****'); // Masked
-    
+
     // Check delivery created
     const delivery = await db.query.surveyDelivery.findFirst({
       where: eq(surveyDelivery.id, result.deliveryId),
     });
     expect(delivery?.status).toBe('pending');
     expect(delivery?.metadata).toEqual({ order_id: 'ORD-123' });
-    
+
     // Check job queued
     const job = await db.query.webhookJob.findFirst({
       where: eq(webhookJob.payload, sql`${webhookJob.payload}->>'deliveryId' = ${result.deliveryId}`),
     });
     expect(job).toBeDefined();
   });
-  
+
   it('rejects invalid phone format', async () => {
     const context = await createContext({
       context: { request: new Request('http://test') },
       user: { id: 'user-1' },
       orgId: testOrg.id,
     });
-    
+
     await expect(
       appRouter.survey.sendManual.handler({
         input: {
@@ -613,19 +616,19 @@ describe('Manual Survey Send', () => {
       })
     ).rejects.toThrow(/phone/i);
   });
-  
+
   it('rejects inactive survey', async () => {
     // Deactivate survey
     await db.update(survey)
       .set({ status: 'inactive' })
       .where(eq(survey.id, testSurvey.id));
-    
+
     const context = await createContext({
       context: { request: new Request('http://test') },
       user: { id: 'user-1' },
       orgId: testOrg.id,
     });
-    
+
     await expect(
       appRouter.survey.sendManual.handler({
         input: {
@@ -649,42 +652,42 @@ test.describe('Manual Survey Send UI', () => {
     await loginAsTestUser(page);
     // Navigate to a manual trigger survey
   });
-  
+
   test('opens send modal and validates phone', async ({ page }) => {
     await page.click('[data-testid="send-survey-button"]');
-    
+
     // Modal should be visible
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByText('Send')).toBeVisible();
-    
+
     // Try invalid phone
     await page.fill('[data-testid="phone-input"]', '123');
     await page.click('button[type="submit"]');
-    
+
     await expect(page.getByText(/invalid phone/i)).toBeVisible();
   });
-  
+
   test('sends survey with valid phone', async ({ page }) => {
     await page.click('[data-testid="send-survey-button"]');
-    
+
     // Enter valid phone
     await page.fill('[data-testid="phone-input"]', '11999999999');
     await page.fill('[data-testid="customer-name-input"]', 'Test Customer');
     await page.fill('[data-testid="order-id-input"]', 'ORD-456');
-    
+
     await page.click('button[type="submit"]');
-    
+
     // Should show success
     await expect(page.getByText(/survey sent/i)).toBeVisible();
   });
-  
+
   test('disabled button for inactive survey', async ({ page }) => {
     // Navigate to inactive survey
     await page.goto('/surveys/inactive-survey-id');
-    
+
     const sendButton = page.getByTestId('send-survey-button');
     await expect(sendButton).toBeDisabled();
-    
+
     // Hover should show tooltip
     await sendButton.hover();
     await expect(page.getByText(/activate/i)).toBeVisible();
@@ -694,15 +697,16 @@ test.describe('Manual Survey Send UI', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| FR13 | Set trigger type for survey | Uses `triggerType` from Story 2-7 |
-| FR14 | Trigger survey send via manual | Modal + phone input + queue |
-| NFR-I5 | Meaningful error codes | Validation errors with clear messages |
+| NFR    | Requirement                    | Implementation                        |
+| ------ | ------------------------------ | ------------------------------------- |
+| FR13   | Set trigger type for survey    | Uses `triggerType` from Story 2-7     |
+| FR14   | Trigger survey send via manual | Modal + phone input + queue           |
+| NFR-I5 | Meaningful error codes         | Validation errors with clear messages |
 
 ### UI/UX Notes (Delegate to frontend-ui-ux-engineer)
 
 The visual styling of these components should be delegated:
+
 - PhoneInput country selector styling
 - Modal layout and spacing
 - Toast notification styling
@@ -712,6 +716,7 @@ The visual styling of these components should be delegated:
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `apps/web/src/components/phone-input.tsx` - NEW
 - `apps/web/src/components/send-survey-modal.tsx` - NEW
 - `packages/api/src/lib/phone-validation.ts` - NEW
@@ -751,12 +756,14 @@ N/A
 ### File List
 
 **New Files:**
+
 - `apps/web/src/components/phone-input.tsx` - Phone input with country selector and E.164 validation
 - `apps/web/src/components/send-survey-modal.tsx` - Modal for manual survey sending
 - `tests/integration/manual-send.test.ts` - Integration tests (7 tests)
 - `tests/e2e/manual-survey-send.spec.ts` - E2E tests (skipped)
 
 **Modified Files:**
+
 - `packages/api/src/routers/survey.ts` - Added sendManual procedure
 - `apps/web/src/components/surveys/manual-send-button.tsx` - Functional implementation
 - `apps/web/src/routes/surveys.$surveyId.tsx` - Pass surveyName prop to ManualSendButton
@@ -774,15 +781,15 @@ All 5 Acceptance Criteria verified against implementation. All 6 tasks marked co
 
 ### Issues Found & Resolved
 
-| # | Severity | Issue | Resolution |
-|---|----------|-------|------------|
-| 1 | MEDIUM | Test files not staged | ✅ Fixed - `git add` executed |
-| 2 | MEDIUM | Component test file unstaged | ✅ Fixed - `git add` executed |
-| 3 | MEDIUM | All E2E tests skipped | ⚠️ Acknowledged - auth fixtures needed |
-| 4 | MEDIUM | Duplicate E.164 validation | ⚠️ Noted - works correctly, refactor optional |
-| 5 | LOW | Dev Notes reference non-existent file | ⚠️ Noted - planning vs implementation |
-| 6 | LOW | useEffect re-render pattern | ✅ Fixed - removed redundant deps |
-| 7 | LOW | Integration test import path | ⚠️ Noted - works correctly |
+| #   | Severity | Issue                                 | Resolution                                    |
+| --- | -------- | ------------------------------------- | --------------------------------------------- |
+| 1   | MEDIUM   | Test files not staged                 | ✅ Fixed - `git add` executed                 |
+| 2   | MEDIUM   | Component test file unstaged          | ✅ Fixed - `git add` executed                 |
+| 3   | MEDIUM   | All E2E tests skipped                 | ⚠️ Acknowledged - auth fixtures needed        |
+| 4   | MEDIUM   | Duplicate E.164 validation            | ⚠️ Noted - works correctly, refactor optional |
+| 5   | LOW      | Dev Notes reference non-existent file | ⚠️ Noted - planning vs implementation         |
+| 6   | LOW      | useEffect re-render pattern           | ✅ Fixed - removed redundant deps             |
+| 7   | LOW      | Integration test import path          | ⚠️ Noted - works correctly                    |
 
 ### Code Quality Assessment
 

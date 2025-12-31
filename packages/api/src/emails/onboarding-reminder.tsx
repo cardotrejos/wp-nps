@@ -23,11 +23,7 @@ const STEP_NAMES: Record<number, string> = {
   4: "Select Survey Template",
 };
 
-function OnboardingReminderEmail({
-  userName,
-  currentStep,
-  resumeUrl,
-}: OnboardingReminderProps) {
+function OnboardingReminderEmail({ userName, currentStep, resumeUrl }: OnboardingReminderProps) {
   const nextStepName = STEP_NAMES[currentStep] ?? "Complete Setup";
   const stepsCompleted = currentStep - 1;
   const totalSteps = 4;
@@ -56,8 +52,7 @@ function OnboardingReminderEmail({
           </Text>
 
           <Text style={textStyle}>
-            It takes most users under 5 minutes to complete setup and start collecting NPS
-            scores.
+            It takes most users under 5 minutes to complete setup and start collecting NPS scores.
           </Text>
 
           <Section style={buttonContainerStyle}>
@@ -66,9 +61,7 @@ function OnboardingReminderEmail({
             </Button>
           </Section>
 
-          <Text style={textStyle}>
-            Questions? Just reply to this email - we're here to help!
-          </Text>
+          <Text style={textStyle}>Questions? Just reply to this email - we're here to help!</Text>
 
           <Section style={footerStyle}>
             <Text style={footerTextStyle}>
@@ -159,6 +152,8 @@ const footerTextStyle: React.CSSProperties = {
   textAlign: "center" as const,
 };
 
-export async function renderOnboardingReminderEmail(props: OnboardingReminderProps): Promise<string> {
+export async function renderOnboardingReminderEmail(
+  props: OnboardingReminderProps,
+): Promise<string> {
   return await render(<OnboardingReminderEmail {...props} />);
 }

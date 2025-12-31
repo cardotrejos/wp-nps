@@ -659,6 +659,7 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 **M1: Incomplete File List** - Fixed by adding all git-modified files to File List section
 
 **M2: Insufficient Procedure Testing** - Fixed by adding 6 new tests that simulate the oRPC procedure validation logic:
+
 - `activate procedure returns error for survey with no questions`
 - `activate procedure returns error for non-existent survey`
 - `activate procedure returns error when org doesn't own survey`
@@ -676,22 +677,24 @@ Claude Sonnet 4 (claude-sonnet-4-20250514)
 ### File List
 
 **Created:**
+
 - apps/web/src/components/surveys/survey-status-badge.tsx
 - apps/web/src/components/surveys/survey-status-toggle.tsx
 - tests/integration/survey-activate.test.ts
 
 **Modified:**
+
 - packages/api/src/routers/survey.ts (added activate/deactivate procedures)
 - apps/web/src/hooks/use-surveys.ts (added useActivateSurvey/useDeactivateSurvey hooks)
 - apps/web/src/components/surveys/survey-card.tsx (integrated SurveyStatusBadge, added normalizeStatus)
 - apps/web/src/components/surveys/survey-header.tsx (integrated SurveyStatusBadge and SurveyStatusToggle, added normalizeStatus)
 - apps/web/src/routes/surveys.$surveyId.tsx (minor - imports already present)
-- _bmad-output/implementation-artifacts/sprint-status.yaml (status: in-progress → review)
+- \_bmad-output/implementation-artifacts/sprint-status.yaml (status: in-progress → review)
 
 **Indirectly Modified (dependencies/config):**
+
 - apps/web/package.json
 - packages/api/package.json
 - bun.lock
 - vitest.config.ts
 - tests/utils/test-org.ts
-

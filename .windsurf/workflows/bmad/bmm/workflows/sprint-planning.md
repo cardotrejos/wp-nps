@@ -57,11 +57,11 @@ status_file: "{implementation_artifacts}/sprint-status.yaml"
 
 # Strategy: FULL LOAD - sprint planning needs ALL epics to build complete status
 
-input_file_patterns:
+input*file_patterns:
 epics:
 description: "All epics with user stories"
-whole: "{output_folder}/_epic_.md"
-sharded: "{output_folder}/_epic_/\*.md"
+whole: "{output_folder}/\_epic*.md"
+sharded: "{output*folder}/\_epic*/\*.md"
 load_strategy: "FULL_LOAD"
 
 # Output configuration

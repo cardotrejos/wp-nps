@@ -14,7 +14,7 @@ export const kapsoSurveyResponseHandler: JobHandler = {
       where: and(
         eq(surveyDelivery.orgId, job.orgId),
         eq(surveyDelivery.phoneNumberHash, phoneHash),
-        eq(surveyDelivery.status, "sent")
+        eq(surveyDelivery.status, "sent"),
       ),
       with: {
         survey: true,
@@ -45,12 +45,12 @@ export const kapsoSurveyResponseHandler: JobHandler = {
       });
 
       console.log(
-        `[KapsoSurveyResponse] Processed response for delivery ${delivery.id}, score: ${parsed.score}`
+        `[KapsoSurveyResponse] Processed response for delivery ${delivery.id}, score: ${parsed.score}`,
       );
     } catch (error) {
       console.error(
         `[KapsoSurveyResponse] Failed to process response for delivery ${delivery.id}:`,
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
       throw error; // Re-throw to let job queue handle retry logic
     }

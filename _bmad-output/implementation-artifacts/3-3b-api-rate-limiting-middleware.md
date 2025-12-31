@@ -56,6 +56,7 @@ So that **no single organization can overwhelm the system**.
 **This story implements NFR-S10 (API rate limiting at 100 requests/minute per org).**
 
 From architecture.md Decision 6:
+
 - Unified middleware combining rate limiting + usage tracking
 - In-memory counter per org (reset every 60s)
 - Header: `X-RateLimit-Remaining` on all responses
@@ -63,6 +64,7 @@ From architecture.md Decision 6:
 ### Previous Story Context
 
 Story 3-3 (Survey Send API) establishes:
+
 - External API at `/api/v1/*`
 - API key authentication middleware
 - `apiKeyOrg` context available in requests
@@ -99,9 +101,9 @@ export function checkRateLimit(orgId: string): {
 } {
   const config = getRateLimitConfig();
   const now = Date.now();
-  
+
   let entry = rateLimits.get(orgId);
-  
+
   // Reset if window expired
   if (!entry || entry.resetAt <= now) {
     entry = {
@@ -110,10 +112,10 @@ export function checkRateLimit(orgId: string): {
     };
     rateLimits.set(orgId, entry);
   }
-  
+
   const remaining = Math.max(0, config.limit - entry.count);
   const allowed = entry.count < config.limit;
-  
+
   return {
     allowed,
     remaining,
@@ -153,23 +155,23 @@ export const rateLimitMiddleware = new Elysia()
       // No org context = no rate limiting (will fail auth anyway)
       return { rateLimitInfo: null };
     }
-    
+
     const info = checkRateLimit(apiKeyOrg.orgId);
-    
+
     // Set rate limit headers
     set.headers['X-RateLimit-Limit'] = String(info.limit);
     set.headers['X-RateLimit-Remaining'] = String(info.remaining);
     set.headers['X-RateLimit-Reset'] = String(Math.ceil(info.resetAt / 1000));
-    
+
     return { rateLimitInfo: info };
   })
   .onBeforeHandle(({ rateLimitInfo, apiKeyOrg, set, error }) => {
     if (!rateLimitInfo || !apiKeyOrg) return;
-    
+
     if (!rateLimitInfo.allowed) {
       const retryAfter = Math.ceil((rateLimitInfo.resetAt - Date.now()) / 1000);
       set.headers['Retry-After'] = String(retryAfter);
-      
+
       return error(429, {
         error: 'Too Many Requests',
         message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
@@ -252,7 +254,7 @@ describe('API Rate Limiting', () => {
       },
       body: JSON.stringify({ phone: '+5511999999999' }),
     });
-    
+
     expect(response.headers.get('X-RateLimit-Limit')).toBe('100');
     expect(response.headers.get('X-RateLimit-Remaining')).toBeDefined();
     expect(response.headers.get('X-RateLimit-Reset')).toBeDefined();
@@ -266,15 +268,15 @@ describe('API Rate Limiting', () => {
       })
     );
     await Promise.all(requests);
-    
+
     // 101st request should fail
     const response = await fetch(`${baseUrl}/health`, {
       headers: { 'Authorization': `Bearer ${apiKey}` },
     });
-    
+
     expect(response.status).toBe(429);
     expect(response.headers.get('Retry-After')).toBeDefined();
-    
+
     const data = await response.json();
     expect(data.error).toBe('Too Many Requests');
   });
@@ -282,7 +284,7 @@ describe('API Rate Limiting', () => {
   it('separate orgs have independent limits', async () => {
     const org2 = await createTestOrg('Org 2');
     const key2 = await generateApiKey(org2.id);
-    
+
     // Exhaust org1's limit
     const org1Requests = Array(100).fill(null).map(() =>
       fetch(`${baseUrl}/health`, {
@@ -290,18 +292,18 @@ describe('API Rate Limiting', () => {
       })
     );
     await Promise.all(org1Requests);
-    
+
     // Org2 should still work
     const org2Response = await fetch(`${baseUrl}/health`, {
       headers: { 'Authorization': `Bearer ${key2}` },
     });
-    
+
     expect(org2Response.status).not.toBe(429);
   });
 
   it('allows requests after window reset', async () => {
     vi.useFakeTimers();
-    
+
     // Exhaust limit
     const requests = Array(100).fill(null).map(() =>
       fetch(`${baseUrl}/health`, {
@@ -309,17 +311,17 @@ describe('API Rate Limiting', () => {
       })
     );
     await Promise.all(requests);
-    
+
     // Advance time by 61 seconds
     vi.advanceTimersByTime(61_000);
-    
+
     // Should work again
     const response = await fetch(`${baseUrl}/health`, {
       headers: { 'Authorization': `Bearer ${apiKey}` },
     });
-    
+
     expect(response.status).not.toBe(429);
-    
+
     vi.useRealTimers();
   });
 });
@@ -327,14 +329,15 @@ describe('API Rate Limiting', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
+| NFR     | Requirement                 | Implementation                    |
+| ------- | --------------------------- | --------------------------------- |
 | NFR-S10 | 100 requests/minute per org | In-memory counter with 60s window |
-| NFR-I5 | Meaningful error codes | 429 with Retry-After header |
+| NFR-I5  | Meaningful error codes      | 429 with Retry-After header       |
 
 ### Future Enhancements
 
 For scale beyond MVP:
+
 - Move to Redis for distributed rate limiting
 - Add per-endpoint rate limits (e.g., survey send stricter than health)
 - Add burst allowance (token bucket algorithm)
@@ -343,6 +346,7 @@ For scale beyond MVP:
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/api/src/services/rate-limiter.ts` - NEW
 - `packages/api/src/middleware/rate-limit.ts` - NEW
 - `apps/server/_source/routes/api-v1.ts` - EXTEND with middleware
@@ -376,30 +380,33 @@ None - implementation proceeded without issues.
 ### File List
 
 **NEW FILES:**
+
 - `packages/api/src/services/rate-limiter.ts` - Rate limiter service with in-memory storage + cleanup interval
 - `packages/api/src/services/rate-limiter.test.ts` - Unit tests for rate limiter service (11 tests)
 - `packages/api/src/middleware/rate-limit.ts` - Elysia middleware for rate limiting
 - `tests/integration/rate-limiting.test.ts` - Integration tests + HTTP endpoint tests (17 tests, 4 skipped)
 
 **MODIFIED FILES:**
+
 - `apps/server/_source/routes/api-v1.ts` - Added rate limit middleware + `/api/v1/health` endpoint
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` - Status updates
 
 **REVIEW MODIFICATIONS:**
+
 - `packages/api/src/services/rate-limiter.ts` - Added memory cleanup interval functions
 - `apps/server/_source/routes/api-v1.ts` - Added GET `/api/v1/health` endpoint for rate limit testing
 - `tests/integration/rate-limiting.test.ts` - Added HTTP endpoint tests (skipped pending E2E)
 
 ## Change Log
 
-| Date | Change | Author |
-|------|--------|--------|
-| 2025-12-30 | Implemented rate limiter service with checkRateLimit, incrementRateLimit, resetRateLimits functions | Dev Agent |
-| 2025-12-30 | Created rate limit middleware with headers (X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset) | Dev Agent |
-| 2025-12-30 | Integrated middleware with /api/v1/* routes after API key auth | Dev Agent |
-| 2025-12-30 | Added 24 tests covering all acceptance criteria | Dev Agent |
-| 2025-12-30 | Story marked for review | Dev Agent |
-| 2025-12-30 | Code review: Fixed 4 HIGH, 2 MEDIUM issues | Code Review Agent |
+| Date       | Change                                                                                                   | Author            |
+| ---------- | -------------------------------------------------------------------------------------------------------- | ----------------- |
+| 2025-12-30 | Implemented rate limiter service with checkRateLimit, incrementRateLimit, resetRateLimits functions      | Dev Agent         |
+| 2025-12-30 | Created rate limit middleware with headers (X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset) | Dev Agent         |
+| 2025-12-30 | Integrated middleware with /api/v1/\* routes after API key auth                                          | Dev Agent         |
+| 2025-12-30 | Added 24 tests covering all acceptance criteria                                                          | Dev Agent         |
+| 2025-12-30 | Story marked for review                                                                                  | Dev Agent         |
+| 2025-12-30 | Code review: Fixed 4 HIGH, 2 MEDIUM issues                                                               | Code Review Agent |
 
 ## Senior Developer Review (AI)
 
@@ -408,14 +415,14 @@ None - implementation proceeded without issues.
 
 ### Issues Found & Fixed
 
-| Severity | Issue | Resolution |
-|----------|-------|------------|
-| HIGH | Missing memory cleanup interval (memory leak risk) | Added `startCleanupInterval()`, `stopCleanupInterval()` with periodic Map cleanup |
-| HIGH | No `/api/v1/health` endpoint for rate limit testing | Added health endpoint to `api-v1.ts` |
-| HIGH | No HTTP integration tests (AC #3 not verified at HTTP level) | Added 4 HTTP tests (skipped pending E2E setup - tests verify headers, 429, Retry-After) |
-| HIGH | Dev Notes reference non-existent `/api/v1/health` endpoint | Fixed by adding the endpoint |
-| MEDIUM | No test for middleware wire integration | Added HTTP tests that verify middleware is wired correctly |
-| MEDIUM | Dev Notes code samples don't match actual implementation | Documented as reference patterns (actual uses `store.apiKeyOrg` pattern) |
+| Severity | Issue                                                        | Resolution                                                                              |
+| -------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| HIGH     | Missing memory cleanup interval (memory leak risk)           | Added `startCleanupInterval()`, `stopCleanupInterval()` with periodic Map cleanup       |
+| HIGH     | No `/api/v1/health` endpoint for rate limit testing          | Added health endpoint to `api-v1.ts`                                                    |
+| HIGH     | No HTTP integration tests (AC #3 not verified at HTTP level) | Added 4 HTTP tests (skipped pending E2E setup - tests verify headers, 429, Retry-After) |
+| HIGH     | Dev Notes reference non-existent `/api/v1/health` endpoint   | Fixed by adding the endpoint                                                            |
+| MEDIUM   | No test for middleware wire integration                      | Added HTTP tests that verify middleware is wired correctly                              |
+| MEDIUM   | Dev Notes code samples don't match actual implementation     | Documented as reference patterns (actual uses `store.apiKeyOrg` pattern)                |
 
 ### Additional Changes
 

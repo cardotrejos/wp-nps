@@ -294,26 +294,26 @@ export const whatsappRouter = {
         orgId: phoneNumberId,
       });
 
-    // Store delivery ID in metadata for tracking verification attempts
-    const currentMetadata = (connection.metadata as Record<string, unknown>) ?? {};
-    await db
-      .update(whatsappConnection)
-      .set({
-        metadata: {
-          ...currentMetadata,
-          lastTestDeliveryId: result.deliveryId,
-          lastTestSentAt: new Date().toISOString(),
-          testAttempts: ((currentMetadata.testAttempts as number) ?? 0) + 1,
-        },
-        updatedAt: new Date(),
-      })
-      .where(eq(whatsappConnection.id, connection.id));
+      // Store delivery ID in metadata for tracking verification attempts
+      const currentMetadata = (connection.metadata as Record<string, unknown>) ?? {};
+      await db
+        .update(whatsappConnection)
+        .set({
+          metadata: {
+            ...currentMetadata,
+            lastTestDeliveryId: result.deliveryId,
+            lastTestSentAt: new Date().toISOString(),
+            testAttempts: ((currentMetadata.testAttempts as number) ?? 0) + 1,
+          },
+          updatedAt: new Date(),
+        })
+        .where(eq(whatsappConnection.id, connection.id));
 
-    return {
-      deliveryId: result.deliveryId,
-      status: result.status,
-    };
-  }),
+      return {
+        deliveryId: result.deliveryId,
+        status: result.status,
+      };
+    }),
 
   /**
    * Get verification/delivery status (for polling)

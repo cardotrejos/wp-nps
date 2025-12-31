@@ -73,15 +73,15 @@ describe("NPSRatingButtons", () => {
   describe("CSAT 1-5 scale colors", () => {
     it("applies correct colors for CSAT scale", () => {
       render(<NPSRatingButtons min={1} max={5} />);
-      
+
       // 1-3 should be red (bottom 60% = 0-0.6 of range)
       expect(screen.getByRole("button", { name: "Rating 1" }).className).toContain("bg-red-100");
       expect(screen.getByRole("button", { name: "Rating 2" }).className).toContain("bg-red-100");
       expect(screen.getByRole("button", { name: "Rating 3" }).className).toContain("bg-red-100");
-      
+
       // 4 should be yellow (60-80% of range)
       expect(screen.getByRole("button", { name: "Rating 4" }).className).toContain("bg-yellow-100");
-      
+
       // 5 should be green (top 20%)
       expect(screen.getByRole("button", { name: "Rating 5" }).className).toContain("bg-green-100");
     });
@@ -91,23 +91,21 @@ describe("NPSRatingButtons", () => {
   describe("CES 1-7 scale colors", () => {
     it("applies correct colors for CES scale", () => {
       render(<NPSRatingButtons min={1} max={7} />);
-      
+
       // 1-4 should be red (bottom ~60%)
       expect(screen.getByRole("button", { name: "Rating 1" }).className).toContain("bg-red-100");
       expect(screen.getByRole("button", { name: "Rating 4" }).className).toContain("bg-red-100");
-      
+
       // 5-6 should be yellow (middle ~20%)
       expect(screen.getByRole("button", { name: "Rating 5" }).className).toContain("bg-yellow-100");
-      
+
       // 7 should be green (top ~20%)
       expect(screen.getByRole("button", { name: "Rating 7" }).className).toContain("bg-green-100");
     });
   });
 
   it("applies custom className", () => {
-    const { container } = render(
-      <NPSRatingButtons min={0} max={10} className="custom-class" />,
-    );
+    const { container } = render(<NPSRatingButtons min={0} max={10} className="custom-class" />);
     const wrapper = container.firstChild as HTMLElement;
     expect(wrapper.classList.contains("custom-class")).toBe(true);
   });

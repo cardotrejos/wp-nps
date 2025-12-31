@@ -27,30 +27,30 @@ sprint_status: "{implementation_artifacts}/sprint-status.yaml || {output_folder}
 
 # Strategy: Load project context for impact analysis
 
-input_file_patterns:
+input*file_patterns:
 prd:
 description: "Product requirements for impact analysis"
-whole: "{planning_artifacts}/_prd_.md"
-sharded: "{planning_artifacts}/_prd_/*.md"
+whole: "{planning_artifacts}/\_prd*.md"
+sharded: "{planning*artifacts}/\_prd*/*.md"
 load_strategy: "FULL_LOAD"
 epics:
 description: "All epics to analyze change impact"
 whole: "{planning_artifacts}/*epic*.md"
 sharded: "{planning_artifacts}/*epic*/*.md"
-load_strategy: "FULL_LOAD"
+load*strategy: "FULL_LOAD"
 architecture:
 description: "System architecture and decisions"
-whole: "{planning_artifacts}/_architecture_.md"
-sharded: "{planning_artifacts}/_architecture_/*.md"
+whole: "{planning_artifacts}/\_architecture*.md"
+sharded: "{planning*artifacts}/\_architecture*/*.md"
 load_strategy: "FULL_LOAD"
 ux_design:
 description: "UX design specification (if UI impacts)"
 whole: "{planning_artifacts}/*ux*.md"
 sharded: "{planning_artifacts}/*ux*/*.md"
-load_strategy: "FULL_LOAD"
+load*strategy: "FULL_LOAD"
 tech_spec:
 description: "Technical specification"
-whole: "{planning_artifacts}/_tech-spec_.md"
+whole: "{planning_artifacts}/\_tech-spec*.md"
 load_strategy: "FULL_LOAD"
 document_project:
 description: "Brownfield project documentation (optional)"

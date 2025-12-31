@@ -43,8 +43,14 @@ describe("Kapso Webhook HTTP Endpoint", () => {
   });
 
   afterEach(async () => {
-    await db.delete(webhookJob).where(eq(webhookJob.orgId, testOrg.id)).catch(() => {});
-    await db.delete(whatsappConnection).where(eq(whatsappConnection.orgId, testOrg.id)).catch(() => {});
+    await db
+      .delete(webhookJob)
+      .where(eq(webhookJob.orgId, testOrg.id))
+      .catch(() => {});
+    await db
+      .delete(whatsappConnection)
+      .where(eq(whatsappConnection.orgId, testOrg.id))
+      .catch(() => {});
     await cleanupTestOrg(testOrg.id).catch(() => {});
     await clearOrgContext();
   });
@@ -65,7 +71,10 @@ describe("Kapso Webhook HTTP Endpoint", () => {
       );
 
       expect(response.status).toBe(202);
-      const data = (await response.json()) as { status: string; results: Array<{ status: string; jobId?: string }> };
+      const data = (await response.json()) as {
+        status: string;
+        results: Array<{ status: string; jobId?: string }>;
+      };
       expect(data.status).toBe("processed");
       expect(data.results[0]?.status).toBe("accepted");
       expect(data.results[0]?.jobId).toBeDefined();
@@ -157,7 +166,10 @@ describe("Kapso Webhook HTTP Endpoint", () => {
       );
 
       expect(secondResponse.status).toBe(202);
-      const data = (await secondResponse.json()) as { status: string; results: Array<{ status: string }> };
+      const data = (await secondResponse.json()) as {
+        status: string;
+        results: Array<{ status: string }>;
+      };
       expect(data.status).toBe("processed");
       expect(data.results[0]?.status).toBe("duplicate");
     });
@@ -216,7 +228,10 @@ describe("Kapso Webhook HTTP Endpoint", () => {
       );
 
       expect(response.status).toBe(202);
-      const data = (await response.json()) as { status: string; results: Array<{ status: string }> };
+      const data = (await response.json()) as {
+        status: string;
+        results: Array<{ status: string }>;
+      };
       expect(data.status).toBe("processed");
       expect(data.results[0]?.status).toBe("unknown_phone");
     });

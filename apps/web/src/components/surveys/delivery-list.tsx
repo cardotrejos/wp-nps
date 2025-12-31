@@ -76,18 +76,14 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h3 className="text-lg font-medium">Deliveries</h3>
-          {data && (
-            <p className="text-sm text-muted-foreground">
-              {data.total} total deliveries
-            </p>
-          )}
+          {data && <p className="text-sm text-muted-foreground">{data.total} total deliveries</p>}
         </div>
         <div className="w-full sm:w-[200px]">
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "w-full justify-between cursor-pointer"
+                "w-full justify-between cursor-pointer",
               )}
             >
               {getStatusLabel(statusFilter)}
@@ -103,9 +99,7 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
               <DropdownMenuItem onClick={() => handleStatusChange("queued")}>
                 Queued
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusChange("sent")}>
-                Sent
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusChange("sent")}>Sent</DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleStatusChange("delivered")}>
                 Delivered
               </DropdownMenuItem>
@@ -147,13 +141,9 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
                   className={`cursor-pointer transition-colors ${
                     selectedId === delivery.id ? "bg-muted/50" : ""
                   }`}
-                  onClick={() =>
-                    setSelectedId(selectedId === delivery.id ? null : delivery.id)
-                  }
+                  onClick={() => setSelectedId(selectedId === delivery.id ? null : delivery.id)}
                 >
-                  <TableCell className="font-mono text-xs">
-                    {delivery.phoneNumberMasked}
-                  </TableCell>
+                  <TableCell className="font-mono text-xs">{delivery.phoneNumberMasked}</TableCell>
                   <TableCell>
                     <DeliveryStatusBadge
                       status={delivery.status}
@@ -166,13 +156,15 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
                     {formatDate(delivery.createdAt)}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {(delivery.metadata as Record<string, unknown>)?.customer_name as string ?? "-"}
+                    {((delivery.metadata as Record<string, unknown>)?.customer_name as string) ??
+                      "-"}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {formatDate(delivery.createdAt)}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {(delivery.metadata as Record<string, unknown>)?.customer_name as string ?? "-"}
+                    {((delivery.metadata as Record<string, unknown>)?.customer_name as string) ??
+                      "-"}
                   </TableCell>
                 </TableRow>
               ))
@@ -211,10 +203,7 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
 
       {selectedId && (
         <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-          <DeliveryDetail
-            deliveryId={selectedId}
-            onClose={() => setSelectedId(null)}
-          />
+          <DeliveryDetail deliveryId={selectedId} onClose={() => setSelectedId(null)} />
         </div>
       )}
     </div>

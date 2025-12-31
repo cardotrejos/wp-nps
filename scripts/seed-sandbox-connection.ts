@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm";
 import { db, whatsappConnection, organization } from "@wp-nps/db";
 
 async function main() {
-
   const orgs = await db.select().from(organization).limit(5);
   console.log("Organizations:", orgs);
 

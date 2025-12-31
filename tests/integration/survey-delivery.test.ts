@@ -3,7 +3,12 @@ import { eq } from "drizzle-orm";
 import { db, webhookJob, survey, surveyDelivery, whatsappConnection } from "@wp-nps/db";
 import { KapsoMockClient } from "@wp-nps/kapso";
 import { setKapsoClient, resetKapsoClient } from "../../packages/api/src/lib/kapso";
-import { enqueueJob, acquireJobById, completeJob, failJob } from "../../packages/api/src/services/job-queue";
+import {
+  enqueueJob,
+  acquireJobById,
+  completeJob,
+  failJob,
+} from "../../packages/api/src/services/job-queue";
 import { surveySendHandler } from "../../apps/server/_source/jobs/handlers/survey-send";
 import { createTestOrg, cleanupTestOrg, clearOrgContext } from "../utils/test-org";
 import { formatSurveyMessage } from "../../packages/api/src/services/survey-message";
@@ -33,7 +38,9 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
         name: "Test NPS Survey",
         type: "nps",
         status: "active",
-        questions: [{ id: "q1", text: "How likely are you to recommend us?", type: "rating", required: true }],
+        questions: [
+          { id: "q1", text: "How likely are you to recommend us?", type: "rating", required: true },
+        ],
       })
       .returning();
 
@@ -42,7 +49,10 @@ describe("Survey Delivery via Kapso (Story 3.4)", () => {
 
   afterEach(async () => {
     resetKapsoClient();
-    await db.delete(webhookJob).where(eq(webhookJob.orgId, testOrg.id)).catch(() => {});
+    await db
+      .delete(webhookJob)
+      .where(eq(webhookJob.orgId, testOrg.id))
+      .catch(() => {});
     await cleanupTestOrg(testOrg.id).catch(() => {});
     await clearOrgContext();
   });

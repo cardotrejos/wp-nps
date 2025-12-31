@@ -89,7 +89,10 @@ function RouteComponent() {
               data-testid="api-key-input"
             />
             {activeToken && (
-              <span className="text-xs text-green-600 dark:text-green-400" data-testid="api-key-active">
+              <span
+                className="text-xs text-green-600 dark:text-green-400"
+                data-testid="api-key-active"
+              >
                 ✓ Key active
               </span>
             )}
@@ -102,17 +105,31 @@ function RouteComponent() {
               darkMode: true,
               hideModels: false,
               layout: "modern",
-              authentication: activeToken ? {
-                preferredSecurityScheme: "bearerAuth",
-                securitySchemes: {
-                  bearerAuth: {
-                    token: activeToken,
+              authentication: activeToken
+                ? {
+                    preferredSecurityScheme: "bearerAuth",
+                    securitySchemes: {
+                      bearerAuth: {
+                        token: activeToken,
+                      },
+                    },
+                  }
+                : {
+                    preferredSecurityScheme: "bearerAuth",
                   },
-                },
-              } : {
-                preferredSecurityScheme: "bearerAuth",
-              },
-              hiddenClients: ["php", "ruby", "csharp", "java", "kotlin", "objc", "swift", "c", "clojure", "powershell", "r"],
+              hiddenClients: [
+                "php",
+                "ruby",
+                "csharp",
+                "java",
+                "kotlin",
+                "objc",
+                "swift",
+                "c",
+                "clojure",
+                "powershell",
+                "r",
+              ],
             }}
           />
         </div>

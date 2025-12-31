@@ -1,18 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import {
-  AlertCircle,
-  Check,
-  Clock,
-  MessageSquare,
-  Send,
-  X,
-} from "lucide-react";
+import { AlertCircle, Check, Clock, MessageSquare, Send, X } from "lucide-react";
 
 type DeliveryStatus =
   | "pending"
@@ -57,7 +46,8 @@ const statusConfig: Record<
     label: "Sent",
     variant: "outline",
     icon: Send,
-    className: "border-blue-200 text-blue-700 bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:bg-blue-900/20",
+    className:
+      "border-blue-200 text-blue-700 bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:bg-blue-900/20",
   },
   delivered: {
     label: "Delivered",
@@ -96,10 +86,7 @@ export function DeliveryStatusBadge({
   const showRetryInfo = isError && retryCount > 0;
 
   const badge = (
-    <Badge
-      variant={config.variant}
-      className={cn("gap-1.5 pr-2.5", config.className, className)}
-    >
+    <Badge variant={config.variant} className={cn("gap-1.5 pr-2.5", config.className, className)}>
       <Icon className="h-3.5 w-3.5" />
       <span>{config.label}</span>
       {showRetryInfo && (

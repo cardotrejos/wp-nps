@@ -5,9 +5,15 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./apps/web/src"),
-      "@wp-nps/db/schema/flowpulse": path.resolve(__dirname, "./packages/db/src/schema/flowpulse.ts"),
+      "@wp-nps/db/schema/flowpulse": path.resolve(
+        __dirname,
+        "./packages/db/src/schema/flowpulse.ts",
+      ),
       "@wp-nps/db/schema/auth": path.resolve(__dirname, "./packages/db/src/schema/auth.ts"),
-      "@wp-nps/db/schema/survey-template": path.resolve(__dirname, "./packages/db/src/schema/survey-template.ts"),
+      "@wp-nps/db/schema/survey-template": path.resolve(
+        __dirname,
+        "./packages/db/src/schema/survey-template.ts",
+      ),
       "@wp-nps/db/schema": path.resolve(__dirname, "./packages/db/src/schema"),
       "@wp-nps/db": path.resolve(__dirname, "./packages/db/src"),
       "@wp-nps/kapso": path.resolve(__dirname, "./packages/kapso/src"),

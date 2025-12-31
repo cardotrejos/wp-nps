@@ -18,7 +18,7 @@ So that **I can authenticate API requests programmatically**.
 
 4. **Given** the API key is generated **When** stored in the database **Then** only the hashed version is stored (never plaintext) **And** the prefix is stored separately for identification
 
-5. **Given** I view the API settings page **When** I have an existing key **Then** I see only the key prefix (e.g., "fp_...abc") **And** the creation date is displayed
+5. **Given** I view the API settings page **When** I have an existing key **Then** I see only the key prefix (e.g., "fp\_...abc") **And** the creation date is displayed
 
 ## Tasks / Subtasks
 
@@ -75,6 +75,7 @@ So that **I can authenticate API requests programmatically**.
 **This story implements NFR-S3 (API keys hashed, never stored in plaintext).**
 
 From architecture.md:
+
 - API keys must be hashed before storage
 - Only store hashed version + prefix for identification
 - Use crypto.randomBytes for generation (Bun native)
@@ -82,6 +83,7 @@ From architecture.md:
 ### Previous Story Context
 
 Stories 3-0 and 3-1 established:
+
 - `IKapsoClient` interface and mock for testing
 - `webhook_job` table with job queue infrastructure
 - Multi-tenant patterns with `org_id` filtering
@@ -137,21 +139,21 @@ export async function generateApiKey(orgId: string): Promise<string> {
   // Generate random key
   const randomPart = randomBytes(32).toString('hex');
   const fullKey = `${KEY_PREFIX}${randomPart}`;
-  
+
   // Hash for storage
   const keyHash = createHash('sha256').update(fullKey).digest('hex');
   const keyPrefix = randomPart.slice(0, 8);
-  
+
   // Revoke existing key first
   await revokeApiKey(orgId);
-  
+
   // Insert new key
   await db.insert(apiKey).values({
     orgId,
     keyHash,
     keyPrefix,
   });
-  
+
   // Return full key (only time it's visible)
   return fullKey;
 }
@@ -160,25 +162,25 @@ export async function validateApiKey(rawKey: string): Promise<{ orgId: string } 
   if (!rawKey.startsWith(KEY_PREFIX)) {
     return null;
   }
-  
+
   const keyHash = createHash('sha256').update(rawKey).digest('hex');
-  
+
   const result = await db.query.apiKey.findFirst({
     where: and(
       eq(apiKey.keyHash, keyHash),
       isNull(apiKey.revokedAt)
     ),
   });
-  
+
   if (!result) {
     return null;
   }
-  
+
   // Update last used
   await db.update(apiKey)
     .set({ lastUsedAt: new Date() })
     .where(eq(apiKey.id, result.id));
-  
+
   return { orgId: result.orgId };
 }
 
@@ -202,20 +204,20 @@ import { validateApiKey } from '../services/api-key';
 export const apiKeyAuth = new Elysia()
   .derive(async ({ request }) => {
     const authHeader = request.headers.get('authorization');
-    
+
     if (!authHeader?.startsWith('Bearer ')) {
       return { apiKeyOrg: null };
     }
-    
+
     const key = authHeader.slice(7); // Remove "Bearer "
     const result = await validateApiKey(key);
-    
+
     return { apiKeyOrg: result };
   })
   .macro(({ onBeforeHandle }) => ({
     requireApiKey(enabled: boolean) {
       if (!enabled) return;
-      
+
       onBeforeHandle(({ apiKeyOrg, error }) => {
         if (!apiKeyOrg) {
           return error(401, { message: 'Invalid or missing API key' });
@@ -239,12 +241,12 @@ import { Copy, Eye, EyeOff, Key, RefreshCw } from 'lucide-react';
 export function ApiKeyManager() {
   const [newKey, setNewKey] = useState<string | null>(null);
   const [showKey, setShowKey] = useState(false);
-  
+
   const { data: currentKey } = useQuery({
     queryKey: ['api-key', 'current'],
     queryFn: () => client.apiKey.getCurrent(),
   });
-  
+
   const generateMutation = useMutation({
     mutationFn: () => client.apiKey.generate(),
     onSuccess: (data) => {
@@ -252,14 +254,14 @@ export function ApiKeyManager() {
       toast.success('New API key generated');
     },
   });
-  
+
   const copyToClipboard = () => {
     if (newKey) {
       navigator.clipboard.writeText(newKey);
       toast.success('API key copied to clipboard');
     }
   };
-  
+
   return (
     <Card>
       <CardHeader>
@@ -307,8 +309,8 @@ export function ApiKeyManager() {
         ) : (
           <p className="text-sm text-muted-foreground">No API key generated yet</p>
         )}
-        
-        <Button 
+
+        <Button
           onClick={() => generateMutation.mutate()}
           disabled={generateMutation.isPending}
         >
@@ -339,14 +341,14 @@ describe('API Key Service', () => {
   describe('generateApiKey', () => {
     it('generates a key with correct format', async () => {
       const key = await generateApiKey(testOrg.id);
-      
+
       expect(key).toMatch(/^fp_[a-f0-9]{64}$/);
     });
-    
+
     it('validates the generated key', async () => {
       const key = await generateApiKey(testOrg.id);
       const result = await validateApiKey(key);
-      
+
       expect(result).toEqual({ orgId: testOrg.id });
     });
   });
@@ -355,7 +357,7 @@ describe('API Key Service', () => {
     it('invalidates the key after revocation', async () => {
       const key = await generateApiKey(testOrg.id);
       await revokeApiKey(testOrg.id);
-      
+
       const result = await validateApiKey(key);
       expect(result).toBeNull();
     });
@@ -365,10 +367,10 @@ describe('API Key Service', () => {
     it('prevents using key from different org', async () => {
       const org1 = await createTestOrg('Org 1');
       const org2 = await createTestOrg('Org 2');
-      
+
       const key1 = await generateApiKey(org1.id);
       const result = await validateApiKey(key1);
-      
+
       expect(result?.orgId).toBe(org1.id);
       expect(result?.orgId).not.toBe(org2.id);
     });
@@ -378,14 +380,15 @@ describe('API Key Service', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| NFR-S3 | API keys hashed, never stored in plaintext | SHA-256 hash stored, plaintext shown once |
+| NFR    | Requirement                                | Implementation                              |
+| ------ | ------------------------------------------ | ------------------------------------------- |
+| NFR-S3 | API keys hashed, never stored in plaintext | SHA-256 hash stored, plaintext shown once   |
 | NFR-S4 | Session tokens expire after 24h inactivity | API keys don't expire (explicit revocation) |
 
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/db/src/schema/flowpulse.ts` - ADD api_key table
 - `packages/api/src/services/api-key.ts` - NEW
 - `packages/api/src/routers/api-key.ts` - NEW
@@ -428,6 +431,7 @@ N/A - No significant debugging issues encountered
 ### File List
 
 **Created:**
+
 - `packages/api/src/services/api-key.ts` - API key service (generate, validate, revoke, getCurrent)
 - `packages/api/src/routers/api-key.ts` - oRPC router for API key operations
 - `packages/api/src/middleware/api-key-auth.ts` - Elysia authentication middleware
@@ -435,11 +439,13 @@ N/A - No significant debugging issues encountered
 - `tests/integration/api-key.test.ts` - 21 integration tests (18 original + 3 middleware tests from review)
 
 **Modified:**
+
 - `packages/db/src/schema/flowpulse.ts` - Added `apiKey` table and relations; added partial unique index for one active key per org
 - `packages/api/src/routers/index.ts` - Added `apiKeyRouter` to main router
 - `tests/utils/test-org.ts` - Added `api_key` table to cleanup function
 
 **Auto-generated:**
+
 - `apps/web/src/routeTree.gen.ts` - TanStack Router auto-generated route tree
 
 ### Senior Developer Review (AI)
@@ -450,29 +456,31 @@ N/A - No significant debugging issues encountered
 
 #### Issues Found
 
-| ID | Severity | Issue | Status |
-|----|----------|-------|--------|
-| C1 | CRITICAL | Task 1.3 marked done but unique constraint NOT implemented in schema | FIXED |
-| H1 | HIGH | Middleware tests missing - AC3 (401 on revoked key) untested at HTTP level | FIXED |
-| H2 | HIGH | `requireApiKey` helper error handling inconsistent (throw vs return) | FIXED |
-| M1 | MEDIUM | `apps/web/src/routeTree.gen.ts` modified but not in File List | FIXED |
-| M2 | MEDIUM | Route not under `_authenticated/` prefix (noted in completion notes) | ACKNOWLEDGED |
-| L1 | LOW | No loading state during initial data fetch (`isPending` check) | FIXED |
-| L2 | LOW | Missing `isPending` check before rendering | FIXED (same as L1) |
+| ID  | Severity | Issue                                                                      | Status             |
+| --- | -------- | -------------------------------------------------------------------------- | ------------------ |
+| C1  | CRITICAL | Task 1.3 marked done but unique constraint NOT implemented in schema       | FIXED              |
+| H1  | HIGH     | Middleware tests missing - AC3 (401 on revoked key) untested at HTTP level | FIXED              |
+| H2  | HIGH     | `requireApiKey` helper error handling inconsistent (throw vs return)       | FIXED              |
+| M1  | MEDIUM   | `apps/web/src/routeTree.gen.ts` modified but not in File List              | FIXED              |
+| M2  | MEDIUM   | Route not under `_authenticated/` prefix (noted in completion notes)       | ACKNOWLEDGED       |
+| L1  | LOW      | No loading state during initial data fetch (`isPending` check)             | FIXED              |
+| L2  | LOW      | Missing `isPending` check before rendering                                 | FIXED (same as L1) |
 
 #### Fixes Applied
 
 1. **C1 Fix (Schema):** Added partial unique index to `packages/db/src/schema/flowpulse.ts`:
+
    ```typescript
    uniqueIndex("uq_api_key_active_org").on(table.orgId).where(sql`revoked_at IS NULL`)
    ```
+
    Applied to database via `bun db:push`.
 
 2. **H1 Fix (Tests):** Added 3 new integration tests to `tests/integration/api-key.test.ts`:
    - `requireApiKey helper - does not throw when valid context provided`
    - `requireApiKey helper - throws 401 Response when apiKeyOrg is null`
    - `requireApiKey helper - 401 response includes JSON content-type header`
-   Total tests: 21 (all passing)
+     Total tests: 21 (all passing)
 
 3. **H2 Fix (Middleware):** Improved `packages/api/src/middleware/api-key-auth.ts`:
    - Added `ApiKeyContext` interface for type safety

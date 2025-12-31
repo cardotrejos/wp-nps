@@ -28,7 +28,9 @@ describe("Manual Survey Send (Story 3.10)", () => {
           type: "nps",
           status: "active",
           triggerType: "manual",
-          questions: [{ id: "q1", text: "How likely to recommend?", type: "rating", required: true }],
+          questions: [
+            { id: "q1", text: "How likely to recommend?", type: "rating", required: true },
+          ],
         })
         .returning();
 

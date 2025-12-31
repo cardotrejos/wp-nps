@@ -135,17 +135,18 @@ function SurveyEditContent({ survey, isPending, error, surveyId }: SurveyEditCon
                   {(survey.triggerType ?? "api") === "api" ? (
                     <ApiEndpointDisplay surveyId={survey.id} />
                   ) : (
-                    <ManualSendButton surveyId={survey.id} surveyName={survey.name} isActive={survey.isActive} />
+                    <ManualSendButton
+                      surveyId={survey.id}
+                      surveyName={survey.name}
+                      isActive={survey.isActive}
+                    />
                   )}
                 </div>
               </div>
             </div>
 
             <div
-              className={cn(
-                "lg:sticky lg:top-6 lg:self-start",
-                !showPreview && "hidden lg:block",
-              )}
+              className={cn("lg:sticky lg:top-6 lg:self-start", !showPreview && "hidden lg:block")}
             >
               <div className="lg:rounded-lg lg:border lg:bg-muted/50 lg:p-4">
                 <h3 className="mb-4 hidden text-sm font-medium lg:block">WhatsApp Preview</h3>

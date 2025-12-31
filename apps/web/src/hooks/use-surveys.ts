@@ -86,23 +86,18 @@ export function useUpdateQuestion() {
       });
 
       // Snapshot the previous value for rollback
-      const previousSurvey = queryClient.getQueryData(
-        surveyKeys.detail(variables.surveyId)
-      );
+      const previousSurvey = queryClient.getQueryData(surveyKeys.detail(variables.surveyId));
 
       // Optimistically update the cache
-      queryClient.setQueryData(
-        surveyKeys.detail(variables.surveyId),
-        (old: Survey | undefined) => {
-          if (!old) return old;
-          return {
-            ...old,
-            questions: old.questions?.map((q) =>
-              q.id === variables.questionId ? { ...q, text: variables.text } : q
-            ),
-          };
-        }
-      );
+      queryClient.setQueryData(surveyKeys.detail(variables.surveyId), (old: Survey | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          questions: old.questions?.map((q) =>
+            q.id === variables.questionId ? { ...q, text: variables.text } : q,
+          ),
+        };
+      });
 
       // Return context with snapshot for rollback
       return { previousSurvey };
@@ -110,10 +105,7 @@ export function useUpdateQuestion() {
     // Rollback on error
     onError: (_error, variables, context) => {
       if (context?.previousSurvey) {
-        queryClient.setQueryData(
-          surveyKeys.detail(variables.surveyId),
-          context.previousSurvey
-        );
+        queryClient.setQueryData(surveyKeys.detail(variables.surveyId), context.previousSurvey);
       }
     },
     // Always refetch after error or success to ensure cache is in sync
@@ -134,8 +126,7 @@ export function useActivateSurvey() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ surveyId }: { surveyId: string }) =>
-      client.survey.activate({ surveyId }),
+    mutationFn: ({ surveyId }: { surveyId: string }) => client.survey.activate({ surveyId }),
     onSuccess: (data) => {
       toast.success("Survey activated");
       // Invalidate survey queries to refetch updated data
@@ -158,8 +149,7 @@ export function useDeactivateSurvey() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ surveyId }: { surveyId: string }) =>
-      client.survey.deactivate({ surveyId }),
+    mutationFn: ({ surveyId }: { surveyId: string }) => client.survey.deactivate({ surveyId }),
     onSuccess: (data) => {
       toast.success("Survey deactivated");
       // Invalidate survey queries to refetch updated data
@@ -181,13 +171,8 @@ export function useUpdateTriggerType() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      surveyId,
-      triggerType,
-    }: {
-      surveyId: string;
-      triggerType: "api" | "manual";
-    }) => client.survey.updateTriggerType({ surveyId, triggerType }),
+    mutationFn: ({ surveyId, triggerType }: { surveyId: string; triggerType: "api" | "manual" }) =>
+      client.survey.updateTriggerType({ surveyId, triggerType }),
     onSuccess: (data) => {
       toast.success("Trigger type updated");
       // Invalidate survey queries to refetch updated data
@@ -228,8 +213,7 @@ export function useWhatsAppConnection() {
  */
 export function useSendTestSurvey() {
   return useMutation({
-    mutationFn: ({ surveyId }: { surveyId: string }) =>
-      client.survey.sendTest({ surveyId }),
+    mutationFn: ({ surveyId }: { surveyId: string }) => client.survey.sendTest({ surveyId }),
     onSuccess: () => {
       toast.success("Test sent! Check your WhatsApp");
     },

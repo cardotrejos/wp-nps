@@ -19,10 +19,7 @@ interface SurveyStatusBadgeProps {
   className?: string;
 }
 
-const statusConfig: Record<
-  SurveyStatus,
-  { label: string; className: string }
-> = {
+const statusConfig: Record<SurveyStatus, { label: string; className: string }> = {
   draft: {
     label: "Draft",
     className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",

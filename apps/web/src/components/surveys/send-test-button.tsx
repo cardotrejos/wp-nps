@@ -2,11 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Send, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSendTestSurvey, useWhatsAppConnection } from "@/hooks/use-surveys";
 
 /**
@@ -73,12 +69,7 @@ export function SendTestButton({ surveyId }: SendTestButtonProps) {
   return (
     <Tooltip>
       <TooltipTrigger>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSendTest}
-          disabled={isSending}
-        >
+        <Button variant="outline" size="sm" onClick={handleSendTest} disabled={isSending}>
           {isSending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (

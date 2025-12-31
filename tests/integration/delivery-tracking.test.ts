@@ -9,7 +9,10 @@ describe("Delivery Status Tracking (Story 3.5)", () => {
 
   afterEach(async () => {
     for (const orgId of testOrgIds) {
-      await db.delete(surveyDelivery).where(eq(surveyDelivery.orgId, orgId)).catch(() => {});
+      await db
+        .delete(surveyDelivery)
+        .where(eq(surveyDelivery.orgId, orgId))
+        .catch(() => {});
       await cleanupTestOrg(orgId).catch(() => {});
     }
     testOrgIds = [];
@@ -128,14 +131,44 @@ describe("Delivery Status Tracking (Story 3.5)", () => {
 
       const [testSurvey] = await db
         .insert(survey)
-        .values({ orgId: org.id, name: "Filter Survey", type: "nps", status: "active", questions: [] })
+        .values({
+          orgId: org.id,
+          name: "Filter Survey",
+          type: "nps",
+          status: "active",
+          questions: [],
+        })
         .returning();
 
       await db.insert(surveyDelivery).values([
-        { orgId: org.id, surveyId: testSurvey!.id, phoneNumber: "+5511000000001", phoneNumberHash: "h1", status: "sent" },
-        { orgId: org.id, surveyId: testSurvey!.id, phoneNumber: "+5511000000002", phoneNumberHash: "h2", status: "failed" },
-        { orgId: org.id, surveyId: testSurvey!.id, phoneNumber: "+5511000000003", phoneNumberHash: "h3", status: "sent" },
-        { orgId: org.id, surveyId: testSurvey!.id, phoneNumber: "+5511000000004", phoneNumberHash: "h4", status: "delivered" },
+        {
+          orgId: org.id,
+          surveyId: testSurvey!.id,
+          phoneNumber: "+5511000000001",
+          phoneNumberHash: "h1",
+          status: "sent",
+        },
+        {
+          orgId: org.id,
+          surveyId: testSurvey!.id,
+          phoneNumber: "+5511000000002",
+          phoneNumberHash: "h2",
+          status: "failed",
+        },
+        {
+          orgId: org.id,
+          surveyId: testSurvey!.id,
+          phoneNumber: "+5511000000003",
+          phoneNumberHash: "h3",
+          status: "sent",
+        },
+        {
+          orgId: org.id,
+          surveyId: testSurvey!.id,
+          phoneNumber: "+5511000000004",
+          phoneNumberHash: "h4",
+          status: "delivered",
+        },
       ]);
 
       const failedOnly = await db.query.surveyDelivery.findMany({
@@ -177,7 +210,13 @@ describe("Delivery Status Tracking (Story 3.5)", () => {
 
       const [testSurvey] = await db
         .insert(survey)
-        .values({ orgId: org.id, name: "Detail Survey", type: "nps", status: "active", questions: [] })
+        .values({
+          orgId: org.id,
+          name: "Detail Survey",
+          type: "nps",
+          status: "active",
+          questions: [],
+        })
         .returning();
 
       const deliveredAt = new Date();
@@ -215,11 +254,23 @@ describe("Delivery Status Tracking (Story 3.5)", () => {
 
       await db
         .insert(survey)
-        .values({ orgId: org1.id, name: "Org1 Survey", type: "nps", status: "active", questions: [] });
+        .values({
+          orgId: org1.id,
+          name: "Org1 Survey",
+          type: "nps",
+          status: "active",
+          questions: [],
+        });
 
       const [survey2] = await db
         .insert(survey)
-        .values({ orgId: org2.id, name: "Org2 Survey", type: "nps", status: "active", questions: [] })
+        .values({
+          orgId: org2.id,
+          name: "Org2 Survey",
+          type: "nps",
+          status: "active",
+          questions: [],
+        })
         .returning();
 
       const [delivery2] = await db
@@ -251,17 +302,41 @@ describe("Delivery Status Tracking (Story 3.5)", () => {
 
       const [survey1] = await db
         .insert(survey)
-        .values({ orgId: org1.id, name: "Org1 Survey", type: "nps", status: "active", questions: [] })
+        .values({
+          orgId: org1.id,
+          name: "Org1 Survey",
+          type: "nps",
+          status: "active",
+          questions: [],
+        })
         .returning();
 
       const [survey2] = await db
         .insert(survey)
-        .values({ orgId: org2.id, name: "Org2 Survey", type: "nps", status: "active", questions: [] })
+        .values({
+          orgId: org2.id,
+          name: "Org2 Survey",
+          type: "nps",
+          status: "active",
+          questions: [],
+        })
         .returning();
 
       await db.insert(surveyDelivery).values([
-        { orgId: org1.id, surveyId: survey1!.id, phoneNumber: "+5511111111111", phoneNumberHash: "h1", status: "sent" },
-        { orgId: org2.id, surveyId: survey2!.id, phoneNumber: "+5522222222222", phoneNumberHash: "h2", status: "sent" },
+        {
+          orgId: org1.id,
+          surveyId: survey1!.id,
+          phoneNumber: "+5511111111111",
+          phoneNumberHash: "h1",
+          status: "sent",
+        },
+        {
+          orgId: org2.id,
+          surveyId: survey2!.id,
+          phoneNumber: "+5522222222222",
+          phoneNumberHash: "h2",
+          status: "sent",
+        },
       ]);
 
       const org1Count = await db

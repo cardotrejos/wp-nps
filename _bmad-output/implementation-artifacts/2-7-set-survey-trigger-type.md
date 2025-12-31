@@ -709,6 +709,7 @@ await db.update(survey)
 **Epic 2 Completion:**
 
 This is the final story in Epic 2. After implementation:
+
 - All 7 Epic 2 stories will be complete
 - Users can create, customize, preview, test, activate, and configure surveys
 - Epic 3 (Survey Distribution) can begin
@@ -754,23 +755,24 @@ Claude 4 (Sonnet)
 ### File List
 
 **Created:**
+
 - apps/web/src/components/surveys/trigger-type-selector.tsx
 - apps/web/src/components/surveys/api-endpoint-display.tsx
 - apps/web/src/components/surveys/manual-send-button.tsx
-- apps/web/src/components/surveys/__tests__/trigger-type-components.test.tsx
+- apps/web/src/components/surveys/**tests**/trigger-type-components.test.tsx
 - apps/web/src/components/ui/radio-group.tsx
 - apps/web/src/components/ui/dialog.tsx
 - tests/integration/survey-trigger-type.test.ts
 
 **Modified:**
+
 - packages/db/src/schema/flowpulse.ts (added triggerType column)
 - packages/api/src/routers/survey.ts (added updateTriggerType procedure)
 - apps/web/src/hooks/use-surveys.ts (added useUpdateTriggerType hook)
 - apps/web/src/routes/surveys.$surveyId.tsx (integrated trigger type components)
-- apps/web/src/components/surveys/__tests__/survey-preview.test.tsx (fixed mock to include triggerType)
+- apps/web/src/components/surveys/**tests**/survey-preview.test.tsx (fixed mock to include triggerType)
 - apps/web/src/components/ui/button.tsx (updated by shadcn)
 - tests/utils/test-org.ts (added survey_delivery cleanup)
 - vitest.config.ts (added path aliases for component tests)
 - apps/web/package.json (shadcn/ui dependencies)
 - bun.lock (dependency updates)
-

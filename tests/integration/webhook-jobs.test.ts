@@ -20,7 +20,10 @@ describe("Webhook Job Queue", () => {
   });
 
   afterEach(async () => {
-    await db.delete(webhookJob).where(eq(webhookJob.orgId, testOrg.id)).catch(() => {});
+    await db
+      .delete(webhookJob)
+      .where(eq(webhookJob.orgId, testOrg.id))
+      .catch(() => {});
     await cleanupTestOrg(testOrg.id).catch(() => {});
     await clearOrgContext();
   });
@@ -221,10 +224,7 @@ describe("Webhook Job Queue", () => {
       await acquireNextJob();
       await failJob(jobId!, new Error("Error 1"));
 
-      await db
-        .update(webhookJob)
-        .set({ status: "processing" })
-        .where(eq(webhookJob.id, jobId!));
+      await db.update(webhookJob).set({ status: "processing" }).where(eq(webhookJob.id, jobId!));
       await failJob(jobId!, new Error("Error 2"));
 
       const job = await db.query.webhookJob.findFirst({

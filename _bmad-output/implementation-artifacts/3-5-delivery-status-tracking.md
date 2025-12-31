@@ -16,7 +16,7 @@ So that **I know which customers received the survey**.
 
 3. **Given** I have many deliveries **When** I scroll the list **Then** deliveries are paginated (20 per page) **And** I can filter by status
 
-4. **Given** I view a delivery **When** checking the phone number **Then** only last 4 digits are visible (e.g., "+55***...1234")
+4. **Given** I view a delivery **When** checking the phone number **Then** only last 4 digits are visible (e.g., "+55\*\*\*...1234")
 
 5. **Given** I want to see delivery details **When** I click on a delivery row **Then** I see expanded details including full metadata and timestamps
 
@@ -71,6 +71,7 @@ So that **I know which customers received the survey**.
 **This story implements FR17, FR18 (delivery status tracking and viewing).**
 
 From architecture.md:
+
 - All queries must include `org_id` filter
 - Phone masking for PII protection
 - Pagination for large datasets
@@ -78,6 +79,7 @@ From architecture.md:
 ### Previous Story Context
 
 Story 3-3 and 3-4 established:
+
 - `survey_delivery` table with status field
 - Statuses: pending, queued, sent, delivered, failed, undeliverable, responded
 - `kapso_message_id` for tracking
@@ -97,13 +99,13 @@ export function maskPhoneNumber(phone: string): string {
   if (!phone || phone.length < 8) {
     return '****';
   }
-  
+
   // E.164 format: +[country][number]
   const countryCodeMatch = phone.match(/^\+(\d{1,3})/);
   const countryCode = countryCodeMatch ? countryCodeMatch[0] : '';
   const lastFour = phone.slice(-4);
   const maskedLength = phone.length - countryCode.length - 4;
-  
+
   return `${countryCode}${'*'.repeat(maskedLength)}${lastFour}`;
 }
 ```
@@ -134,17 +136,17 @@ export const deliveryRouter = {
     .query(async ({ input, ctx }) => {
       const orgId = ctx.session.activeOrganizationId;
       const offset = (input.page - 1) * input.pageSize;
-      
+
       // Build where clause
       const conditions = [
         eq(surveyDelivery.orgId, orgId),
         eq(surveyDelivery.surveyId, input.surveyId),
       ];
-      
+
       if (input.status) {
         conditions.push(eq(surveyDelivery.status, input.status));
       }
-      
+
       // Get deliveries
       const deliveries = await db.query.surveyDelivery.findMany({
         where: and(...conditions),
@@ -152,13 +154,13 @@ export const deliveryRouter = {
         limit: input.pageSize,
         offset,
       });
-      
+
       // Get total count
       const [{ count }] = await db
         .select({ count: sql<number>`count(*)` })
         .from(surveyDelivery)
         .where(and(...conditions));
-      
+
       return {
         items: deliveries.map(d => ({
           id: d.id,
@@ -181,18 +183,18 @@ export const deliveryRouter = {
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       const orgId = ctx.session.activeOrganizationId;
-      
+
       const delivery = await db.query.surveyDelivery.findFirst({
         where: and(
           eq(surveyDelivery.id, input.id),
           eq(surveyDelivery.orgId, orgId),
         ),
       });
-      
+
       if (!delivery) {
         throw new Error('Delivery not found');
       }
-      
+
       return {
         ...delivery,
         phoneNumberMasked: maskPhoneNumber(delivery.phoneNumber),
@@ -224,16 +226,16 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  
+
   const { data, isPending } = useQuery({
     queryKey: deliveryKeys.list(surveyId, { page, status: statusFilter }),
     queryFn: () => client.delivery.list({ surveyId, page, status: statusFilter }),
   });
-  
+
   if (isPending) {
     return <div className="animate-pulse">Loading deliveries...</div>;
   }
-  
+
   return (
     <div className="space-y-4">
       {/* Filters */}
@@ -251,12 +253,12 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
             <SelectItem value="responded">Responded</SelectItem>
           </SelectContent>
         </Select>
-        
+
         <span className="text-sm text-muted-foreground">
           {data?.total ?? 0} deliveries
         </span>
       </div>
-      
+
       {/* Table */}
       <Table>
         <TableHeader>
@@ -269,7 +271,7 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
         </TableHeader>
         <TableBody>
           {data?.items.map((delivery) => (
-            <TableRow 
+            <TableRow
               key={delivery.id}
               className="cursor-pointer hover:bg-muted/50"
               onClick={() => setSelectedId(delivery.id)}
@@ -278,8 +280,8 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
                 {delivery.phoneNumberMasked}
               </TableCell>
               <TableCell>
-                <DeliveryStatusBadge 
-                  status={delivery.status} 
+                <DeliveryStatusBadge
+                  status={delivery.status}
                   errorMessage={delivery.errorMessage}
                 />
               </TableCell>
@@ -293,7 +295,7 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
           ))}
         </TableBody>
       </Table>
-      
+
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <Button
@@ -305,11 +307,11 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
           <ChevronLeft className="h-4 w-4 mr-1" />
           Previous
         </Button>
-        
+
         <span className="text-sm text-muted-foreground">
           Page {page} of {Math.ceil((data?.total ?? 0) / 20)}
         </span>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -320,12 +322,12 @@ export function DeliveryList({ surveyId }: DeliveryListProps) {
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>
-      
+
       {/* Detail Panel */}
       {selectedId && (
-        <DeliveryDetailPanel 
-          deliveryId={selectedId} 
-          onClose={() => setSelectedId(null)} 
+        <DeliveryDetailPanel
+          deliveryId={selectedId}
+          onClose={() => setSelectedId(null)}
         />
       )}
     </div>
@@ -360,7 +362,7 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
 
 export function DeliveryStatusBadge({ status, errorMessage, retryCount, maxRetries }: DeliveryStatusBadgeProps) {
   const config = statusConfig[status] ?? { label: status, variant: 'secondary', icon: null };
-  
+
   const badge = (
     <Badge variant={config.variant} className="gap-1">
       {config.icon}
@@ -370,7 +372,7 @@ export function DeliveryStatusBadge({ status, errorMessage, retryCount, maxRetri
       )}
     </Badge>
   );
-  
+
   if (errorMessage) {
     return (
       <Tooltip>
@@ -381,7 +383,7 @@ export function DeliveryStatusBadge({ status, errorMessage, retryCount, maxRetri
       </Tooltip>
     );
   }
-  
+
   return badge;
 }
 ```
@@ -402,7 +404,7 @@ describe('Delivery Status Tracking', () => {
 
   beforeEach(async () => {
     testOrg = await createTestOrg();
-    
+
     const [s] = await db.insert(survey).values({
       orgId: testOrg.id,
       name: 'Test Survey',
@@ -431,13 +433,13 @@ describe('Delivery Status Tracking', () => {
           status: 'sent',
         });
       }
-      
+
       const response = await client.delivery.list({
         surveyId: testSurvey.id,
         page: 1,
         pageSize: 20,
       });
-      
+
       expect(response.items).toHaveLength(20);
       expect(response.total).toBe(25);
       expect(response.hasMore).toBe(true);
@@ -449,12 +451,12 @@ describe('Delivery Status Tracking', () => {
         { orgId: testOrg.id, surveyId: testSurvey.id, phoneNumber: '+5511999990002', phoneNumberHash: 'h2', status: 'failed' },
         { orgId: testOrg.id, surveyId: testSurvey.id, phoneNumber: '+5511999990003', phoneNumberHash: 'h3', status: 'sent' },
       ]);
-      
+
       const response = await client.delivery.list({
         surveyId: testSurvey.id,
         status: 'failed',
       });
-      
+
       expect(response.items).toHaveLength(1);
       expect(response.items[0]?.status).toBe('failed');
     });
@@ -467,9 +469,9 @@ describe('Delivery Status Tracking', () => {
         phoneNumberHash: 'hash',
         status: 'sent',
       });
-      
+
       const response = await client.delivery.list({ surveyId: testSurvey.id });
-      
+
       expect(response.items[0]?.phoneNumberMasked).toBe('+55*******9999');
     });
   });
@@ -478,14 +480,15 @@ describe('Delivery Status Tracking', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| NFR-S2 | Phone numbers encrypted | Masked in API response |
-| NFR-SC4 | Dashboard responsive with 10k responses | Pagination (20/page) |
+| NFR     | Requirement                             | Implementation         |
+| ------- | --------------------------------------- | ---------------------- |
+| NFR-S2  | Phone numbers encrypted                 | Masked in API response |
+| NFR-SC4 | Dashboard responsive with 10k responses | Pagination (20/page)   |
 
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/api/src/utils/phone-mask.ts` - NEW
 - `packages/api/src/routers/delivery.ts` - NEW
 - `packages/api/src/routers/index.ts` - ADD delivery router
@@ -524,6 +527,7 @@ Claude Sonnet 4 (Sisyphus)
 ### File List
 
 **New Files:**
+
 - `packages/api/src/utils/phone-mask.ts` - Phone number masking utility
 - `packages/api/src/utils/phone-mask.test.ts` - Unit tests for phone masking
 - `packages/api/src/routers/delivery.ts` - Delivery list/detail router
@@ -535,6 +539,7 @@ Claude Sonnet 4 (Sisyphus)
 - `tests/integration/delivery-tracking.test.ts` - Integration tests
 
 **Modified Files:**
+
 - `packages/api/src/routers/index.ts` - Added deliveryRouter export
 - `apps/web/src/routes/surveys.$surveyId.tsx` - Added Tabs with Setup/Deliveries
 - `packages/db/src/schema/flowpulse.ts` - Added retry_count/max_retries columns
@@ -549,16 +554,17 @@ Claude Sonnet 4 (Sisyphus)
 
 **Issues Found & Fixed:**
 
-| ID | Severity | Issue | Resolution |
-|----|----------|-------|------------|
-| H1 | HIGH | AC#2 retry count NOT IMPLEMENTED - missing DB column, router field, UI binding | Added `retry_count` and `max_retries` columns to schema, updated router to return fields, updated UI components to consume and display |
-| H2 | HIGH | 4 critical files UNTRACKED in git | All files now staged |
-| H3 | HIGH | `as any` type violation in delivery-list.tsx line 164 | Changed to `Record<string, unknown>` with proper type assertion |
-| M1 | MEDIUM | surveys.$surveyId.tsx not staged | Now staged |
-| M4 | MEDIUM | DeliveryDetail hardcoded retryCount={0} | Now uses `delivery.retryCount` from API |
-| L2 | LOW | Missing 'undeliverable' status in dropdown filter | Added to status filter dropdown |
+| ID  | Severity | Issue                                                                          | Resolution                                                                                                                             |
+| --- | -------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| H1  | HIGH     | AC#2 retry count NOT IMPLEMENTED - missing DB column, router field, UI binding | Added `retry_count` and `max_retries` columns to schema, updated router to return fields, updated UI components to consume and display |
+| H2  | HIGH     | 4 critical files UNTRACKED in git                                              | All files now staged                                                                                                                   |
+| H3  | HIGH     | `as any` type violation in delivery-list.tsx line 164                          | Changed to `Record<string, unknown>` with proper type assertion                                                                        |
+| M1  | MEDIUM   | surveys.$surveyId.tsx not staged                                               | Now staged                                                                                                                             |
+| M4  | MEDIUM   | DeliveryDetail hardcoded retryCount={0}                                        | Now uses `delivery.retryCount` from API                                                                                                |
+| L2  | LOW      | Missing 'undeliverable' status in dropdown filter                              | Added to status filter dropdown                                                                                                        |
 
 **Verification:**
+
 - ✅ Type check passes
 - ✅ 16/16 tests pass (10 integration + 6 unit)
 - ✅ All files properly staged
@@ -566,6 +572,6 @@ Claude Sonnet 4 (Sisyphus)
 
 ### Change Log
 
-| Date | Author | Change |
-|------|--------|--------|
+| Date       | Author   | Change                                                          |
+| ---------- | -------- | --------------------------------------------------------------- |
 | 2025-12-30 | Sisyphus | Code review: Fixed AC#2 (retry count), type safety, git staging |

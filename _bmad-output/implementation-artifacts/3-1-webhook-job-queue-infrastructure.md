@@ -85,6 +85,7 @@ So that **I can reliably process async operations without Redis**.
 **This story implements AR4 (DB-backed job queue) and AR14 (setInterval polling).**
 
 From architecture.md Decision 3:
+
 - DB-backed `webhook_jobs` table with queue semantics
 - No Redis/BullMQ for MVP - PostgreSQL provides ACID guarantees
 - Can migrate to proper queue later if scale demands (>100 webhooks/min)
@@ -92,6 +93,7 @@ From architecture.md Decision 3:
 ### Previous Story Context
 
 Story 3-0 (Kapso Integration Package) completed with:
+
 - `IKapsoClient` interface with all methods defined
 - `KapsoMockClient` for testing (no real API calls in CI)
 - `KapsoClient` real implementation with SDK integration
@@ -179,7 +181,7 @@ export async function acquireNextJob() {
     )
     RETURNING *
   `);
-  
+
   return jobs[0] ?? null;
 }
 
@@ -431,15 +433,16 @@ describe('Webhook Job Queue', () => {
 
 ### NFR Compliance
 
-| NFR | Requirement | Implementation |
-|-----|-------------|----------------|
-| NFR-I2 | Webhook processing < 5s | Job queue decouples receipt from processing |
-| NFR-R3 | Failed sends retry up to 2 times | maxAttempts configurable, default 3 |
-| NFR-SC3 | Queue processes 1000 messages/min | Index + SELECT FOR UPDATE SKIP LOCKED |
+| NFR     | Requirement                       | Implementation                              |
+| ------- | --------------------------------- | ------------------------------------------- |
+| NFR-I2  | Webhook processing < 5s           | Job queue decouples receipt from processing |
+| NFR-R3  | Failed sends retry up to 2 times  | maxAttempts configurable, default 3         |
+| NFR-SC3 | Queue processes 1000 messages/min | Index + SELECT FOR UPDATE SKIP LOCKED       |
 
 ### Event Types for Kapso Webhooks
 
 Based on Kapso API from Story 3-0:
+
 - `kapso.message.received` - Customer response (NPS score)
 - `kapso.message.sent` - Message sent confirmation
 - `kapso.message.delivered` - Delivery confirmation
@@ -462,6 +465,7 @@ Based on Kapso API from Story 3-0:
 ### Project Structure Notes
 
 Files to create/modify:
+
 - `packages/db/src/schema/webhook-jobs.ts` - NEW
 - `packages/db/src/schema/index.ts` - EXTEND
 - `packages/db/src/types/job-queue.ts` - NEW
@@ -515,6 +519,7 @@ None required - implementation completed without blockers.
 ### File List
 
 **NEW Files:**
+
 - `packages/db/src/types/job-queue.ts` - TypeScript types for job queue
 - `packages/db/src/types/index.ts` - Types barrel export
 - `packages/api/src/services/job-queue.ts` - Job queue service functions
@@ -525,12 +530,14 @@ None required - implementation completed without blockers.
 - `tests/integration/webhook-jobs.test.ts` - 13 integration tests
 
 **MODIFIED Files:**
+
 - `packages/db/src/schema/flowpulse.ts` - Added/enhanced `webhookJob` table with new columns and indexes
 - `packages/db/src/index.ts` - Added types export
 - `packages/api/package.json` - Added services export to package exports
 - `apps/server/_source/index.ts` - Added processor integration and /health endpoint
 
 **DELETED Files:**
+
 - `packages/db/src/migrations/run-rls.ts` - Removed antipattern (RLS via native Drizzle)
 - `packages/db/package.json` - Removed docker commands and RLS auto-run from db:push
 
@@ -542,10 +549,10 @@ None required - implementation completed without blockers.
 
 #### Issues Found
 
-| ID | Severity | Issue | Status |
-|----|----------|-------|--------|
-| H1 | HIGH | `rls-isolation.test.ts` used wrong column name (`type` instead of `event_type`) | FIXED |
-| H2 | HIGH | `rls-isolation.test.ts` missing required columns (`idempotency_key`, `source`) in webhook_job INSERT | FIXED |
+| ID  | Severity | Issue                                                                                                | Status |
+| --- | -------- | ---------------------------------------------------------------------------------------------------- | ------ |
+| H1  | HIGH     | `rls-isolation.test.ts` used wrong column name (`type` instead of `event_type`)                      | FIXED  |
+| H2  | HIGH     | `rls-isolation.test.ts` missing required columns (`idempotency_key`, `source`) in webhook_job INSERT | FIXED  |
 
 #### Fixes Applied
 
@@ -556,4 +563,3 @@ None required - implementation completed without blockers.
 #### Test Results
 
 All 280 tests passing after fix (was 278/280 before).
-

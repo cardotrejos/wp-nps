@@ -17,7 +17,7 @@ const updateTriggerTypeSchema = z.object({
 async function simulateUpdateTriggerTypeProcedure(
   surveyId: string,
   orgId: string,
-  triggerType: "api" | "manual"
+  triggerType: "api" | "manual",
 ): Promise<
   { success: true; survey: typeof survey.$inferSelect } | { success: false; error: string }
 > {
@@ -80,7 +80,12 @@ describe("Survey Trigger Type", () => {
           status: "draft",
           triggerType: "api",
           questions: [
-            { id: "q1", text: "How likely are you to recommend us?", type: "rating", required: true },
+            {
+              id: "q1",
+              text: "How likely are you to recommend us?",
+              type: "rating",
+              required: true,
+            },
           ],
         })
         .returning();
@@ -90,7 +95,11 @@ describe("Survey Trigger Type", () => {
       expect(testSurvey.triggerType).toBe("api");
 
       // Update to manual
-      const updateResult = await simulateUpdateTriggerTypeProcedure(testSurvey.id, org.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        testSurvey.id,
+        org.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(true);
       if (updateResult.success) {
@@ -176,7 +185,11 @@ describe("Survey Trigger Type", () => {
 
       const testSurvey = result[0]!;
 
-      const updateResult = await simulateUpdateTriggerTypeProcedure(testSurvey.id, org.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        testSurvey.id,
+        org.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(true);
       if (updateResult.success) {
@@ -258,7 +271,11 @@ describe("Survey Trigger Type", () => {
       const org1Survey = result[0]!;
 
       // Try to update as org2 - should fail
-      const updateResult = await simulateUpdateTriggerTypeProcedure(org1Survey.id, org2.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        org1Survey.id,
+        org2.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(false);
       if (!updateResult.success) {
@@ -309,7 +326,11 @@ describe("Survey Trigger Type", () => {
 
       // Call with valid UUID format but non-existent survey
       const nonExistentUuid = crypto.randomUUID();
-      const updateResult = await simulateUpdateTriggerTypeProcedure(nonExistentUuid, org.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        nonExistentUuid,
+        org.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(false);
       if (!updateResult.success) {
@@ -338,7 +359,11 @@ describe("Survey Trigger Type", () => {
       const org1Survey = result[0]!;
 
       // Try to update as org2 - should fail with NOT_FOUND
-      const updateResult = await simulateUpdateTriggerTypeProcedure(org1Survey.id, org2.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        org1Survey.id,
+        org2.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(false);
       if (!updateResult.success) {
@@ -364,7 +389,11 @@ describe("Survey Trigger Type", () => {
 
       const testSurvey = result[0]!;
 
-      const updateResult = await simulateUpdateTriggerTypeProcedure(testSurvey.id, org.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        testSurvey.id,
+        org.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(true);
       if (updateResult.success) {
@@ -397,7 +426,11 @@ describe("Survey Trigger Type", () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Update trigger type
-      const updateResult = await simulateUpdateTriggerTypeProcedure(testSurvey.id, org.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        testSurvey.id,
+        org.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(true);
       if (updateResult.success) {
@@ -429,7 +462,11 @@ describe("Survey Trigger Type", () => {
       const testSurvey = result[0]!;
 
       // Update trigger type
-      const updateResult = await simulateUpdateTriggerTypeProcedure(testSurvey.id, org.id, "manual");
+      const updateResult = await simulateUpdateTriggerTypeProcedure(
+        testSurvey.id,
+        org.id,
+        "manual",
+      );
 
       expect(updateResult.success).toBe(true);
       if (updateResult.success) {

@@ -1,8 +1,4 @@
-import {
-  acquireNextJob,
-  completeJob,
-  failJob,
-} from "@wp-nps/api/services/job-queue";
+import { acquireNextJob, completeJob, failJob } from "@wp-nps/api/services/job-queue";
 import { handlers } from "./handlers";
 
 const POLL_INTERVAL_MS = 5_000;
