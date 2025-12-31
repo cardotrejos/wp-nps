@@ -1,7 +1,7 @@
-import { createHash } from "node:crypto";
 import { eq, and, desc } from "drizzle-orm";
 import { db, surveyResponse, surveyDelivery, customer } from "@wp-nps/db";
 import { updateOrgMetrics } from "./metrics-updater";
+import { hashPhoneNumber } from "../utils/hash";
 
 export type NPSCategory = "promoter" | "passive" | "detractor";
 
@@ -24,10 +24,6 @@ export function categorizeNPS(score: number): NPSCategory {
   if (score >= 9) return "promoter";
   if (score >= 7) return "passive";
   return "detractor";
-}
-
-function hashPhoneNumber(phoneNumber: string): string {
-  return createHash("sha256").update(phoneNumber).digest("hex");
 }
 
 export async function processResponse(

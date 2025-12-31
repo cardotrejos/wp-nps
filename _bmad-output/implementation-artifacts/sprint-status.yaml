@@ -71,8 +71,8 @@ development_status:
   3-4-survey-delivery-via-kapso: done
   3-5-delivery-status-tracking: done
   3-6-kapso-webhook-receiver: done
-  3-7-response-storage-and-processing: review
-  3-8-api-documentation: ready-for-dev
+  3-7-response-storage-and-processing: done
+  3-8-api-documentation: in-progress
   3-9-onboarding-reminder-emails: ready-for-dev
   3-10-manual-survey-send-ui: ready-for-dev
   epic-3-retrospective: optional

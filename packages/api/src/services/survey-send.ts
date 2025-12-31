@@ -1,7 +1,7 @@
-import { createHash } from "node:crypto";
 import { eq, and } from "drizzle-orm";
 import { db, survey, surveyDelivery } from "@wp-nps/db";
 import { enqueueJob } from "./job-queue";
+import { hashPhoneNumber } from "../utils/hash";
 
 export type SurveySendErrorCode =
   | "SURVEY_NOT_FOUND"
@@ -31,10 +31,6 @@ const E164_REGEX = /^\+[1-9]\d{1,14}$/;
 
 function isValidE164Phone(phone: string): boolean {
   return E164_REGEX.test(phone);
-}
-
-function hashPhoneNumber(phoneNumber: string): string {
-  return createHash("sha256").update(phoneNumber).digest("hex");
 }
 
 export async function queueSurveySend(

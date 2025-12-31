@@ -1,13 +1,9 @@
-import { createHash } from "node:crypto";
 import type { JobHandler, KapsoWebhookReceivedPayload } from "@wp-nps/db";
 import { db, surveyDelivery } from "@wp-nps/db";
 import { eq, and, desc } from "drizzle-orm";
 import { parseSurveyResponse } from "@wp-nps/kapso";
 import { processResponse } from "@wp-nps/api/services/response-processor";
-
-function hashPhoneNumber(phoneNumber: string): string {
-  return createHash("sha256").update(phoneNumber).digest("hex");
-}
+import { hashPhoneNumber } from "@wp-nps/api/utils/hash";
 
 export const kapsoSurveyResponseHandler: JobHandler = {
   async handle(job) {
@@ -39,16 +35,24 @@ export const kapsoSurveyResponseHandler: JobHandler = {
       return;
     }
 
-    await processResponse({
-      orgId: job.orgId,
-      customerPhone: payload.customerPhone,
-      score: parsed.score,
-      feedback: parsed.feedback,
-      messageId: payload.messageId,
-    });
+    try {
+      await processResponse({
+        orgId: job.orgId,
+        customerPhone: payload.customerPhone,
+        score: parsed.score,
+        feedback: parsed.feedback,
+        messageId: payload.messageId,
+      });
 
-    console.log(
-      `[KapsoSurveyResponse] Processed response for delivery ${delivery.id}, score: ${parsed.score}`
-    );
+      console.log(
+        `[KapsoSurveyResponse] Processed response for delivery ${delivery.id}, score: ${parsed.score}`
+      );
+    } catch (error) {
+      console.error(
+        `[KapsoSurveyResponse] Failed to process response for delivery ${delivery.id}:`,
+        error instanceof Error ? error.message : error
+      );
+      throw error; // Re-throw to let job queue handle retry logic
+    }
   },
 };
