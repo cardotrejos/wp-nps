@@ -54,7 +54,8 @@ jobs:
 
       - name: Push schema
         if: inputs.command == 'push'
-        run: bunx drizzle-kit push --verbose
+        working-directory: packages/db
+        run: bun drizzle-kit push --verbose
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
