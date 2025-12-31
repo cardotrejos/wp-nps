@@ -103,12 +103,11 @@ export const setupLinkConfigSchema = z.object({
 
 export type SetupLinkConfig = z.infer<typeof setupLinkConfigSchema>;
 
-// Setup Link result from Kapso
 export const setupLinkResultSchema = z.object({
   id: z.string(),
-  url: z.url(),
-  expiresAt: z.string().datetime(),
-  status: z.enum(["pending", "completed", "expired", "revoked"]),
+  url: z.string().url(),
+  expiresAt: z.string(),
+  status: z.string().optional(),
 });
 
 export type SetupLinkResult = z.infer<typeof setupLinkResultSchema>;
