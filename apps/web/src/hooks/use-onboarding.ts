@@ -63,16 +63,36 @@ export function useUpdateCurrentStep() {
   });
 }
 
-/**
- * Mutation to mark a step as completed
- */
 export function useCompleteStep() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ step, metadata }: { step: number; metadata?: Record<string, unknown> }) =>
       client.onboarding.completeStep({ step, metadata }),
-    onSuccess: () => {
+    onMutate: async ({ step }) => {
+      await queryClient.cancelQueries({ queryKey: ONBOARDING_QUERY_KEY });
+
+      const previous = queryClient.getQueryData<OnboardingState>(ONBOARDING_QUERY_KEY);
+
+      queryClient.setQueryData<OnboardingState>(ONBOARDING_QUERY_KEY, (old) => {
+        if (!old) return old;
+        const completedSteps = old.completedSteps ?? [];
+        if (completedSteps.includes(step)) return old;
+        return {
+          ...old,
+          completedSteps: [...completedSteps, step],
+          lastActivityAt: new Date().toISOString(),
+        };
+      });
+
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(ONBOARDING_QUERY_KEY, context.previous);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ONBOARDING_QUERY_KEY });
     },
   });
