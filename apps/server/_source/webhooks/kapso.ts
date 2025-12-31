@@ -24,9 +24,15 @@ export const kapsoWebhookRouter = new Elysia({ prefix: "/webhooks" }).post(
       return { error: "Invalid signature" };
     }
 
-    let parsed;
+    let messages;
     try {
-      parsed = parseKapsoWebhook(body);
+      const payload = body as { data?: unknown };
+      secureLog.info("Webhook body debug", {
+        hasData: !!payload.data,
+        isArray: Array.isArray(payload.data),
+        dataLength: Array.isArray(payload.data) ? payload.data.length : "N/A",
+      });
+      messages = parseKapsoWebhook(body);
     } catch (err) {
       secureLog.warn("Invalid webhook payload", {
         error: err instanceof Error ? err.message : "Unknown",
@@ -36,46 +42,52 @@ export const kapsoWebhookRouter = new Elysia({ prefix: "/webhooks" }).post(
       return { error: "Invalid payload" };
     }
 
-    if (parsed.direction !== "inbound") {
-      return { status: "ignored", reason: "Not an inbound message" };
+    const inboundMessages = messages.filter((m) => m.direction === "inbound");
+    if (inboundMessages.length === 0) {
+      return { status: "ignored", reason: "No inbound messages" };
     }
 
-    const connection = await db.query.whatsappConnection.findFirst({
-      where: sql`${whatsappConnection.metadata}->>'phoneNumberId' = ${parsed.phoneNumberId}`,
-    });
+    const results: { messageId: string; status: string; jobId?: string }[] = [];
 
-    if (!connection) {
-      secureLog.warn("Webhook received for unknown phone_number_id", {
-        phoneNumberId: parsed.phoneNumberId,
+    for (const parsed of inboundMessages) {
+      const connection = await db.query.whatsappConnection.findFirst({
+        where: sql`${whatsappConnection.metadata}->>'phoneNumberId' = ${parsed.phoneNumberId}`,
       });
-      set.status = 404;
-      return { error: "Unknown phone number" };
+
+      if (!connection) {
+        secureLog.warn("Webhook received for unknown phone_number_id", {
+          phoneNumberId: parsed.phoneNumberId,
+        });
+        results.push({ messageId: parsed.messageId, status: "unknown_phone" });
+        continue;
+      }
+
+      const idempotencyKey = `kapso:${parsed.messageId}`;
+
+      const jobId = await enqueueJob({
+        orgId: connection.orgId,
+        idempotencyKey,
+        source: "kapso",
+        eventType: "kapso.message.received",
+        payload: {
+          phoneNumberId: parsed.phoneNumberId,
+          customerPhone: parsed.customerPhone,
+          messageId: parsed.messageId,
+          content: parsed.content,
+        },
+      });
+
+      if (jobId === null) {
+        secureLog.info("Duplicate webhook ignored", { messageId: parsed.messageId });
+        results.push({ messageId: parsed.messageId, status: "duplicate" });
+        continue;
+      }
+
+      secureLog.info("Webhook queued for processing", { jobId, messageId: parsed.messageId });
+      results.push({ messageId: parsed.messageId, status: "accepted", jobId });
     }
-
-    const idempotencyKey = `kapso:${parsed.messageId}`;
-
-    const jobId = await enqueueJob({
-      orgId: connection.orgId,
-      idempotencyKey,
-      source: "kapso",
-      eventType: "kapso.message.received",
-      payload: {
-        phoneNumberId: parsed.phoneNumberId,
-        customerPhone: parsed.customerPhone,
-        messageId: parsed.messageId,
-        content: parsed.content,
-      },
-    });
-
-    if (jobId === null) {
-      secureLog.info("Duplicate webhook ignored", { messageId: parsed.messageId });
-      set.status = 200;
-      return { status: "duplicate" };
-    }
-
-    secureLog.info("Webhook queued for processing", { jobId, messageId: parsed.messageId });
 
     set.status = 202;
-    return { status: "accepted", job_id: jobId };
+    return { status: "processed", results };
   },
 );

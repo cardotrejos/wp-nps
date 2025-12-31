@@ -1,16 +1,16 @@
 export interface KapsoMessageData {
-  phone_number: string;
-  content: string;
-  whatsapp_message_id: string;
+  id: string;
+  from: string;
   type: "text" | "interactive";
   text?: { body: string };
   kapso?: {
     direction: "inbound" | "outbound";
     origin?: string;
+    content?: string;
   };
 }
 
-export interface KapsoWebhookData {
+export interface KapsoWebhookItem {
   phone_number_id: string;
   message: KapsoMessageData;
   conversation: {
@@ -20,10 +20,20 @@ export interface KapsoWebhookData {
   };
 }
 
-export interface KapsoWebhookPayload {
-  event: string;
-  data: KapsoWebhookData;
+export interface KapsoBatchedPayload {
+  type: string;
+  batch: true;
+  data: KapsoWebhookItem[];
+  batch_info?: {
+    size: number;
+    window_ms: number;
+    first_sequence: number;
+    last_sequence: number;
+    conversation_id: string;
+  };
 }
+
+export type KapsoWebhookPayload = KapsoBatchedPayload | KapsoWebhookItem;
 
 export interface ParsedWebhook {
   phoneNumberId: string;
@@ -39,29 +49,45 @@ export interface ParsedSurveyResponse {
   feedback: string | null;
 }
 
-export function parseKapsoWebhook(payload: unknown): ParsedWebhook {
-  const p = payload as KapsoWebhookPayload;
-
-  if (!p.data?.phone_number_id || !p.data?.message) {
-    throw new Error("Invalid webhook payload: missing required fields");
-  }
-
-  const { data } = p;
-
-  if (!data.message.whatsapp_message_id) {
+function parseWebhookItem(item: KapsoWebhookItem): ParsedWebhook {
+  if (!item.message?.id) {
     throw new Error("Invalid webhook payload: missing message ID");
   }
 
-  const content = data.message.content ?? data.message.text?.body ?? "";
+  const content = item.message.kapso?.content ?? item.message.text?.body ?? "";
 
   return {
-    phoneNumberId: data.phone_number_id,
-    customerPhone: data.message.phone_number,
-    messageId: data.message.whatsapp_message_id,
+    phoneNumberId: item.phone_number_id,
+    customerPhone: item.message.from ?? item.message.to ?? "",
+    messageId: item.message.id,
     content,
-    direction: data.message.kapso?.direction ?? "inbound",
+    direction: item.message.kapso?.direction ?? "inbound",
     timestamp: new Date().toISOString(),
   };
+}
+
+function isBatchedPayload(p: unknown): p is KapsoBatchedPayload {
+  return typeof p === "object" && p !== null && "batch" in p && (p as KapsoBatchedPayload).batch === true;
+}
+
+export function parseKapsoWebhook(payload: unknown): ParsedWebhook[] {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid webhook payload: missing required fields");
+  }
+
+  if (isBatchedPayload(payload)) {
+    if (!Array.isArray(payload.data) || payload.data.length === 0) {
+      throw new Error("Invalid webhook payload: empty batch");
+    }
+    return payload.data.map(parseWebhookItem);
+  }
+
+  const item = payload as KapsoWebhookItem;
+  if (!item.message || !item.phone_number_id) {
+    throw new Error("Invalid webhook payload: missing required fields");
+  }
+
+  return [parseWebhookItem(item)];
 }
 
 // Survey type score ranges: NPS (0-10), CSAT (1-5), CES (1-7)
@@ -98,12 +124,12 @@ export function parseSurveyResponse(
 export function isValidWebhookPayload(payload: unknown): payload is KapsoWebhookPayload {
   if (!payload || typeof payload !== "object") return false;
   const p = payload as Record<string, unknown>;
-  if (!p.data || typeof p.data !== "object") return false;
-  const data = p.data as Record<string, unknown>;
+  if (!Array.isArray(p.data) || p.data.length === 0) return false;
+  const firstItem = p.data[0] as Record<string, unknown>;
   return (
-    typeof data.phone_number_id === "string" &&
-    typeof data.message === "object" &&
-    data.message !== null &&
-    typeof (data.message as Record<string, unknown>).whatsapp_message_id === "string"
+    typeof firstItem.phone_number_id === "string" &&
+    typeof firstItem.message === "object" &&
+    firstItem.message !== null &&
+    typeof (firstItem.message as Record<string, unknown>).id === "string"
   );
 }
