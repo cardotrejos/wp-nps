@@ -59,23 +59,30 @@ export function useWhatsAppConnection() {
     window.location.href = setupLink.url;
   };
 
-  // Confirm connection after successful redirect
   const confirmConnection = async (params: {
-    phoneNumberId: string;
-    displayPhoneNumber: string;
+    setupLinkId?: string;
+    phoneNumberId?: string;
+    displayPhoneNumber?: string;
     businessAccountId?: string;
   }) => {
-    const setupLinkId = sessionStorage.getItem("whatsapp_setup_link_id");
+    const storedSetupLinkId = sessionStorage.getItem("whatsapp_setup_link_id");
+    const setupLinkId = params.setupLinkId ?? storedSetupLinkId;
+    
     if (!setupLinkId) {
       throw new Error("No setup link ID found. Please start the connection process again.");
     }
 
+    if (!params.phoneNumberId || !params.displayPhoneNumber) {
+      throw new Error("Missing phone number details from WhatsApp. Please try connecting again.");
+    }
+
     const result = await confirmConnectionMutation.mutateAsync({
       setupLinkId,
-      ...params,
+      phoneNumberId: params.phoneNumberId,
+      displayPhoneNumber: params.displayPhoneNumber,
+      businessAccountId: params.businessAccountId,
     });
 
-    // Clean up
     sessionStorage.removeItem("whatsapp_setup_link_id");
 
     return result;
@@ -111,23 +118,33 @@ export function useWhatsAppConnection() {
 /**
  * Parse WhatsApp connection success redirect params
  * Kapso redirects to success URL with these query params
+ * 
+ * Note: Some params may be missing depending on the flow.
+ * At minimum we need setup_link_id OR phone_number_id to proceed.
  */
 export function parseWhatsAppSuccessParams(searchParams: URLSearchParams): {
-  phoneNumberId: string;
-  displayPhoneNumber: string;
+  setupLinkId?: string;
+  phoneNumberId?: string;
+  displayPhoneNumber?: string;
   businessAccountId?: string;
 } | null {
-  const phoneNumberId = searchParams.get("phone_number_id");
-  const displayPhoneNumber = searchParams.get("display_phone_number");
+  const setupLinkId = searchParams.get("setup_link_id") ?? undefined;
+  const phoneNumberId = searchParams.get("phone_number_id") ?? undefined;
+  const displayPhoneNumber = searchParams.get("display_phone_number") 
+    ? decodeURIComponent(searchParams.get("display_phone_number")!)
+    : undefined;
+  const businessAccountId = searchParams.get("business_account_id") ?? undefined;
 
-  if (!phoneNumberId || !displayPhoneNumber) {
+  // Need at least one identifier
+  if (!setupLinkId && !phoneNumberId && !businessAccountId) {
     return null;
   }
 
   return {
+    setupLinkId,
     phoneNumberId,
     displayPhoneNumber,
-    businessAccountId: searchParams.get("business_account_id") ?? undefined,
+    businessAccountId,
   };
 }
 
