@@ -70,13 +70,16 @@ export async function processResponse(
       where: and(
         eq(surveyDelivery.orgId, orgId),
         eq(surveyDelivery.phoneNumberHash, phoneHash),
-        eq(surveyDelivery.status, "sent"),
       ),
       orderBy: [desc(surveyDelivery.createdAt)],
     });
 
     if (!delivery) {
       throw new Error("No matching delivery found for response");
+    }
+
+    if (delivery.status === "responded") {
+      throw new Error("Response already recorded for this delivery");
     }
 
     const [response] = await tx

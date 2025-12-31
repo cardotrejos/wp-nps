@@ -2,7 +2,8 @@ import { Elysia } from "elysia";
 import { sql } from "drizzle-orm";
 import { parseKapsoWebhook } from "@wp-nps/kapso";
 import { getKapsoClient } from "@wp-nps/api/lib/kapso";
-import { enqueueJob } from "@wp-nps/api/services/job-queue";
+import { enqueueJob, completeJob } from "@wp-nps/api/services/job-queue";
+import { processFlowResponse } from "@wp-nps/api/services/response-processor";
 import { db, whatsappConnection } from "@wp-nps/db";
 import { secureLog } from "@wp-nps/api/utils/secure-logger";
 
@@ -76,6 +77,35 @@ export const kapsoWebhookRouter = new Elysia({ prefix: "/webhooks" }).post(
         secureLog.info("Duplicate webhook ignored", { messageId: parsed.messageId });
         results.push({ messageId: parsed.messageId, status: "duplicate" });
         continue;
+      }
+
+      if (parsed.messageType === "flow_response" && parsed.flowResponse) {
+        try {
+          const result = await processFlowResponse({
+            orgId: connection.orgId,
+            customerPhone: parsed.customerPhone,
+            flowResponse: parsed.flowResponse,
+            messageId: parsed.messageId,
+          });
+
+          if (result) {
+            await completeJob(jobId);
+            secureLog.info("Flow response processed", {
+              jobId,
+              messageId: parsed.messageId,
+              responseId: result.responseId,
+              category: result.category,
+            });
+            results.push({ messageId: parsed.messageId, status: "processed", jobId });
+            continue;
+          }
+        } catch (err) {
+          secureLog.warn("Flow response processing failed, job remains queued", {
+            jobId,
+            messageId: parsed.messageId,
+            error: err instanceof Error ? err.message : "Unknown",
+          });
+        }
       }
 
       secureLog.info("Webhook queued for processing", { jobId, messageId: parsed.messageId });
