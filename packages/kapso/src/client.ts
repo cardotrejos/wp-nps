@@ -1,5 +1,5 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { WhatsAppClient } from "@kapso/whatsapp-cloud-api";
-import { verifySignature } from "@kapso/whatsapp-cloud-api/server";
 import type {
   IKapsoClient,
   SendSurveyParams,
@@ -154,19 +154,26 @@ export class KapsoClient implements IKapsoClient {
   }
 
   /**
-   * Verify webhook signature using HMAC-SHA256
+   * Verify Kapso Platform webhook signature using HMAC-SHA256
    *
-   * @param signature - The X-Webhook-Signature header value
-   * @param payload - The raw request body as string
+   * Kapso signs webhooks with HMAC-SHA256 and includes the signature
+   * in the X-Webhook-Signature header as a hex string.
+   *
+   * @param signature - The X-Webhook-Signature header value (hex)
+   * @param payload - The raw request body as JSON string
    * @returns true if signature is valid
    */
   verifyWebhook(signature: string, payload: string): boolean {
     try {
-      return verifySignature({
-        appSecret: this.webhookSecret,
-        rawBody: payload,
-        signatureHeader: signature,
-      });
+      const expectedSignature = createHmac("sha256", this.webhookSecret)
+        .update(payload)
+        .digest("hex");
+
+      // Use timing-safe comparison to prevent timing attacks
+      return timingSafeEqual(
+        Buffer.from(signature),
+        Buffer.from(expectedSignature),
+      );
     } catch {
       return false;
     }
