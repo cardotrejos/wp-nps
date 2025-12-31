@@ -21,7 +21,7 @@ export function useVerificationStatus() {
 
   // Send test message mutation
   const sendMutation = useMutation({
-    mutationFn: () => client.whatsapp.sendTestMessage(),
+    mutationFn: (recipientPhone: string) => client.whatsapp.sendTestMessage({ recipientPhone }),
     onSuccess: (data) => {
       setDeliveryId(data.deliveryId);
       setAttemptCount((prev) => prev + 1);

@@ -100,8 +100,7 @@ function OnboardingComponent() {
     navigate,
   ]);
 
-  // Store connected phone number for verification step
-  const connectedPhoneNumber = connection?.phoneNumber ?? null;
+  const connectedPhoneNumber = connection?.phoneNumber ?? "";
 
   const handleStartConnection = () => {
     setStep("whatsapp");
@@ -278,7 +277,7 @@ function OnboardingComponent() {
           </div>
 
           <VerificationStep
-            phoneNumber={connectedPhoneNumber ?? "Unknown"}
+            connectedPhoneNumber={connectedPhoneNumber}
             onVerified={handleVerificationSuccess}
           />
 

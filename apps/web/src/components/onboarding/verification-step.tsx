@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { CheckCircle, Send, RefreshCw, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useVerificationStatus } from "@/hooks/use-verification-status";
 import { VerificationTroubleshooting } from "./verification-troubleshooting";
 
 interface VerificationStepProps {
-  phoneNumber: string;
+  connectedPhoneNumber: string;
   onVerified: () => void;
 }
 
@@ -25,13 +27,14 @@ function maskPhone(phone: string): string {
 /**
  * WhatsApp Verification Step Component
  *
- * Allows users to verify their WhatsApp connection by:
- * 1. Sending a test message to their connected number
- * 2. Confirming they received it
- *
- * AC: #1, #2, #4, #5
+ * Verifies the WhatsApp Business connection by:
+ * 1. Showing the connected business number (from Kapso)
+ * 2. User enters a recipient phone number to receive the test message
+ * 3. Test message is sent FROM connected number TO recipient
+ * 4. Webhook confirms delivery
  */
-export function VerificationStep({ phoneNumber, onVerified }: VerificationStepProps) {
+export function VerificationStep({ connectedPhoneNumber, onVerified }: VerificationStepProps) {
+  const [recipientPhone, setRecipientPhone] = useState("");
   const [hasSent, setHasSent] = useState(false);
   const [showTroubleshooting, setShowTroubleshooting] = useState(false);
 
@@ -45,9 +48,22 @@ export function VerificationStep({ phoneNumber, onVerified }: VerificationStepPr
     attemptCount,
   } = useVerificationStatus();
 
+  const isValidPhone = recipientPhone.length >= 10;
+  const maskedConnectedPhone = maskPhone(connectedPhoneNumber);
+
   const handleSendTest = async () => {
+    if (!isValidPhone) {
+      toast.error("Please enter a valid phone number");
+      return;
+    }
+
     try {
-      await sendTestMessage();
+      // Normalize phone: ensure it starts with + and has no spaces/dashes
+      const normalizedPhone = recipientPhone.startsWith("+")
+        ? recipientPhone.replace(/[\s-]/g, "")
+        : `+${recipientPhone.replace(/[\s-]/g, "")}`;
+
+      await sendTestMessage(normalizedPhone);
       setHasSent(true);
       toast.success("Test message sent - check your WhatsApp!");
     } catch (e) {
@@ -83,7 +99,6 @@ export function VerificationStep({ phoneNumber, onVerified }: VerificationStepPr
     );
   }
 
-  const maskedPhone = maskPhone(phoneNumber);
   const isDelivered = deliveryStatus === "delivered";
 
   return (
@@ -92,11 +107,37 @@ export function VerificationStep({ phoneNumber, onVerified }: VerificationStepPr
         <CardTitle className="text-center">Verify Your WhatsApp</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Connected Phone Display */}
+        {/* Connected Business Number Display */}
         <div className="rounded-lg bg-muted p-4 text-center">
           <p className="text-sm text-muted-foreground">Connected Number</p>
-          <p className="font-mono text-lg">{maskedPhone}</p>
+          <p className="font-mono text-lg">{maskedConnectedPhone}</p>
         </div>
+
+        {/* Recipient Phone Input */}
+        {!hasSent && (
+          <div className="space-y-2">
+            <Label htmlFor="recipient-phone">Send test message to</Label>
+            <Input
+              id="recipient-phone"
+              type="tel"
+              placeholder="+1234567890"
+              value={recipientPhone}
+              onChange={(e) => setRecipientPhone(e.target.value)}
+              disabled={isSending}
+            />
+            <p className="text-xs text-muted-foreground">
+              Enter your personal WhatsApp number with country code
+            </p>
+          </div>
+        )}
+
+        {/* Sent confirmation */}
+        {hasSent && (
+          <div className="rounded-lg border border-dashed p-3 text-center">
+            <p className="text-sm text-muted-foreground">Message sent to</p>
+            <p className="font-mono">{recipientPhone}</p>
+          </div>
+        )}
 
         {/* Status Badge */}
         {hasSent && (
@@ -139,7 +180,11 @@ export function VerificationStep({ phoneNumber, onVerified }: VerificationStepPr
         {/* Action Buttons */}
         <div className="space-y-3">
           {!hasSent ? (
-            <Button className="w-full" onClick={handleSendTest} disabled={isSending}>
+            <Button
+              className="w-full"
+              onClick={handleSendTest}
+              disabled={isSending || !isValidPhone}
+            >
               {isSending ? (
                 <>
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
