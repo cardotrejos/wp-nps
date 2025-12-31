@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { sql } from "drizzle-orm";
-import { createKapsoClient, parseKapsoWebhook } from "@wp-nps/kapso";
+import { parseKapsoWebhook } from "@wp-nps/kapso";
+import { getKapsoClient } from "@wp-nps/api/lib/kapso";
 import { enqueueJob } from "@wp-nps/api/services/job-queue";
 import { db, whatsappConnection } from "@wp-nps/db";
 import { secureLog } from "@wp-nps/api/utils/secure-logger";
@@ -8,7 +9,7 @@ import { secureLog } from "@wp-nps/api/utils/secure-logger";
 export const kapsoWebhookRouter = new Elysia({ prefix: "/webhooks" }).post(
   "/kapso",
   async ({ request, body, set }) => {
-    const kapso = createKapsoClient();
+    const kapso = getKapsoClient();
 
     const signature = request.headers.get("x-webhook-signature");
     if (!signature) {
