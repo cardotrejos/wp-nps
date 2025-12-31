@@ -62,7 +62,7 @@ development_status:
   epic-2-retrospective: done
 
   # Epic 3: Survey Distribution, Response Collection & API (12 stories)
-  epic-3: in-progress
+  epic-3: done
   3-0-kapso-integration-package: done
   3-1-webhook-job-queue-infrastructure: done
   3-2-api-key-generation: done
@@ -75,7 +75,7 @@ development_status:
   3-8-api-documentation: done
   3-9-onboarding-reminder-emails: done
   3-10-manual-survey-send-ui: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
 
   # Epic 4: Analytics Dashboard (10 stories)
   epic-4: backlog

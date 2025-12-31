@@ -34,6 +34,11 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **TanStack Query 5.90.12** - Server state management
 - **TanStack Form 1.12.3** - Form state management
 - **shadcn/ui** - Component library (via @base-ui/react)
+- **Tremor Raw** - Dashboard charts and analytics components
+  - Copy-paste components (same philosophy as shadcn/ui)
+  - Uses `recharts` (v3.6.0) + `tailwind-variants` (v3.2.2)
+  - Native Tailwind 4 support
+  - Key components: `ProgressCircle`, `CategoryBar`, `SparkLineChart`, `AreaChart`
 
 ### Backend Stack
 
@@ -264,6 +269,48 @@ toast.success('Created'); toast.error(error.message);
 const client = new KapsoMockClient();
 ```
 
+#### Tremor Raw Charts (Epic 4+)
+
+Tremor Raw is a copy-paste component library for dashboards. Components are copied into `apps/web/src/components/charts/`.
+
+**Installation (already done):**
+```bash
+bun add tailwind-variants recharts --filter web
+```
+
+**Component Sources:** https://raw.tremor.so
+
+**Key Components for NPS Dashboard:**
+
+| Use Case | Tremor Component | Location |
+|----------|------------------|----------|
+| NPS Score Ring | `ProgressCircle` | Story 4-2 |
+| Trend Sparkline | `SparkLineChart` | Story 4-3 |
+| Category Bar | `CategoryBar` | Story 4-4 |
+| Timeline Chart | `AreaChart` | Story 4-6 |
+| Delta Badge | `BadgeDelta` | Story 4-7 |
+
+**Usage Pattern:**
+
+```tsx
+import { ProgressCircle } from '@/components/charts/ProgressCircle';
+
+function NPSScoreRing({ score }: { score: number }) {
+  const normalizedScore = (score + 100) / 2;
+  return (
+    <ProgressCircle 
+      value={normalizedScore} 
+      size="lg"
+      color={score >= 70 ? 'emerald' : score >= 50 ? 'amber' : 'rose'}
+    >
+      <span className="text-4xl font-bold">{score}</span>
+    </ProgressCircle>
+  );
+}
+```
+
+**Styling:** Use Tailwind classes directly. Colors use Tailwind color names (`emerald`, `amber`, `rose`).
+
 ---
 
 ### Testing Rules
@@ -438,6 +485,14 @@ packages/config → packages/env → packages/db → packages/auth → packages/
 ```typescript
 // ❌ WRONG: Missing org filter (SECURITY VULNERABILITY)
 await db.query.survey.findMany();
+
+// ❌ WRONG: Two-step ID check (IDOR vulnerability - leaks existence)
+const record = await db.query.table.findFirst({ where: eq(id, inputId) });
+if (record?.orgId !== orgId) throw NOT_FOUND; // Attacker knows record exists!
+// ✅ CORRECT: Combined filter in single query
+const record = await db.query.table.findFirst({
+  where: and(eq(table.id, inputId), eq(table.orgId, orgId))
+});
 
 // ❌ WRONG: tRPC patterns (oRPC is different!)
 client.survey.list.query({ orgId });

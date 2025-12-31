@@ -2,6 +2,7 @@ import { eq, and } from "drizzle-orm";
 import { db, survey, surveyDelivery } from "@wp-nps/db";
 import { enqueueJob } from "./job-queue";
 import { hashPhoneNumber } from "../utils/hash";
+import { incrementSentCount } from "./metrics-updater";
 
 export type SurveySendErrorCode =
   | "SURVEY_NOT_FOUND"
@@ -97,6 +98,10 @@ export async function queueSurveySend(
     .update(surveyDelivery)
     .set({ status: "queued", updatedAt: new Date() })
     .where(eq(surveyDelivery.id, delivery.id));
+
+  if (!isTest) {
+    await incrementSentCount(orgId);
+  }
 
   return delivery.id;
 }
