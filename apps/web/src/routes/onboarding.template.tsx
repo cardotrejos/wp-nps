@@ -13,13 +13,17 @@ import Loader from "@/components/loader";
 export const Route = createFileRoute("/onboarding/template")({
   component: TemplateSelectionPage,
   beforeLoad: async () => {
+    console.log("Template beforeLoad: fetching session...");
     const session = await authClient.getSession();
+    console.log("Template beforeLoad: session result", !!session.data);
     if (!session.data) {
+      console.log("Template beforeLoad: no session, redirecting to login");
       redirect({
         to: "/login",
         throw: true,
       });
     }
+    console.log("Template beforeLoad: success, returning session");
     return { session: session.data };
   },
 });
@@ -31,6 +35,7 @@ export const Route = createFileRoute("/onboarding/template")({
  * Guards against skipping previous steps.
  */
 function TemplateSelectionPage() {
+  console.log("TemplateSelectionPage: component rendering");
   const navigate = useNavigate();
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
