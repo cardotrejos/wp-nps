@@ -2,6 +2,7 @@ import type { RouterClient } from "@orpc/server";
 
 import { protectedProcedure, publicProcedure } from "../index";
 import { apiKeyRouter } from "./api-key";
+import { dashboardRouter } from "./dashboard";
 import { deliveryRouter } from "./delivery";
 import { onboardingRouter } from "./onboarding";
 import { whatsappRouter } from "./whatsapp";
@@ -19,6 +20,7 @@ export const appRouter = {
     };
   }),
   apiKey: apiKeyRouter,
+  dashboard: dashboardRouter,
   delivery: deliveryRouter,
   onboarding: onboardingRouter,
   whatsapp: whatsappRouter,

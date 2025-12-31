@@ -6,6 +6,7 @@ export {
   parseKapsoWebhook,
   parseSurveyResponse,
   isValidWebhookPayload,
+  type KapsoFlowResponse,
   type KapsoWebhookPayload,
   type ParsedWebhook,
   type ParsedSurveyResponse,

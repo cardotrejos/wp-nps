@@ -10,8 +10,10 @@ import {
   TrendingUp,
   Plus,
   ArrowUpRight,
+  ArrowDownRight,
   MoreHorizontal,
   Loader2,
+  Inbox,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -68,86 +70,50 @@ export const Route = createFileRoute("/dashboard")({
 function RouteComponent() {
   const { session } = Route.useRouteContext();
 
-  // Keep the query to ensure we have data access, but we might not display the raw message
-  useQuery(orpc.privateData.queryOptions());
+  const { data: statsData, isLoading: statsLoading } = useQuery(
+    orpc.dashboard.getStats.queryOptions(),
+  );
 
-  // Mock data for the dashboard
+  const { data: responsesData, isLoading: responsesLoading } = useQuery(
+    orpc.dashboard.getRecentResponses.queryOptions({ limit: 10 }),
+  );
+
   const stats = [
     {
       title: "Total Surveys Sent",
-      value: "1,234",
-      change: "+12.5%",
-      trend: "up",
+      value: statsLoading ? "..." : statsData?.totalSent.toLocaleString() ?? "0",
+      change: null,
+      trend: "up" as const,
       icon: Send,
     },
     {
       title: "Response Rate",
-      value: "42.8%",
-      change: "+4.1%",
-      trend: "up",
+      value: statsLoading ? "..." : statsData?.responseRate ?? "0%",
+      change: null,
+      trend: "up" as const,
       icon: MessageSquare,
     },
     {
       title: "NPS Score",
-      value: "72",
-      change: "+2.4",
-      trend: "up",
+      value: statsLoading ? "..." : statsData?.npsScore?.toString() ?? "—",
+      change: null,
+      trend: "up" as const,
       icon: TrendingUp,
       highlight: true,
     },
     {
       title: "Active Contacts",
-      value: "892",
-      change: "+45",
-      trend: "up",
+      value: statsLoading ? "..." : statsData?.activeContacts.toLocaleString() ?? "0",
+      change: null,
+      trend: "up" as const,
       icon: Users,
     },
   ];
 
-  const recentResponses = [
-    {
-      id: 1,
-      name: "Alice Freeman",
-      score: 10,
-      comment: "Love the new WhatsApp integration! So fast.",
-      date: "2m ago",
-      status: "Promoter",
-    },
-    {
-      id: 2,
-      name: "Bob Smith",
-      score: 8,
-      comment: "It's good, but I wish it had more templates.",
-      date: "15m ago",
-      status: "Passive",
-    },
-    {
-      id: 3,
-      name: "Charlie Davis",
-      score: 9,
-      comment: "Very smooth experience.",
-      date: "1h ago",
-      status: "Promoter",
-    },
-    {
-      id: 4,
-      name: "Diana Prince",
-      score: 4,
-      comment: "I didn't receive the first message.",
-      date: "3h ago",
-      status: "Detractor",
-    },
-    {
-      id: 5,
-      name: "Evan Wright",
-      score: 10,
-      comment: "Perfect for our needs.",
-      date: "5h ago",
-      status: "Promoter",
-    },
-  ];
+  const recentResponses = responsesData ?? [];
 
-  const getScoreColor = (score: number) => {
+  const getScoreColor = (score: number | null) => {
+    if (score === null) return "bg-muted text-muted-foreground";
     if (score >= 9)
       return "bg-green-500/15 text-green-600 dark:text-green-400 hover:bg-green-500/25 border-green-500/20";
     if (score >= 7)
@@ -195,11 +161,8 @@ function RouteComponent() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center">
-                  <span className="text-green-500 flex items-center mr-1">
-                    {stat.change} <ArrowUpRight className="h-3 w-3 ml-0.5" />
-                  </span>
-                  from last month
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last 30 days
                 </p>
               </CardContent>
             </Card>
@@ -231,50 +194,68 @@ function RouteComponent() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentResponses.map((response) => (
-                    <TableRow key={response.id} className="group">
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={`font-mono font-bold ${getScoreColor(response.score)}`}
-                        >
-                          {response.score}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <div className="flex flex-col">
-                          <span>{response.name}</span>
-                          <span className="text-xs text-muted-foreground md:hidden truncate max-w-[120px]">
-                            {response.comment}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell text-muted-foreground max-w-[200px] truncate">
-                        "{response.comment}"
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground text-sm">
-                        {response.date}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            className={cn(
-                              buttonVariants({ variant: "ghost", size: "icon" }),
-                              "opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8",
-                            )}
-                          >
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>View details</DropdownMenuItem>
-                            <DropdownMenuItem>Archive response</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                  {responsesLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : recentResponses.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <Inbox className="h-8 w-8" />
+                          <p>No responses yet</p>
+                          <p className="text-xs">Send your first survey to see responses here</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    recentResponses.map((response) => (
+                      <TableRow key={response.id} className="group">
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={`font-mono font-bold ${getScoreColor(response.score)}`}
+                          >
+                            {response.score ?? "—"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex flex-col">
+                            <span>{response.customerPhone}</span>
+                            <span className="text-xs text-muted-foreground md:hidden truncate max-w-[120px]">
+                              {response.feedback ?? "No feedback"}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground max-w-[200px] truncate">
+                          {response.feedback ? `"${response.feedback}"` : "—"}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground text-sm">
+                          {response.timeAgo}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              className={cn(
+                                buttonVariants({ variant: "ghost", size: "icon" }),
+                                "opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8",
+                              )}
+                            >
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem>View details</DropdownMenuItem>
+                              <DropdownMenuItem>Archive response</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>

@@ -61,12 +61,14 @@ export const kapsoWebhookRouter = new Elysia({ prefix: "/webhooks" }).post(
         orgId: connection.orgId,
         idempotencyKey,
         source: "kapso",
-        eventType: "kapso.message.received",
+        eventType: parsed.messageType === "flow_response" ? "kapso.flow.response" : "kapso.message.received",
         payload: {
           phoneNumberId: parsed.phoneNumberId,
           customerPhone: parsed.customerPhone,
           messageId: parsed.messageId,
           content: parsed.content,
+          messageType: parsed.messageType,
+          flowResponse: parsed.flowResponse,
         },
       });
 

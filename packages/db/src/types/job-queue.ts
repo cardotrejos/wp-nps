@@ -7,16 +7,25 @@ export type KapsoEventType =
   | "kapso.message.sent"
   | "kapso.message.delivered"
   | "kapso.message.failed"
-  | "kapso.phone_number.created";
+  | "kapso.phone_number.created"
+  | "kapso.flow.response";
 
 export type WebhookEventType = KapsoEventType | `internal.${string}` | `shopify.${string}`;
 
-// Raw webhook payload - before processing by job handler
+export interface KapsoFlowResponseData {
+  flow_token?: string;
+  rating?: string;
+  feedback?: string;
+  [key: string]: unknown;
+}
+
 export interface KapsoWebhookReceivedPayload {
   phoneNumberId: string;
   customerPhone: string;
   messageId: string;
   content: string;
+  messageType?: "text" | "flow_response";
+  flowResponse?: KapsoFlowResponseData;
 }
 
 // Processed response payload - after job handler parses the response

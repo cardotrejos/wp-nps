@@ -1,13 +1,33 @@
+export interface KapsoFlowResponse {
+  flow_token?: string;
+  rating?: string;
+  feedback?: string;
+  [key: string]: unknown;
+}
+
 export interface KapsoMessageData {
   id: string;
   from?: string;
   to?: string;
   type: "text" | "interactive";
+  timestamp?: string;
   text?: { body: string };
+  interactive?: {
+    type: string;
+    nfm_reply?: {
+      name: string;
+      body: string;
+      response_json: string;
+    };
+  };
   kapso?: {
     direction: "inbound" | "outbound";
     origin?: string;
     content?: string;
+    // Flow response fields (added by Kapso for nfm_reply messages)
+    flow_response?: KapsoFlowResponse;
+    flow_token?: string;
+    flow_name?: string;
   };
 }
 
@@ -43,6 +63,8 @@ export interface ParsedWebhook {
   content: string;
   direction: "inbound" | "outbound";
   timestamp: string;
+  messageType: "text" | "flow_response";
+  flowResponse?: KapsoFlowResponse;
 }
 
 export interface ParsedSurveyResponse {
@@ -50,20 +72,46 @@ export interface ParsedSurveyResponse {
   feedback: string | null;
 }
 
+function isFlowResponse(message: KapsoMessageData): boolean {
+  return (
+    message.type === "interactive" &&
+    message.interactive?.type === "nfm_reply" &&
+    message.kapso?.flow_response !== undefined
+  );
+}
+
 function parseWebhookItem(item: KapsoWebhookItem): ParsedWebhook {
   if (!item.message?.id) {
     throw new Error("Invalid webhook payload: missing message ID");
   }
 
-  const content = item.message.kapso?.content ?? item.message.text?.body ?? "";
+  const message = item.message;
+  const isFlow = isFlowResponse(message);
+
+  const content = isFlow
+    ? JSON.stringify(message.kapso?.flow_response)
+    : (message.kapso?.content ?? message.text?.body ?? "");
+
+  const baseResult = {
+    phoneNumberId: item.phone_number_id,
+    customerPhone: message.from ?? message.to ?? "",
+    messageId: message.id,
+    content,
+    direction: message.kapso?.direction ?? "inbound",
+    timestamp: message.timestamp ?? new Date().toISOString(),
+  };
+
+  if (isFlow && message.kapso?.flow_response) {
+    return {
+      ...baseResult,
+      messageType: "flow_response" as const,
+      flowResponse: message.kapso.flow_response,
+    };
+  }
 
   return {
-    phoneNumberId: item.phone_number_id,
-    customerPhone: item.message.from ?? item.message.to ?? "",
-    messageId: item.message.id,
-    content,
-    direction: item.message.kapso?.direction ?? "inbound",
-    timestamp: new Date().toISOString(),
+    ...baseResult,
+    messageType: "text" as const,
   };
 }
 

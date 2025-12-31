@@ -2,6 +2,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { db, surveyResponse, surveyDelivery, customer } from "@wp-nps/db";
 import { updateOrgMetrics } from "./metrics-updater";
 import { hashPhoneNumber } from "../utils/hash";
+import type { KapsoFlowResponseData } from "@wp-nps/db";
 
 export type NPSCategory = "promoter" | "passive" | "detractor";
 
@@ -10,6 +11,13 @@ export interface ProcessResponseParams {
   customerPhone: string;
   score: number;
   feedback: string | null;
+  messageId: string;
+}
+
+export interface ProcessFlowResponseParams {
+  orgId: string;
+  customerPhone: string;
+  flowResponse: KapsoFlowResponseData;
   messageId: string;
 }
 
@@ -109,5 +117,36 @@ export async function processResponse(
       customerId: customerRecord.id,
       deliveryId: delivery.id,
     };
+  });
+}
+
+export function parseFlowRating(flowResponse: KapsoFlowResponseData): number | null {
+  const rating = flowResponse.rating;
+  if (!rating) return null;
+  
+  const parsed = Number.parseInt(rating, 10);
+  if (Number.isNaN(parsed) || parsed < 0 || parsed > 10) return null;
+  
+  return parsed;
+}
+
+export async function processFlowResponse(
+  params: ProcessFlowResponseParams,
+): Promise<ProcessResponseResult | null> {
+  const { orgId, customerPhone, flowResponse, messageId } = params;
+  
+  const score = parseFlowRating(flowResponse);
+  if (score === null) {
+    return null;
+  }
+  
+  const feedback = flowResponse.feedback ?? null;
+  
+  return processResponse({
+    orgId,
+    customerPhone,
+    score,
+    feedback,
+    messageId,
   });
 }
