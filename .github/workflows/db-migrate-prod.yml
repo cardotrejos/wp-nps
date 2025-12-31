@@ -1,0 +1,63 @@
+name: DB Migrate Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Database command to run'
+        required: true
+        type: choice
+        options:
+          - migrate
+          - push
+        default: migrate
+      confirm:
+        description: 'Type "migrate-prod" to confirm'
+        required: true
+        type: string
+
+jobs:
+  migrate:
+    name: ${{ inputs.command == 'push' && 'Push Schema' || 'Run Migrations' }} - Production
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Validate confirmation
+        if: inputs.confirm != 'migrate-prod'
+        run: |
+          echo "::error::Confirmation failed. Type 'migrate-prod' to proceed."
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate migrations
+        if: inputs.command == 'migrate'
+        run: bun run db:generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run migrations
+        if: inputs.command == 'migrate'
+        run: bun run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Push schema
+        if: inputs.command == 'push'
+        run: bunx drizzle-kit push --verbose
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Complete
+        run: |
+          echo "::notice::Production database ${{ inputs.command }} completed successfully"
