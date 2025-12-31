@@ -271,14 +271,24 @@ export const whatsappRouter = {
 
     if (!connection?.phoneNumber) {
       throw new ORPCError("PRECONDITION_FAILED", {
-        message: "WhatsApp not connected. Please scan QR code first.",
+        message: "WhatsApp not connected. Please connect WhatsApp first.",
       });
     }
 
-    // Call Kapso to send test message
+    // Extract phoneNumberId from connection metadata (set during confirmConnection)
+    // This is the WhatsApp/Meta phone number ID, NOT our internal org ID
+    const metadata = connection.metadata as { phoneNumberId?: string } | null;
+    const phoneNumberId = metadata?.phoneNumberId;
+
+    if (!phoneNumberId) {
+      throw new ORPCError("PRECONDITION_FAILED", {
+        message: "WhatsApp configuration not found. Please reconnect WhatsApp.",
+      });
+    }
+
     const result = await getKapsoClient().sendTestMessage({
       phoneNumber: connection.phoneNumber,
-      orgId,
+      orgId: phoneNumberId,
     });
 
     // Store delivery ID in metadata for tracking verification attempts
