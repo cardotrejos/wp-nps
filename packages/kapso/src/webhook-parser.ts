@@ -1,20 +1,28 @@
-export interface KapsoWebhookPayload {
-  phone_number_id: string;
-  message: {
-    phone_number: string;
-    content: string;
-    whatsapp_message_id: string;
-    type: "text" | "interactive";
-    kapso: {
-      direction: "inbound" | "outbound";
-      origin: string;
-    };
+export interface KapsoMessageData {
+  phone_number: string;
+  content: string;
+  whatsapp_message_id: string;
+  type: "text" | "interactive";
+  text?: { body: string };
+  kapso?: {
+    direction: "inbound" | "outbound";
+    origin?: string;
   };
+}
+
+export interface KapsoWebhookData {
+  phone_number_id: string;
+  message: KapsoMessageData;
   conversation: {
     id: string;
     phone_number: string;
     phone_number_id: string;
   };
+}
+
+export interface KapsoWebhookPayload {
+  event: string;
+  data: KapsoWebhookData;
 }
 
 export interface ParsedWebhook {
@@ -34,20 +42,24 @@ export interface ParsedSurveyResponse {
 export function parseKapsoWebhook(payload: unknown): ParsedWebhook {
   const p = payload as KapsoWebhookPayload;
 
-  if (!p.phone_number_id || !p.message) {
+  if (!p.data?.phone_number_id || !p.data?.message) {
     throw new Error("Invalid webhook payload: missing required fields");
   }
 
-  if (!p.message.whatsapp_message_id) {
+  const { data } = p;
+
+  if (!data.message.whatsapp_message_id) {
     throw new Error("Invalid webhook payload: missing message ID");
   }
 
+  const content = data.message.content ?? data.message.text?.body ?? "";
+
   return {
-    phoneNumberId: p.phone_number_id,
-    customerPhone: p.message.phone_number,
-    messageId: p.message.whatsapp_message_id,
-    content: p.message.content ?? "",
-    direction: p.message.kapso?.direction ?? "inbound",
+    phoneNumberId: data.phone_number_id,
+    customerPhone: data.message.phone_number,
+    messageId: data.message.whatsapp_message_id,
+    content,
+    direction: data.message.kapso?.direction ?? "inbound",
     timestamp: new Date().toISOString(),
   };
 }
@@ -86,10 +98,12 @@ export function parseSurveyResponse(
 export function isValidWebhookPayload(payload: unknown): payload is KapsoWebhookPayload {
   if (!payload || typeof payload !== "object") return false;
   const p = payload as Record<string, unknown>;
+  if (!p.data || typeof p.data !== "object") return false;
+  const data = p.data as Record<string, unknown>;
   return (
-    typeof p.phone_number_id === "string" &&
-    typeof p.message === "object" &&
-    p.message !== null &&
-    typeof (p.message as Record<string, unknown>).whatsapp_message_id === "string"
+    typeof data.phone_number_id === "string" &&
+    typeof data.message === "object" &&
+    data.message !== null &&
+    typeof (data.message as Record<string, unknown>).whatsapp_message_id === "string"
   );
 }
