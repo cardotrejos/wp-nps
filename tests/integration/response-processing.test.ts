@@ -2,12 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { eq, and } from "drizzle-orm";
 import { db, survey, surveyDelivery, surveyResponse, customer, orgMetrics } from "@wp-nps/db";
 import { processResponse, categorizeNPS } from "@wp-nps/api/services/response-processor";
+import { hashPhoneNumber } from "@wp-nps/api/utils/hash";
 import { createTestOrg, cleanupTestOrg, setOrgContext } from "../utils/test-org";
-import { createHash } from "node:crypto";
-
-function hashPhoneNumber(phoneNumber: string): string {
-  return createHash("sha256").update(phoneNumber).digest("hex");
-}
 
 describe("Response Processing", () => {
   let testOrg: { id: string; name: string; slug: string };

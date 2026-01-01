@@ -9,8 +9,6 @@ import {
   MessageSquare,
   TrendingUp,
   Plus,
-  ArrowUpRight,
-  ArrowDownRight,
   MoreHorizontal,
   Loader2,
   Inbox,

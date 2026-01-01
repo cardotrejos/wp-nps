@@ -31,12 +31,13 @@ export const o = os.$context<Context>();
  */
 export const requireOrgContext = o.middleware(async ({ context, next }) => {
   // Require authentication
-  if (!context.session?.user) {
+  const session = context.session;
+  if (!session?.user) {
     throw new ORPCError("UNAUTHORIZED", { message: "Authentication required" });
   }
 
   // Require active organization
-  const orgId = context.session.activeOrganizationId;
+  const orgId = session.session.activeOrganizationId;
   if (!orgId) {
     throw new ORPCError("FORBIDDEN", {
       message: "No organization context. Please select an organization.",
@@ -51,7 +52,7 @@ export const requireOrgContext = o.middleware(async ({ context, next }) => {
     return next({
       context: {
         orgId,
-        session: context.session,
+        session,
         db: tx as DbClient,
       } satisfies OrgContext,
     });
